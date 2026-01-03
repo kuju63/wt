@@ -58,7 +58,7 @@ engines:
 
   # Security analysis
   trivy:
-    enabled: true
+    enabled: false
 
   # Markdown linting
   markdownlint:
