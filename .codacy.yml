@@ -46,6 +46,14 @@ duplication:
     - "wt.tests/**"
     - "**/*.Tests/**"
 
+metric:
+  exclude_paths:
+    - "wt.tests/**"
+    - "**/*.Tests/**"
+  config:
+    languages:
+      - csharp
+
 # Coverage configuration
 coverage:
   enabled: true
