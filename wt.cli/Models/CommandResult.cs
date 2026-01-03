@@ -32,6 +32,15 @@ public class CommandResult<T>
     }
 
     /// <summary>
+    /// Creates a successful result with the specified data.
+    /// This overload does not accept explicit warnings.
+    /// </summary>
+    /// <param name="data">The data to include in the result.</param>
+    /// <returns>A successful <see cref="CommandResult{T}"/> containing the data.</returns>
+    public static CommandResult<T> Success(T data)
+        => Success(data, null);
+
+    /// <summary>
     /// Creates a failure result with the specified error information.
     /// </summary>
     /// <param name="errorCode">The error code identifying the type of error.</param>
@@ -48,6 +57,16 @@ public class CommandResult<T>
             Solution = solution
         };
     }
+
+    /// <summary>
+    /// Creates a failure result with the specified error information.
+    /// This overload does not accept an explicit solution string.
+    /// </summary>
+    /// <param name="errorCode">The error code identifying the type of error.</param>
+    /// <param name="errorMessage">A descriptive error message.</param>
+    /// <returns>A failed <see cref="CommandResult{T}"/> containing error details.</returns>
+    public static CommandResult<T> Failure(string errorCode, string errorMessage)
+        => Failure(errorCode, errorMessage, null);
 
     /// <summary>
     /// Creates a successful result with warning messages.

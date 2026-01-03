@@ -24,6 +24,26 @@ public class ProcessRunner : IProcessRunner
     /// <param name="workingDirectory">The working directory for the process. If <see langword="null"/>, uses the current directory.</param>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>A <see cref="ProcessResult"/> containing the exit code and output from the process.</returns>
+
+    /// <summary>
+    /// Runs an external process asynchronously. This overload does not accept a working directory or cancellation token.
+    /// </summary>
+    /// <param name="command">The command or executable to run.</param>
+    /// <param name="arguments">The arguments to pass to the command.</param>
+    /// <returns>A <see cref="ProcessResult"/> containing the exit code and output.</returns>
+    public Task<ProcessResult> RunAsync(string command, string arguments)
+        => RunAsync(command, arguments, null, CancellationToken.None);
+
+    /// <summary>
+    /// Runs an external process asynchronously with a specified working directory. This overload does not accept a cancellation token.
+    /// </summary>
+    /// <param name="command">The command or executable to run.</param>
+    /// <param name="arguments">The arguments to pass to the command.</param>
+    /// <param name="workingDirectory">The working directory for the process. If <see langword="null"/>, uses the current directory.</param>
+    /// <returns>A <see cref="ProcessResult"/> containing the exit code and output.</returns>
+    public Task<ProcessResult> RunAsync(string command, string arguments, string? workingDirectory)
+        => RunAsync(command, arguments, workingDirectory, CancellationToken.None);
+
     public async Task<ProcessResult> RunAsync(
         string command,
         string arguments,

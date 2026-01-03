@@ -21,6 +21,30 @@ public class WorktreeService : IWorktreeService
         _editorService = editorService;
     }
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="WorktreeService"/> without an <see cref="IEditorService"/>.
+    /// </summary>
+    /// <param name="gitService">The <see cref="IGitService"/> instance.</param>
+    /// <param name="pathHelper">The <see cref="IPathHelper"/> instance.</param>
+    public WorktreeService(IGitService gitService, IPathHelper pathHelper)
+        : this(gitService, pathHelper, null)
+    {
+    }
+
+    /// <summary>
+    /// Creates a new worktree with the specified options. This overload does not accept a cancellation token.
+    /// </summary>
+    /// <param name="options">The options for creating the worktree.</param>
+    /// <returns>A <see cref="CommandResult{WorktreeInfo}"/> representing the result.</returns>
+    public Task<CommandResult<WorktreeInfo>> CreateWorktreeAsync(CreateWorktreeOptions options)
+        => CreateWorktreeAsync(options, CancellationToken.None);
+
+    /// <summary>
+    /// Creates a new worktree with the specified options asynchronously.
+    /// </summary>
+    /// <param name="options">The options for creating the worktree.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <returns>A <see cref="CommandResult{WorktreeInfo}"/> representing the result.</returns>
     public async Task<CommandResult<WorktreeInfo>> CreateWorktreeAsync(CreateWorktreeOptions options, CancellationToken cancellationToken = default)
     {
         // Validate options

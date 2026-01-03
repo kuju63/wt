@@ -14,6 +14,22 @@ public interface IEditorService
     /// <param name="editorType">The type of editor to launch.</param>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>A <see cref="CommandResult{T}"/> containing the result of the launch operation.</returns>
+    /// <summary>
+    /// Launches the specified editor with the given path asynchronously.
+    /// This overload does not accept a cancellation token.
+    /// </summary>
+    /// <param name="path">The path to open in the editor.</param>
+    /// <param name="editorType">The type of editor to launch.</param>
+    /// <returns>A <see cref="CommandResult{T}"/> containing the result of the launch operation.</returns>
+    Task<CommandResult<string>> LaunchEditorAsync(string path, EditorType editorType);
+
+    /// <summary>
+    /// Launches the specified editor with the given path asynchronously.
+    /// </summary>
+    /// <param name="path">The path to open in the editor.</param>
+    /// <param name="editorType">The type of editor to launch.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <returns>A <see cref="CommandResult{T}"/> containing the result of the launch operation.</returns>
     Task<CommandResult<string>> LaunchEditorAsync(string path, EditorType editorType, CancellationToken cancellationToken = default);
 
     /// <summary>

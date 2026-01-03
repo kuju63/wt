@@ -15,6 +15,11 @@ public class EditorService : IEditorService
         _processRunner = processRunner ?? throw new ArgumentNullException(nameof(processRunner));
     }
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="EditorService"/>.
+    /// </summary>
+    /// <param name="processRunner">The <see cref="IProcessRunner"/> used to run editor commands.</param>
+
     public async Task<CommandResult<string>> LaunchEditorAsync(
         string path,
         EditorType editorType,
@@ -55,6 +60,15 @@ public class EditorService : IEditorService
 
         return CommandResult<string>.Success($"Launched {editorType} with path: {path}");
     }
+
+    /// <summary>
+    /// Launches the specified editor with the given path. This overload does not accept a cancellation token.
+    /// </summary>
+    /// <param name="path">The path to open in the editor.</param>
+    /// <param name="editorType">The type of editor to launch.</param>
+    /// <returns>A <see cref="CommandResult{string}"/> containing the result of the launch operation.</returns>
+    public Task<CommandResult<string>> LaunchEditorAsync(string path, EditorType editorType)
+        => LaunchEditorAsync(path, editorType, CancellationToken.None);
 
     public EditorConfig ResolveEditorCommand(EditorType editorType)
     {

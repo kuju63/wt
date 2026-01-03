@@ -13,5 +13,18 @@ public interface IWorktreeService
     /// <param name="options">The options for creating the worktree.</param>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>A <see cref="CommandResult{T}"/> containing the created worktree information.</returns>
+    /// <summary>
+    /// Creates a new worktree with the specified options asynchronously.
+    /// </summary>
+    /// <param name="options">The options for creating the worktree.</param>
+    /// <returns>A <see cref="CommandResult{WorktreeInfo}"/> containing the created worktree information.</returns>
+    Task<CommandResult<WorktreeInfo>> CreateWorktreeAsync(CreateWorktreeOptions options);
+
+    /// <summary>
+    /// Creates a new worktree with the specified options asynchronously.
+    /// </summary>
+    /// <param name="options">The options for creating the worktree.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <returns>A <see cref="CommandResult{WorktreeInfo}"/> containing the created worktree information.</returns>
     Task<CommandResult<WorktreeInfo>> CreateWorktreeAsync(CreateWorktreeOptions options, CancellationToken cancellationToken = default);
 }

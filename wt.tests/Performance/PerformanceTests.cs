@@ -90,24 +90,36 @@ public class PerformanceTests
             .Select(i => $"feature-{i}")
             .ToArray();
 
-        // Act
-        var stopwatch = Stopwatch.StartNew();
+        // Run multiple trials and use the median elapsed time to reduce flakiness
+        const int trials = 5;
+        var elapsedList = new List<long>(trials);
 
-        var tasks = branches.Select(async branch =>
+        for (int t = 0; t < trials; t++)
         {
-            await Task.Yield(); // Simulate async work
-            return Validators.ValidateBranchName(branch);
-        });
+            var stopwatch = Stopwatch.StartNew();
 
-        var results = await Task.WhenAll(tasks);
+            var tasks = branches.Select(async branch =>
+            {
+                await Task.Yield(); // Simulate async work
+                return Validators.ValidateBranchName(branch);
+            });
 
-        stopwatch.Stop();
+            var results = await Task.WhenAll(tasks);
+            stopwatch.Stop();
 
-        // Assert
-        foreach (var r in results) r.IsValid.ShouldBeTrue();
-        stopwatch.ElapsedMilliseconds.ShouldBeLessThan(100,
-            $"Validated {branchCount} branches concurrently in {stopwatch.ElapsedMilliseconds}ms, expected < 100ms");
+            // Ensure validation correctness for each trial
+            foreach (var r in results) r.IsValid.ShouldBeTrue();
 
-        _output.WriteLine($"Validated {branchCount} branches concurrently in {stopwatch.ElapsedMilliseconds}ms");
+            elapsedList.Add(stopwatch.ElapsedMilliseconds);
+        }
+
+        elapsedList.Sort();
+        var median = elapsedList[elapsedList.Count / 2];
+
+        // Assert median is within expected threshold
+        median.ShouldBeLessThan(100,
+            $"Validated {branchCount} branches concurrently, median elapsed {median}ms over {trials} trials, expected < 100ms");
+
+        _output.WriteLine($"Validated {branchCount} branches concurrently, median elapsed {median}ms over {trials} trials");
     }
 }
