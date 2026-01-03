@@ -3,7 +3,7 @@ using System.Diagnostics;
 namespace Kuju63.WorkTree.CommandLine.Utils;
 
 /// <summary>
-/// Process実行結果を表すクラス
+/// Represents the result of a process execution.
 /// </summary>
 public record ProcessResult(
     int ExitCode,
@@ -12,13 +12,18 @@ public record ProcessResult(
 );
 
 /// <summary>
-/// プロセス実行のラッパークラス
+/// Provides functionality for running external processes.
 /// </summary>
 public class ProcessRunner : IProcessRunner
 {
     /// <summary>
-    /// コマンドを実行する
+    /// Runs an external process asynchronously with the specified command and arguments.
     /// </summary>
+    /// <param name="command">The command or executable to run.</param>
+    /// <param name="arguments">The arguments to pass to the command.</param>
+    /// <param name="workingDirectory">The working directory for the process. If <see langword="null"/>, uses the current directory.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <returns>A <see cref="ProcessResult"/> containing the exit code and output from the process.</returns>
     public async Task<ProcessResult> RunAsync(
         string command,
         string arguments,

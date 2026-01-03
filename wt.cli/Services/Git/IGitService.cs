@@ -2,30 +2,48 @@ using Kuju63.WorkTree.CommandLine.Models;
 
 namespace Kuju63.WorkTree.CommandLine.Services.Git;
 
+/// <summary>
+/// Defines methods for interacting with Git repositories.
+/// </summary>
 public interface IGitService
 {
     /// <summary>
-    /// Check if the current directory is a Git repository
+    /// Checks whether the current directory is a Git repository asynchronously.
     /// </summary>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <returns>A <see cref="CommandResult{T}"/> containing <see langword="true"/> if in a Git repository; otherwise, <see langword="false"/>.</returns>
     Task<CommandResult<bool>> IsGitRepositoryAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Get the current branch name
+    /// Gets the name of the current branch asynchronously.
     /// </summary>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <returns>A <see cref="CommandResult{T}"/> containing the current branch name.</returns>
     Task<CommandResult<string>> GetCurrentBranchAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Check if a branch exists (local or remote)
+    /// Checks whether a branch exists (local or remote) asynchronously.
     /// </summary>
+    /// <param name="branchName">The name of the branch to check.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <returns>A <see cref="CommandResult{T}"/> containing <see langword="true"/> if the branch exists; otherwise, <see langword="false"/>.</returns>
     Task<CommandResult<bool>> BranchExistsAsync(string branchName, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Create a new branch from a base branch
+    /// Creates a new branch from a base branch asynchronously.
     /// </summary>
+    /// <param name="branchName">The name of the branch to create.</param>
+    /// <param name="baseBranch">The base branch to branch from.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <returns>A <see cref="CommandResult{T}"/> containing information about the created branch.</returns>
     Task<CommandResult<BranchInfo>> CreateBranchAsync(string branchName, string baseBranch, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Add a new worktree
+    /// Adds a new worktree at the specified path asynchronously.
     /// </summary>
+    /// <param name="path">The path where the worktree should be created.</param>
+    /// <param name="branchName">The branch to checkout in the new worktree.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <returns>A <see cref="CommandResult{T}"/> containing <see langword="true"/> if the worktree was added successfully; otherwise, <see langword="false"/>.</returns>
     Task<CommandResult<bool>> AddWorktreeAsync(string path, string branchName, CancellationToken cancellationToken = default);
 }

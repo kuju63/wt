@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 namespace Kuju63.WorkTree.CommandLine.Utils;
 
 /// <summary>
-/// 検証結果
+/// Represents the result of a validation operation.
 /// </summary>
 public record ValidationResult(
     bool IsValid,
@@ -11,15 +11,17 @@ public record ValidationResult(
 );
 
 /// <summary>
-/// バリデーションヘルパークラス
+/// Provides validation helper methods for various input types.
 /// </summary>
 public static class Validators
 {
     private static readonly Regex BranchNamePattern = new(@"^[a-zA-Z0-9][a-zA-Z0-9/_.-]*$", RegexOptions.Compiled);
 
     /// <summary>
-    /// ブランチ名を検証する
+    /// Validates a branch name according to Git naming conventions.
     /// </summary>
+    /// <param name="branchName">The branch name to validate.</param>
+    /// <returns>A <see cref="ValidationResult"/> indicating whether the branch name is valid.</returns>
     public static ValidationResult ValidateBranchName(string branchName)
     {
         if (string.IsNullOrWhiteSpace(branchName))
@@ -55,8 +57,10 @@ public static class Validators
     }
 
     /// <summary>
-    /// ブランチ名をサニタイズする（前後の空白を削除）
+    /// Sanitizes a branch name by trimming leading and trailing whitespace.
     /// </summary>
+    /// <param name="branchName">The branch name to sanitize.</param>
+    /// <returns>The sanitized branch name with leading and trailing whitespace removed.</returns>
     public static string SanitizeBranchName(string branchName)
     {
         return branchName?.Trim() ?? string.Empty;

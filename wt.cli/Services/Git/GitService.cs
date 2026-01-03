@@ -3,6 +3,9 @@ using Kuju63.WorkTree.CommandLine.Utils;
 
 namespace Kuju63.WorkTree.CommandLine.Services.Git;
 
+/// <summary>
+/// Provides functionality for interacting with Git repositories.
+/// </summary>
 public class GitService : IGitService
 {
     private readonly IProcessRunner _processRunner;

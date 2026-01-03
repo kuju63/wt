@@ -5,6 +5,9 @@ using Kuju63.WorkTree.CommandLine.Utils;
 
 namespace Kuju63.WorkTree.CommandLine.Services.Worktree;
 
+/// <summary>
+/// Provides functionality for creating and managing Git worktrees.
+/// </summary>
 public class WorktreeService : IWorktreeService
 {
     private readonly IGitService _gitService;

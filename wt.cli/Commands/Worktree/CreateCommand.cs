@@ -4,6 +4,9 @@ using Kuju63.WorkTree.CommandLine.Services.Worktree;
 
 namespace Kuju63.WorkTree.CommandLine.Commands.Worktree;
 
+/// <summary>
+/// Represents a command to create a new Git worktree with a new branch.
+/// </summary>
 public class CreateCommand : Command
 {
     public CreateCommand(IWorktreeService worktreeService)

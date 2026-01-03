@@ -3,6 +3,9 @@ using Kuju63.WorkTree.CommandLine.Utils;
 
 namespace Kuju63.WorkTree.CommandLine.Services.Editor;
 
+/// <summary>
+/// Provides functionality for launching and managing code editors.
+/// </summary>
 public class EditorService : IEditorService
 {
     private readonly IProcessRunner _processRunner;

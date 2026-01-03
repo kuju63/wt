@@ -1,7 +1,7 @@
 namespace Kuju63.WorkTree.CommandLine.Models;
 
 /// <summary>
-/// エラーコード定数クラス
+/// Defines error codes used throughout the application.
 /// </summary>
 public static class ErrorCodes
 {
@@ -28,8 +28,10 @@ public static class ErrorCodes
     public const string EditorNotFound = "ED001";
 
     /// <summary>
-    /// エラーコードに対する解決策を取得
+    /// Gets a solution message for the specified error code.
     /// </summary>
+    /// <param name="errorCode">The error code to get the solution for.</param>
+    /// <returns>A string containing the recommended solution for the error.</returns>
     public static string GetSolution(string errorCode)
     {
         return errorCode switch

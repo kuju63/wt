@@ -95,7 +95,7 @@ wt create feature-login
 
 実行結果：
 
-```
+```shell
 ✓ Created branch 'feature-login' from 'main'
 ✓ Added worktree at: /Users/yourname/projects/worktrees/feature-login
 → Next: cd /Users/yourname/projects/worktrees/feature-login
@@ -210,7 +210,7 @@ wt create feature-authentication
 
 **実行結果:**
 
-```
+```shell
 ✓ Created branch 'feature-authentication' from 'main'
 ✓ Added worktree at: /Users/dev/projects/worktrees/feature-authentication
 → Next: cd /Users/dev/projects/worktrees/feature-authentication
@@ -234,7 +234,7 @@ wt create feature-dashboard --editor vscode
 
 **実行結果:**
 
-```
+```shell
 ✓ Created branch 'feature-dashboard' from 'main'
 ✓ Added worktree at: /Users/dev/projects/worktrees/feature-dashboard
 ✓ Launched VS Code
@@ -289,7 +289,7 @@ wt create test-branch --verbose
 
 **実行結果:**
 
-```
+```shell
 [DEBUG] Checking for Git repository...
 [DEBUG] Found Git repository at: /Users/dev/projects/my-repo
 [DEBUG] Current branch: main
@@ -318,7 +318,7 @@ wt create hotfix-urgent --base production --path ~/hotfixes/urgent --editor vim
 
 **エラーメッセージ:**
 
-```
+```shell
 ✗ Error: Git not found in PATH
 → Solution: Install Git 2.5 or later and ensure it's in your PATH
 ```
@@ -331,6 +331,7 @@ wt create hotfix-urgent --base production --path ~/hotfixes/urgent --editor vim
    - Windows: [git-scm.com](https://git-scm.com/) からインストーラーをダウンロード
 
 2. Git が PATH に含まれていることを確認
+
    ```bash
    git --version
    ```
@@ -339,7 +340,7 @@ wt create hotfix-urgent --base production --path ~/hotfixes/urgent --editor vim
 
 **エラーメッセージ:**
 
-```
+```shell
 ✗ Error: Not a Git repository
 → Solution: Run this command from within a Git repository, or run 'git init' to create one
 ```
@@ -347,11 +348,13 @@ wt create hotfix-urgent --base production --path ~/hotfixes/urgent --editor vim
 **解決方法:**
 
 1. Git リポジトリ内で実行していることを確認
+
    ```bash
    git status
    ```
 
 2. まだリポジトリでない場合は初期化
+
    ```bash
    git init
    ```
@@ -360,7 +363,7 @@ wt create hotfix-urgent --base production --path ~/hotfixes/urgent --editor vim
 
 **エラーメッセージ:**
 
-```
+```shell
 ✗ Error: Branch 'feature-x' already exists
 → Solution: Use --checkout-existing to checkout the existing branch, or choose a different branch name
 ```
@@ -368,11 +371,13 @@ wt create hotfix-urgent --base production --path ~/hotfixes/urgent --editor vim
 **解決方法:**
 
 オプション1: 既存ブランチをチェックアウト
+
 ```bash
 wt create feature-x --checkout-existing
 ```
 
 オプション2: 別のブランチ名を使用
+
 ```bash
 wt create feature-x-v2
 ```
@@ -381,7 +386,7 @@ wt create feature-x-v2
 
 **エラーメッセージ:**
 
-```
+```shell
 ✗ Error: Invalid branch name '-invalid'
 → Solution: Branch names must start with alphanumeric character and contain only alphanumeric, '-', '_', '/' characters
 ```
@@ -397,7 +402,7 @@ Git の命名規則に従ったブランチ名を使用してください：
 
 **エラーメッセージ:**
 
-```
+```shell
 ✗ Error: No write permission to path '/protected/directory'
 → Solution: Choose a different path or check directory permissions
 ```
@@ -405,11 +410,13 @@ Git の命名規則に従ったブランチ名を使用してください：
 **解決方法:**
 
 1. 書き込み可能な別のパスを指定
+
    ```bash
    wt create test-branch --path ~/projects/worktrees/test-branch
    ```
 
 2. ディレクトリの権限を確認・修正
+
    ```bash
    ls -ld /protected/directory
    chmod u+w /protected/directory  # 必要に応じて
@@ -419,7 +426,7 @@ Git の命名規則に従ったブランチ名を使用してください：
 
 **エラーメッセージ:**
 
-```
+```shell
 ⚠ Warning: Editor 'vscode' not found in PATH
 ✓ Created branch 'test' from 'main'
 ✓ Added worktree at: /Users/dev/projects/worktrees/test
@@ -430,6 +437,7 @@ Git の命名規則に従ったブランチ名を使用してください：
 **解決方法:**
 
 1. エディターが PATH に含まれているか確認
+
    ```bash
    which code  # VS Code の場合
    which vim   # Vim の場合
@@ -444,7 +452,7 @@ Git の命名規則に従ったブランチ名を使用してください：
 
 **エラーメッセージ:**
 
-```
+```shell
 ✗ Error: Insufficient disk space
 → Solution: Free up disk space or choose a different location with more available space
 ```
@@ -452,6 +460,7 @@ Git の命名規則に従ったブランチ名を使用してください：
 **解決方法:**
 
 1. ディスク容量を確認
+
    ```bash
    df -h
    ```
@@ -459,6 +468,7 @@ Git の命名規則に従ったブランチ名を使用してください：
 2. 不要なファイルを削除してスペースを確保
 
 3. 別のディスクにパスを指定
+
    ```bash
    wt create test --path /mnt/external/worktrees/test
    ```
@@ -573,7 +583,6 @@ A: このプロジェクトは MIT ライセンスの下で公開されていま
 
 - [Git Worktree 公式ドキュメント](https://git-scm.com/docs/git-worktree)
 - [GitHub リポジトリ](https://github.com/kuju63/wt)
-- [変更履歴](../../CHANGELOG.md)
 
 ---
 

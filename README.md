@@ -21,7 +21,7 @@ A modern CLI tool to simplify Git worktree management. Create worktrees with a s
 ### Build from source
 
 ```bash
-git clone https://github.com/yourusername/wt.git
+git clone https://github.com/kuju63/wt.git
 cd wt
 dotnet build
 dotnet run --project wt.cli -- create --help
@@ -45,6 +45,7 @@ wt create feature-login
 ```
 
 This will:
+
 1. Create a new branch named `feature-login` from your current branch
 2. Create a worktree at `../wt-feature-login`
 3. Check out the new branch in the worktree
@@ -74,6 +75,7 @@ wt create feature-login --editor vscode
 ```
 
 Supported editors:
+
 - `vscode` - Visual Studio Code
 - `vim` - Vim
 - `emacs` - Emacs
@@ -103,9 +105,11 @@ wt create feature-login --verbose
 Create a new worktree with a new branch.
 
 **Arguments:**
+
 - `<branch>` - Name of the branch to create (required)
 
 **Options:**
+
 - `-b, --base <base>` - Base branch to branch from (default: current branch)
 - `-p, --path <path>` - Path where the worktree will be created (default: `../wt-<branch>`)
 - `-e, --editor <type>` - Editor to launch after creating worktree (choices: vscode, vim, emacs, nano, idea)
@@ -122,7 +126,8 @@ wt create feature-auth
 ```
 
 Output:
-```
+
+```shell
 ✓ Created branch: feature-auth
 ✓ Created worktree: /Users/username/projects/wt-feature-auth
 ✓ Checked out: feature-auth
@@ -149,6 +154,7 @@ wt create feature-api --output json | jq '.worktree.path'
 ```
 
 Output:
+
 ```json
 {
   "success": true,
@@ -205,7 +211,7 @@ vim --version
 
 ### Project Structure
 
-```
+```tree
 wt/
 ├── wt.cli/              # CLI application
 │   ├── Commands/        # Command implementations
@@ -234,11 +240,12 @@ Contributions are welcome! Please follow the [development guidelines](specs/001-
 
 ## License
 
-[MIT License](LICENSE)
+[MIT License](./LICENSE)
 
 ## Acknowledgments
 
 Built with:
+
 - [System.CommandLine](https://github.com/dotnet/command-line-api) - Modern command-line parsing
 - [xUnit](https://xunit.net/) - Testing framework
 - [FluentAssertions](https://fluentassertions.com/) - Fluent assertion library

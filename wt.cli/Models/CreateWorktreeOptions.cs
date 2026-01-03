@@ -3,28 +3,54 @@ using Kuju63.WorkTree.CommandLine.Utils;
 namespace Kuju63.WorkTree.CommandLine.Models;
 
 /// <summary>
-/// エディターの種類
+/// Specifies the type of code editor.
 /// </summary>
 public enum EditorType
 {
+    /// <summary>
+    /// Visual Studio Code editor.
+    /// </summary>
     VSCode,
+
+    /// <summary>
+    /// Vim text editor.
+    /// </summary>
     Vim,
+
+    /// <summary>
+    /// Emacs text editor.
+    /// </summary>
     Emacs,
+
+    /// <summary>
+    /// Nano text editor.
+    /// </summary>
     Nano,
+
+    /// <summary>
+    /// IntelliJ IDEA integrated development environment.
+    /// </summary>
     IntelliJIDEA
 }
 
 /// <summary>
-/// 出力形式
+/// Specifies the output format for command results.
 /// </summary>
 public enum OutputFormat
 {
+    /// <summary>
+    /// Human-readable text format.
+    /// </summary>
     Human,
+
+    /// <summary>
+    /// JSON format for machine parsing.
+    /// </summary>
     Json
 }
 
 /// <summary>
-/// Worktree作成オプション
+/// Represents the options for creating a new worktree.
 /// </summary>
 public class CreateWorktreeOptions
 {
@@ -37,8 +63,9 @@ public class CreateWorktreeOptions
     public bool Verbose { get; init; }
 
     /// <summary>
-    /// オプションを検証
+    /// Validates the worktree creation options.
     /// </summary>
+    /// <returns>A <see cref="ValidationResult"/> indicating whether the options are valid.</returns>
     public ValidationResult Validate()
     {
         if (string.IsNullOrWhiteSpace(BranchName))

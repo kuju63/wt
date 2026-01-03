@@ -2,8 +2,14 @@ using Kuju63.WorkTree.CommandLine.Models;
 
 namespace Kuju63.WorkTree.CommandLine.Services.Editor;
 
+/// <summary>
+/// Provides preset configurations for known code editors.
+/// </summary>
 public static class EditorPresets
 {
+    /// <summary>
+    /// Gets a dictionary of known editor configurations mapped by editor type.
+    /// </summary>
     public static readonly Dictionary<EditorType, EditorConfig> KnownEditors = new()
     {
         [EditorType.VSCode] = new EditorConfig

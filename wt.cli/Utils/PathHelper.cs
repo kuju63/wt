@@ -3,7 +3,7 @@ using System.IO.Abstractions;
 namespace Kuju63.WorkTree.CommandLine.Utils;
 
 /// <summary>
-/// パス検証結果
+/// Represents the result of a path validation operation.
 /// </summary>
 public record PathValidationResult(
     bool IsValid,
@@ -11,7 +11,7 @@ public record PathValidationResult(
 );
 
 /// <summary>
-/// パス操作ヘルパークラス
+/// Provides helper methods for path operations and validation.
 /// </summary>
 public class PathHelper : IPathHelper
 {
@@ -23,8 +23,11 @@ public class PathHelper : IPathHelper
     }
 
     /// <summary>
-    /// パスを解決する（相対パスを絶対パスに変換）
+    /// Resolves a path by converting relative paths to absolute paths.
     /// </summary>
+    /// <param name="path">The path to resolve.</param>
+    /// <param name="basePath">The base path to use for relative path resolution.</param>
+    /// <returns>The fully resolved absolute path.</returns>
     public string ResolvePath(string path, string basePath)
     {
         if (_fileSystem.Path.IsPathRooted(path))
@@ -37,16 +40,20 @@ public class PathHelper : IPathHelper
     }
 
     /// <summary>
-    /// パスを正規化する（セパレーターを統一）
+    /// Normalizes a path by unifying directory separators.
     /// </summary>
+    /// <param name="path">The path to normalize.</param>
+    /// <returns>The normalized path with forward slashes as directory separators.</returns>
     public string NormalizePath(string path)
     {
         return path.Replace('\\', '/');
     }
 
     /// <summary>
-    /// パスを検証する
+    /// Validates a path for correctness and availability.
     /// </summary>
+    /// <param name="path">The path to validate.</param>
+    /// <returns>A <see cref="PathValidationResult"/> indicating whether the path is valid.</returns>
     public PathValidationResult ValidatePath(string path)
     {
         if (string.IsNullOrWhiteSpace(path))
@@ -88,8 +95,9 @@ public class PathHelper : IPathHelper
     }
 
     /// <summary>
-    /// 親ディレクトリが存在することを確認し、存在しない場合は作成する
+    /// Ensures the parent directory of the specified file path exists, creating it if necessary.
     /// </summary>
+    /// <param name="filePath">The file path whose parent directory should be ensured.</param>
     public void EnsureParentDirectoryExists(string filePath)
     {
         var directory = _fileSystem.Path.GetDirectoryName(filePath);
@@ -100,8 +108,10 @@ public class PathHelper : IPathHelper
     }
 
     /// <summary>
-    /// ディレクトリに書き込み権限があるかチェック
+    /// Determines whether the current user has write permission to the specified directory.
     /// </summary>
+    /// <param name="directory">The directory to check for write permission.</param>
+    /// <returns><see langword="true"/> if the directory has write permission; otherwise, <see langword="false"/>.</returns>
     public bool HasWritePermission(string directory)
     {
         try
