@@ -6,6 +6,7 @@
 **Input**: Design documents from `/specs/001-create-worktree/`
 
 **Prerequisites**: ✅ All design documents complete
+
 - [plan.md](./plan.md) - 実装計画書
 - [spec.md](./spec.md) - 機能仕様（3 User Stories）
 - [data-model.md](./data-model.md) - 5 Core Entities
@@ -52,7 +53,7 @@
 - [X] T008 [P] ProcessRunner を実装: wt.cli/Utils/ProcessRunner.cs（System.Diagnostics.Process wrapper、Git コマンド実行）
 - [X] T009 [P] PathHelper を実装: wt.cli/Utils/PathHelper.cs（System.IO.Abstractions 使用、パス正規化・検証）
 - [X] T010 [P] Validators を実装: wt.cli/Utils/Validators.cs（ブランチ名バリデーション、正規表現: `^[a-zA-Z0-9][a-zA-Z0-9/_.-]*$`）
-- [X] T011 [P] CommandResult<T> モデルを実装: wt.cli/Models/CommandResult.cs（Result パターン、Success/Error/Warnings）
+- [X] T011 [P] `CommandResult<T>` モデルを実装: wt.cli/Models/CommandResult.cs（Result パターン、Success/Error/Warnings）
 - [X] T012 [P] エラーコード定数クラスを実装: wt.cli/Models/ErrorCodes.cs（GIT001-ED001 の11コード定義）
 
 **Checkpoint**: ✅ 基盤完了 - User Story 実装開始可能
@@ -132,7 +133,7 @@
 ### Implementation for US3
 
 - [X] T042 [US3] PathHelper にカスタムパス検証を追加: wt.cli/Utils/PathHelper.cs（親ディレクトリ存在チェック、書き込み権限チェック、ディスク容量チェック）
-- [X] T043 [US3] CreateCommand に --path オプションを追加: wt.cli/Commands/Worktree/CreateCommand.cs（-p エイリアス、デフォルト: ../worktrees/<branch>）
+- [X] T043 [US3] CreateCommand に --path オプションを追加: wt.cli/Commands/Worktree/CreateCommand.cs（-p エイリアス、デフォルト: `../worktrees/<branch>`）
 - [X] T044 [US3] WorktreeService でカスタムパス処理: wt.cli/Services/Worktree/WorktreeService.cs（options.Path が null の場合デフォルトパス、非 null の場合カスタムパス使用）
 - [X] T045 [US3] パスエラーハンドリングを追加: wt.cli/Services/Worktree/WorktreeService.cs（FS001-FS003 エラーコード、解決策表示）
 
@@ -192,30 +193,37 @@
 ### Parallel Opportunities
 
 **Setup Phase**:
+
 - T002, T003, T004 は並行実行可能
 
 **Foundational Phase**:
+
 - Tests: T005, T006, T007 は並行実行可能
 - Implementation: T008, T009, T010, T011, T012 は並行実行可能（異なるファイル）
 
 **User Story 1**:
+
 - Tests: T013, T014, T015, T016, T017 は並行実行可能
 - Models: T020, T021, T022 は並行実行可能
 - Interfaces: T023, T025 は並行実行可能
 
 **User Story 2**:
+
 - Tests: T030, T031 は並行実行可能
 - Models/Presets: T033, T034, T035 は並行実行可能
 
 **User Story 3**:
+
 - Tests: T040 と T041 は並行実行可能
 
 **Polish Phase**:
+
 - T046, T047, T048, T049 は並行実行可能（同一ファイルだが別オプション）
 - T051, T052 は並行実行可能
 - T054, T055, T056, T057 は並行実行可能
 
 **全 User Story の並行実行**:
+
 - Foundational (Phase 2) 完了後、Phase 3, 4, 5 は並行開始可能（異なる開発者、異なるファイル）
 
 ---
@@ -253,6 +261,7 @@ Task T025: IWorktreeService interface
 5. **MVP Ready**: US1 のみでデプロイ可能
 
 この時点で以下が動作:
+
 - `wt create <branch>` で worktree 作成
 - デフォルトパス `../worktrees/<branch>` に作成
 - エラー時の解決策表示
@@ -307,6 +316,7 @@ Task T025: IWorktreeService interface
 **Parallel Efficiency**: 67% のタスクが並行実行可能（40/60）
 
 **Estimated Timeline** (1 developer):
+
 - Phase 1: 0.5 day
 - Phase 2: 2 days
 - Phase 3 (US1): 3 days → **MVP Ready** (5.5 days total)
@@ -333,9 +343,10 @@ Task T025: IWorktreeService interface
 
 ## Suggested MVP Scope
 
-**MVP = User Story 1 のみ**
+### MVP = User Story 1 のみ
 
 含まれる機能:
+
 - ✅ `wt create <branch>` で worktree 作成
 - ✅ デフォルトパス `../worktrees/<branch>`
 - ✅ 現在のブランチをベースに新規ブランチ作成
@@ -344,12 +355,14 @@ Task T025: IWorktreeService interface
 - ✅ Git リポジトリチェック
 
 含まれない機能（将来追加可能）:
+
 - ❌ エディター自動起動（US2）
 - ❌ カスタムパス指定（US3）
 - ❌ JSON 出力
 - ❌ ベースブランチ指定
 
 **MVP で検証すること**:
+
 1. 開発者が worktree を簡単に作成できるか？
 2. git worktree の複雑なコマンドを隠蔽できているか？
 3. エラーメッセージは理解しやすいか？

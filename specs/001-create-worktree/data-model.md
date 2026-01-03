@@ -30,7 +30,7 @@ Worktreeの情報を表現するモデル。
 
 **State Transitions**:
 
-```
+```text
 [Not Exists] --create--> [Active] --remove--> [Removed]
 ```
 
@@ -77,6 +77,7 @@ public bool IsValidBranchName(string name)
 - `IsAvailable` (bool): エディターが利用可能か
 
 **EditorType Enum**:
+
 ```csharp
 public enum EditorType
 {
@@ -103,7 +104,7 @@ public enum EditorType
 - Commandは空文字列ではない
 - Argumentsには`{path}`プレースホルダーを含む必要がある
 
-### 4. CommandResult<T>
+### 4. `CommandResult<T>`
 
 コマンド実行結果を表現するジェネリックモデル（Resultパターン）。
 
@@ -112,7 +113,7 @@ public enum EditorType
 - `Success` (bool): 成功したか
 - `Data` (T, optional): 成功時のデータ
 - `Error` (ErrorInfo, optional): エラー情報
-- `Warnings` (List<string>): 警告メッセージ
+- `Warnings` (`List<string>`): 警告メッセージ
 
 **ErrorInfo**:
 
@@ -162,6 +163,7 @@ public enum OutputFormat
 ```
 
 **Validation Rules**:
+
 - BranchNameは必須かつ有効な名前
 - WorktreePathが指定された場合は有効なパスでなければならない
 - EditorTypeとCustomEditorCommandは排他的（両方指定はエラー）
@@ -170,7 +172,7 @@ public enum OutputFormat
 
 ### Worktree作成フロー
 
-```
+```text
 User Input (BranchName + Options)
     ↓
 CreateWorktreeOptions (バリデーション)
@@ -213,16 +215,18 @@ Console Output
 ### Memory Usage
 
 各エンティティのメモリフットプリント（概算）:
+
 - WorktreeInfo: ~200 bytes
 - BranchInfo: ~150 bytes
 - EditorConfig: ~100 bytes
-- CommandResult<WorktreeInfo>: ~500 bytes
+- `CommandResult<WorktreeInfo>`: ~500 bytes
 
 **Total for single operation**: < 1KB（目標の100MB内に十分収まる）
 
 ### Caching Strategy
 
 現時点ではキャッシングは実装しません（シンプルさ優先）。将来的な拡張として検討可能：
+
 - エディタープリセットのキャッシュ
 - Git設定のキャッシュ
 
@@ -237,6 +241,7 @@ Console Output
 ## Summary
 
 このデータモデルは以下の要件を満たします：
+
 - ✅ 明確な責任分離（Single Responsibility）
 - ✅ バリデーションルールの明示
 - ✅ エラーハンドリングの体系化

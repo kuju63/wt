@@ -166,7 +166,7 @@ $ wt create test --verbose
 ## Exit Codes
 
 | Code | Meaning | Description |
-|------|---------|-------------|
+| ------ | --------- | ------------- |
 | 0 | Success | Worktree created successfully |
 | 1 | General Error | Unspecified error occurred |
 | 2 | Invalid Arguments | Command-line arguments are invalid |
@@ -185,7 +185,7 @@ $ wt create test --verbose
 
 ### Standard Error Format (Human)
 
-```
+```shell
 ✗ Error: <Error Message>
 → Solution: <Suggested Solution>
 
@@ -250,7 +250,7 @@ Additional Details:
 ## Performance Expectations
 
 | Operation | Target Time | Notes |
-|-----------|-------------|-------|
+| ----------- | ------------- | ------- |
 | バリデーション | < 100ms | 入力チェック |
 | Gitリポジトリ確認 | < 200ms | `.git`ディレクトリ検索 |
 | ブランチ作成 | < 1s | Gitコマンド実行 |

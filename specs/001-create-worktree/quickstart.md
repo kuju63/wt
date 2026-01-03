@@ -28,7 +28,7 @@ dotnet test
 
 ### 2. Project Structure
 
-```
+```text
 wt/
 ├── wt.cli/                       # メインCLIプロジェクト
 │   ├── Commands/                 # コマンド実装

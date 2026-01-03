@@ -526,6 +526,7 @@ alias wtc='wt create --path ~/my-worktrees'
 ```
 
 使用例：
+
 ```bash
 wtc feature-login  # ~/my-worktrees/feature-login に作成される
 ```
