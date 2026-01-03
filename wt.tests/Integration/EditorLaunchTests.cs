@@ -7,6 +7,7 @@ using Xunit;
 
 namespace wt.tests.Integration;
 
+[Collection("Sequential Integration Tests")]
 public class EditorLaunchTests : IDisposable
 {
     private readonly string _testRepoPath;
@@ -14,6 +15,20 @@ public class EditorLaunchTests : IDisposable
 
     public EditorLaunchTests()
     {
+        // Ensure we start from a valid directory
+        try
+        {
+            var currentDir = Environment.CurrentDirectory;
+            if (!Directory.Exists(currentDir))
+            {
+                Environment.CurrentDirectory = Path.GetTempPath();
+            }
+        }
+        catch
+        {
+            Environment.CurrentDirectory = Path.GetTempPath();
+        }
+
         _testRepoPath = Path.Combine(Path.GetTempPath(), $"test-repo-{Guid.NewGuid()}");
         _testWorktreePath = Path.Combine(Path.GetTempPath(), $"test-worktree-{Guid.NewGuid()}");
         Directory.CreateDirectory(_testRepoPath);

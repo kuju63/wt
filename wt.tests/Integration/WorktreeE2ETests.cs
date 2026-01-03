@@ -8,14 +8,31 @@ using Xunit;
 
 namespace wt.tests.Integration;
 
+[Collection("Sequential Integration Tests")]
 public class WorktreeE2ETests : IDisposable
 {
     private readonly string _testRepoPath;
-    private readonly string _outputWriter;
-    private readonly string _errorWriter;
+    private readonly string _originalDirectory;
 
     public WorktreeE2ETests()
     {
+        // Ensure we start from a valid directory
+        try
+        {
+            var currentDir = Environment.CurrentDirectory;
+            if (!Directory.Exists(currentDir))
+            {
+                Environment.CurrentDirectory = Path.GetTempPath();
+            }
+        }
+        catch
+        {
+            Environment.CurrentDirectory = Path.GetTempPath();
+        }
+
+        // Save original directory
+        _originalDirectory = Environment.CurrentDirectory;
+
         // Create temporary test repository
         _testRepoPath = Path.Combine(Path.GetTempPath(), $"wt-test-{Guid.NewGuid()}");
         Directory.CreateDirectory(_testRepoPath);
@@ -24,6 +41,7 @@ public class WorktreeE2ETests : IDisposable
         RunGitCommand("init");
         RunGitCommand("config user.email \"test@example.com\"");
         RunGitCommand("config user.name \"Test User\"");
+        RunGitCommand("checkout -b main"); // Ensure we're on main branch
 
         // Create initial commit
         var readmePath = Path.Combine(_testRepoPath, "README.md");
@@ -34,9 +52,24 @@ public class WorktreeE2ETests : IDisposable
 
     public void Dispose()
     {
+        // Restore original directory first
+        try
+        {
+            if (Directory.Exists(_originalDirectory))
+            {
+                Environment.CurrentDirectory = _originalDirectory;
+            }
+        }
+        catch
+        {
+            // If original directory no longer exists, change to temp
+            Environment.CurrentDirectory = Path.GetTempPath();
+        }
+
         // Cleanup: Remove all worktrees first
         try
         {
+            Environment.CurrentDirectory = _testRepoPath;
             var worktreesOutput = RunGitCommand("worktree list --porcelain");
             var lines = worktreesOutput.Split('\n');
             foreach (var line in lines)
@@ -46,7 +79,11 @@ public class WorktreeE2ETests : IDisposable
                     var path = line.Substring("worktree ".Length).Trim();
                     if (path != _testRepoPath && Directory.Exists(path))
                     {
-                        RunGitCommand($"worktree remove \"{path}\" --force");
+                        try
+                        {
+                            RunGitCommand($"worktree remove \"{path}\" --force");
+                        }
+                        catch { }
                     }
                 }
             }
@@ -58,7 +95,33 @@ public class WorktreeE2ETests : IDisposable
             {
                 if (branch.Trim() != "main" && branch.Trim() != "master")
                 {
-                    RunGitCommand($"branch -D \"{branch.Trim()}\"");
+                    try
+                    {
+                        RunGitCommand($"branch -D \"{branch.Trim()}\"");
+                    }
+                    catch { }
+                }
+            }
+        }
+        catch
+        {
+            // Ignore cleanup errors
+        }
+
+        // Delete worktree directories that may not have been removed
+        try
+        {
+            var parentDir = Path.GetDirectoryName(_testRepoPath);
+            if (parentDir != null && Directory.Exists(parentDir))
+            {
+                var worktreeDirs = Directory.GetDirectories(parentDir, "wt-*");
+                foreach (var dir in worktreeDirs)
+                {
+                    try
+                    {
+                        Directory.Delete(dir, true);
+                    }
+                    catch { }
                 }
             }
         }
@@ -68,9 +131,16 @@ public class WorktreeE2ETests : IDisposable
         }
 
         // Delete test repository
-        if (Directory.Exists(_testRepoPath))
+        try
         {
-            Directory.Delete(_testRepoPath, true);
+            if (Directory.Exists(_testRepoPath))
+            {
+                Directory.Delete(_testRepoPath, true);
+            }
+        }
+        catch
+        {
+            // Ignore cleanup errors
         }
     }
 
@@ -107,6 +177,12 @@ public class WorktreeE2ETests : IDisposable
             var exitCode = await parseResult.InvokeAsync(invocationConfig);
 
             // Assert
+            if (exitCode != 0)
+            {
+                var errorOutput = errorWriter.ToString();
+                var output = outputWriter.ToString();
+                throw new Exception($"Command failed with exit code {exitCode}. Output: {output}\nError: {errorOutput}");
+            }
             exitCode.Should().Be(0, "command should succeed");
             outputWriter.ToString().Should().Contain("Worktree created successfully");
 

@@ -76,12 +76,8 @@ public class PathHelper : IPathHelper
                 return new PathValidationResult(false, $"Path already exists: {path}");
             }
 
-            // 親ディレクトリの存在チェック
-            var parentDirectory = _fileSystem.Path.GetDirectoryName(path);
-            if (!string.IsNullOrEmpty(parentDirectory) && !_fileSystem.Directory.Exists(parentDirectory))
-            {
-                return new PathValidationResult(false, $"Parent directory does not exist: {parentDirectory}");
-            }
+            // Note: Parent directory existence is not checked here
+            // It will be created by EnsureParentDirectoryExists if needed
 
             return new PathValidationResult(true);
         }

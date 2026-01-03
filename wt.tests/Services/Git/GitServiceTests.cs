@@ -154,7 +154,7 @@ public class GitServiceTests
         // Arrange
         var worktreePath = "/Users/dev/worktrees/feature-x";
         _mockProcessRunner
-            .Setup(x => x.RunAsync("git", $"worktree add {worktreePath} feature-x", null, default))
+            .Setup(x => x.RunAsync("git", $"worktree add \"{worktreePath}\" feature-x", null, default))
             .ReturnsAsync(new ProcessResult(0, $"Preparing worktree\nBranch 'feature-x' set up", ""));
 
         // Act
@@ -171,7 +171,7 @@ public class GitServiceTests
         // Arrange
         var worktreePath = "/Users/dev/worktrees/feature-x";
         _mockProcessRunner
-            .Setup(x => x.RunAsync("git", $"worktree add {worktreePath} feature-x", null, default))
+            .Setup(x => x.RunAsync("git", $"worktree add \"{worktreePath}\" feature-x", null, default))
             .ReturnsAsync(new ProcessResult(128, "", "fatal: '/Users/dev/worktrees/feature-x' already exists"));
 
         // Act

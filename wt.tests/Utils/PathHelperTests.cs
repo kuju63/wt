@@ -46,12 +46,12 @@ public class PathHelperTests
         // Arrange
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { "/valid/path", new MockDirectoryData() }
+            { "/valid", new MockDirectoryData() }
         });
         var helper = new PathHelper(fileSystem);
 
         // Act
-        var result = helper.ValidatePath("/valid/path");
+        var result = helper.ValidatePath("/valid/newpath");
 
         // Assert
         result.IsValid.Should().BeTrue();
@@ -89,7 +89,7 @@ public class PathHelperTests
     }
 
     [Fact]
-    public void ValidatePath_WithNonExistentParentDirectory_ShouldReturnFalse()
+    public void ValidatePath_WithNonExistentParentDirectory_ShouldReturnTrue()
     {
         // Arrange
         var fileSystem = new MockFileSystem();
@@ -99,16 +99,15 @@ public class PathHelperTests
         // Act
         var result = helper.ValidatePath(path);
 
-        // Assert
-        result.IsValid.Should().BeFalse();
-        result.ErrorMessage.Should().Contain("parent directory");
+        // Assert - Parent directory check is removed, will be created by EnsureParentDirectoryExists
+        result.IsValid.Should().BeTrue();
     }
 
     [Theory]
-    [InlineData("/absolute/custom/path")]
-    [InlineData("../custom/relative/path")]
-    [InlineData("./local/path")]
-    public void ResolvePath_WithCustomPaths_ShouldResolveCorrectly(string customPath)
+    [InlineData("/absolute/custom/path", "/absolute/custom/path")]
+    [InlineData("../custom/relative/path", "/Users/dev/projects/custom/relative/path")]
+    [InlineData("./local/path", "/Users/dev/projects/repo/local/path")]
+    public void ResolvePath_WithCustomPaths_ShouldResolveCorrectly(string customPath, string expectedPath)
     {
         // Arrange
         var fileSystem = new MockFileSystem();
@@ -119,15 +118,7 @@ public class PathHelperTests
         var result = helper.ResolvePath(customPath, basePath);
 
         // Assert
-        result.Should().NotBeNullOrEmpty();
-        if (Path.IsPathRooted(customPath))
-        {
-            result.Should().Be(customPath);
-        }
-        else
-        {
-            result.Should().StartWith(basePath);
-        }
+        result.Should().Be(expectedPath);
     }
 
     [Fact]
@@ -170,9 +161,14 @@ public class PathHelperTests
     public void ValidatePath_WithPathTooLong_ShouldReturnFalse()
     {
         // Arrange
-        var fileSystem = new MockFileSystem();
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { "/path", new MockDirectoryData() }
+        });
         var helper = new PathHelper(fileSystem);
-        var longPath = "/path/" + new string('a', 500);
+        // Create a path longer than max allowed (4096 for Unix, 260 for Windows)
+        var maxLength = OperatingSystem.IsWindows() ? 260 : 4096;
+        var longPath = "/path/" + new string('a', maxLength + 10);
 
         // Act
         var result = helper.ValidatePath(longPath);

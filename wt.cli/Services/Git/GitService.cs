@@ -74,7 +74,7 @@ public class GitService : IGitService
 
     public async Task<CommandResult<bool>> AddWorktreeAsync(string path, string branchName, CancellationToken cancellationToken = default)
     {
-        var result = await _processRunner.RunAsync("git", $"worktree add {path} {branchName}", null, cancellationToken);
+        var result = await _processRunner.RunAsync("git", $"worktree add \"{path}\" {branchName}", null, cancellationToken);
 
         if (result.ExitCode != 0)
         {

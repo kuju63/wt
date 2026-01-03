@@ -98,6 +98,19 @@ public class WorktreeService : IWorktreeService
                 pathValidation.ErrorMessage);
         }
 
+        // Ensure parent directory exists (git worktree add requires parent to exist)
+        try
+        {
+            _pathHelper.EnsureParentDirectoryExists(normalizedPath);
+        }
+        catch (Exception ex)
+        {
+            return CommandResult<WorktreeInfo>.Failure(
+                ErrorCodes.InvalidPath,
+                "Failed to create parent directory",
+                ex.Message);
+        }
+
         // Add worktree
         var addWorktreeResult = await _gitService.AddWorktreeAsync(normalizedPath, options.BranchName, cancellationToken);
         if (!addWorktreeResult.IsSuccess)
