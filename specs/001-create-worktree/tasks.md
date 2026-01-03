@@ -26,12 +26,12 @@
 
 **Purpose**: プロジェクト初期化と基本構造
 
-- [ ] T001 既存プロジェクト構造を確認し、specs/001-create-worktree/plan.mdのProject Structureに記載された新規ディレクトリを作成（wt.cli/Commands, Services, Models, Utils）
-- [ ] T002 NuGetパッケージをwt.cliに追加: System.CommandLine, System.IO.Abstractions, System.Text.Json
-- [ ] T003 [P] NuGetパッケージをwt.testsに追加: xUnit, FluentAssertions, Moq
-- [ ] T004 [P] .editorconfig と静的解析設定を確認（既存設定を維持）
+- [X] T001 既存プロジェクト構造を確認し、specs/001-create-worktree/plan.mdのProject Structureに記載された新規ディレクトリを作成（wt.cli/Commands, Services, Models, Utils）
+- [X] T002 NuGetパッケージをwt.cliに追加: System.CommandLine, System.IO.Abstractions, System.Text.Json
+- [X] T003 [P] NuGetパッケージをwt.testsに追加: xUnit, FluentAssertions, Moq
+- [X] T004 [P] .editorconfig と静的解析設定を確認（既存設定を維持）
 
-**Checkpoint**: プロジェクト構造とパッケージ準備完了
+**Checkpoint**: ✅ プロジェクト構造とパッケージ準備完了
 
 ---
 
@@ -43,19 +43,19 @@
 
 ### Foundational Tests (Write FIRST, ensure they FAIL)
 
-- [ ] T005 [P] ProcessRunner のユニットテストを作成: wt.tests/Utils/ProcessRunnerTests.cs（Gitコマンド実行の成功・失敗ケース）
-- [ ] T006 [P] PathHelper のユニットテストを作成: wt.tests/Utils/PathHelperTests.cs（パス正規化、検証）
-- [ ] T007 [P] Validators のユニットテストを作成: wt.tests/Utils/ValidatorsTests.cs（ブランチ名バリデーション）
+- [X] T005 [P] ProcessRunner のユニットテストを作成: wt.tests/Utils/ProcessRunnerTests.cs（Gitコマンド実行の成功・失敗ケース）
+- [X] T006 [P] PathHelper のユニットテストを作成: wt.tests/Utils/PathHelperTests.cs（パス正規化、検証）
+- [X] T007 [P] Validators のユニットテストを作成: wt.tests/Utils/ValidatorsTests.cs（ブランチ名バリデーション）
 
 ### Foundational Implementation
 
-- [ ] T008 [P] ProcessRunner を実装: wt.cli/Utils/ProcessRunner.cs（System.Diagnostics.Process wrapper、Git コマンド実行）
-- [ ] T009 [P] PathHelper を実装: wt.cli/Utils/PathHelper.cs（System.IO.Abstractions 使用、パス正規化・検証）
-- [ ] T010 [P] Validators を実装: wt.cli/Utils/Validators.cs（ブランチ名バリデーション、正規表現: `^[a-zA-Z0-9][a-zA-Z0-9/_-]*$`）
-- [ ] T011 [P] CommandResult<T> モデルを実装: wt.cli/Models/CommandResult.cs（Result パターン、Success/Error/Warnings）
-- [ ] T012 [P] エラーコード定数クラスを実装: wt.cli/Models/ErrorCodes.cs（GIT001-ED001 の11コード定義）
+- [X] T008 [P] ProcessRunner を実装: wt.cli/Utils/ProcessRunner.cs（System.Diagnostics.Process wrapper、Git コマンド実行）
+- [X] T009 [P] PathHelper を実装: wt.cli/Utils/PathHelper.cs（System.IO.Abstractions 使用、パス正規化・検証）
+- [X] T010 [P] Validators を実装: wt.cli/Utils/Validators.cs（ブランチ名バリデーション、正規表現: `^[a-zA-Z0-9][a-zA-Z0-9/_.-]*$`）
+- [X] T011 [P] CommandResult<T> モデルを実装: wt.cli/Models/CommandResult.cs（Result パターン、Success/Error/Warnings）
+- [X] T012 [P] エラーコード定数クラスを実装: wt.cli/Models/ErrorCodes.cs（GIT001-ED001 の11コード定義）
 
-**Checkpoint**: 基盤完了 - User Story 実装開始可能
+**Checkpoint**: ✅ 基盤完了 - User Story 実装開始可能
 
 ---
 
