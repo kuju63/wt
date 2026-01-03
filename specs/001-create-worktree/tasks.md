@@ -72,8 +72,8 @@
 - [X] T015 [P] [US1] CreateWorktreeOptions モデルのユニットテストを作成: wt.tests/Models/CreateWorktreeOptionsTests.cs
 - [X] T016 [P] [US1] GitService のユニットテストを作成: wt.tests/Services/Git/GitServiceTests.cs（IsGitRepository, GetCurrentBranch, BranchExists, CreateBranch, AddWorktree の各メソッド）
 - [X] T017 [P] [US1] WorktreeService のユニットテストを作成: wt.tests/Services/Worktree/WorktreeServiceTests.cs（CreateWorktreeAsync の成功・失敗ケース）
-- [ ] T018 [US1] WorktreeCreateCommand のユニットテストを作成: wt.tests/Commands/Worktree/CreateCommandTests.cs（コマンド解析、実行フロー）
-- [ ] T019 [US1] E2E統合テストを作成: wt.tests/Integration/WorktreeE2ETests.cs（テスト用Gitリポジトリ作成、worktree作成、クリーンアップ）
+- [X] T018 [US1] WorktreeCreateCommand のユニットテストを作成: wt.tests/Commands/Worktree/CreateCommandTests.cs（コマンド解析、実行フロー、System.CommandLine 2.0対応）
+- [X] T019 [US1] E2E統合テストを作成: wt.tests/Integration/WorktreeE2ETests.cs（テスト用Gitリポジトリ作成、worktree作成、クリーンアップ、5テスト成功）
 
 ### Implementation for US1
 
@@ -84,9 +84,9 @@
 - [X] T024 [US1] GitService を実装: wt.cli/Services/Git/GitService.cs（ProcessRunner 使用、全メソッド実装、エラーハンドリング）
 - [X] T025 [P] [US1] IWorktreeService インターフェースを定義: wt.cli/Services/Worktree/IWorktreeService.cs（CreateWorktreeAsync）
 - [X] T026 [US1] WorktreeService を実装: wt.cli/Services/Worktree/WorktreeService.cs（GitService, PathHelper, Validators 依存、CreateWorktreeAsync 実装）
-- [ ] T027 [US1] WorktreeCreateCommand を実装: wt.cli/Commands/Worktree/CreateCommand.cs（System.CommandLine 使用、引数・オプション定義、handler 実装）
-- [ ] T028 [US1] Program.cs を更新: wt.cli/Program.cs（WorktreeCreateCommand を RootCommand に追加、DI設定）
-- [ ] T029 [US1] エラー処理とログ出力を追加: wt.cli/Commands/Worktree/CreateCommand.cs（CommandResult に基づくエラー表示、✓/✗記号、解決策表示）
+- [X] T027 [US1] WorktreeCreateCommand を実装: wt.cli/Commands/Worktree/CreateCommand.cs（System.CommandLine 2.0 使用、引数・オプション定義、handler 実装）
+- [X] T028 [US1] Program.cs を更新: wt.cli/Program.cs（WorktreeCreateCommand を RootCommand に追加、DI設定）
+- [X] T029 [US1] エラー処理とログ出力を追加: wt.cli/Commands/Worktree/CreateCommand.cs（CommandResult に基づくエラー表示、✓/✗記号、解決策表示）
 
 **Checkpoint**: US1 完了 - `wt create <branch>` で worktree 作成が動作
 
