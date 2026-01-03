@@ -1,5 +1,5 @@
-using FluentAssertions;
 using System.IO.Abstractions.TestingHelpers;
+using FluentAssertions;
 using Kuju63.WorkTree.CommandLine.Utils;
 using Xunit;
 

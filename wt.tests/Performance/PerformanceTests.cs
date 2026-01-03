@@ -1,8 +1,8 @@
-using FluentAssertions;
 using System.Diagnostics;
 using System.IO.Abstractions;
-using Moq;
+using FluentAssertions;
 using Kuju63.WorkTree.CommandLine.Utils;
+using Moq;
 using Xunit;
 using Xunit.Abstractions;
 

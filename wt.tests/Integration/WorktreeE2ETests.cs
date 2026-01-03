@@ -1,5 +1,5 @@
-using FluentAssertions;
 using System.CommandLine;
+using FluentAssertions;
 using Kuju63.WorkTree.CommandLine.Commands.Worktree;
 using Kuju63.WorkTree.CommandLine.Services.Git;
 using Kuju63.WorkTree.CommandLine.Services.Worktree;

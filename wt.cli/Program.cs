@@ -1,4 +1,4 @@
-﻿using System.CommandLine;
+using System.CommandLine;
 using System.IO.Abstractions;
 using Kuju63.WorkTree.CommandLine.Commands.Worktree;
 using Kuju63.WorkTree.CommandLine.Services.Editor;

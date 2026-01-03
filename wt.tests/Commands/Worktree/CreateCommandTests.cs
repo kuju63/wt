@@ -1,9 +1,9 @@
-using FluentAssertions;
-using Moq;
 using System.CommandLine;
+using FluentAssertions;
 using Kuju63.WorkTree.CommandLine.Commands.Worktree;
 using Kuju63.WorkTree.CommandLine.Models;
 using Kuju63.WorkTree.CommandLine.Services.Worktree;
+using Moq;
 using Xunit;
 
 namespace Kuju63.WorkTree.Tests.Commands.Worktree;
