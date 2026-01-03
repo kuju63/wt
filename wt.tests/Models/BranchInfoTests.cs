@@ -1,8 +1,8 @@
 using FluentAssertions;
-using wt.cli.Models;
+using Kuju63.WorkTree.CommandLine.Models;
 using Xunit;
 
-namespace wt.tests.Models;
+namespace Kuju63.WorkTree.Tests.Models;
 
 public class BranchInfoTests
 {

@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+    <RootNamespace>Kuju63.WorkTree.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

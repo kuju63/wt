@@ -1,6 +1,6 @@
-using wt.cli.Models;
+using Kuju63.WorkTree.CommandLine.Models;
 
-namespace wt.cli.Services.Git;
+namespace Kuju63.WorkTree.CommandLine.Services.Git;
 
 public interface IGitService
 {

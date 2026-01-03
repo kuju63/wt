@@ -1,6 +1,6 @@
 using Xunit;
 
-namespace wt.tests.Integration;
+namespace Kuju63.WorkTree.Tests.Integration;
 
 /// <summary>
 /// Sequential test collection to prevent parallel execution of integration tests.

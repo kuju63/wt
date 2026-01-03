@@ -1,6 +1,6 @@
-using wt.cli.Utils;
+using Kuju63.WorkTree.CommandLine.Utils;
 
-namespace wt.cli.Models;
+namespace Kuju63.WorkTree.CommandLine.Models;
 
 /// <summary>
 /// エディターの種類

@@ -1,9 +1,9 @@
 using FluentAssertions;
 using System.IO.Abstractions.TestingHelpers;
-using wt.cli.Utils;
+using Kuju63.WorkTree.CommandLine.Utils;
 using Xunit;
 
-namespace wt.tests.Utils;
+namespace Kuju63.WorkTree.Tests.Utils;
 
 public class PathHelperTests
 {

@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace wt.cli.Utils;
+namespace Kuju63.WorkTree.CommandLine.Utils;
 
 /// <summary>
 /// Process実行結果を表すクラス

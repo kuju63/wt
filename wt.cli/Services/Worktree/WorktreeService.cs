@@ -1,9 +1,9 @@
-using wt.cli.Models;
-using wt.cli.Services.Editor;
-using wt.cli.Services.Git;
-using wt.cli.Utils;
+using Kuju63.WorkTree.CommandLine.Models;
+using Kuju63.WorkTree.CommandLine.Services.Editor;
+using Kuju63.WorkTree.CommandLine.Services.Git;
+using Kuju63.WorkTree.CommandLine.Utils;
 
-namespace wt.cli.Services.Worktree;
+namespace Kuju63.WorkTree.CommandLine.Services.Worktree;
 
 public class WorktreeService : IWorktreeService
 {

@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace wt.cli.Utils;
+namespace Kuju63.WorkTree.CommandLine.Utils;
 
 /// <summary>
 /// 検証結果

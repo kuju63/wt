@@ -1,12 +1,12 @@
 using FluentAssertions;
 using Moq;
 using System.CommandLine;
-using wt.cli.Commands.Worktree;
-using wt.cli.Models;
-using wt.cli.Services.Worktree;
+using Kuju63.WorkTree.CommandLine.Commands.Worktree;
+using Kuju63.WorkTree.CommandLine.Models;
+using Kuju63.WorkTree.CommandLine.Services.Worktree;
 using Xunit;
 
-namespace wt.tests.Commands.Worktree;
+namespace Kuju63.WorkTree.Tests.Commands.Worktree;
 
 public class CreateCommandTests
 {

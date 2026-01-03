@@ -1,4 +1,4 @@
-namespace wt.cli.Models;
+namespace Kuju63.WorkTree.CommandLine.Models;
 
 /// <summary>
 /// エラーコード定数クラス

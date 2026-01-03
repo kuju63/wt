@@ -5,6 +5,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <RootNamespace>Kuju63.WorkTree.CommandLine</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

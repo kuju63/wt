@@ -1,4 +1,4 @@
-namespace wt.cli.Models;
+namespace Kuju63.WorkTree.CommandLine.Models;
 
 /// <summary>
 /// コマンド実行結果を表すジェネリッククラス（Resultパターン）

@@ -1,8 +1,8 @@
 using System.CommandLine;
-using wt.cli.Models;
-using wt.cli.Services.Worktree;
+using Kuju63.WorkTree.CommandLine.Models;
+using Kuju63.WorkTree.CommandLine.Services.Worktree;
 
-namespace wt.cli.Commands.Worktree;
+namespace Kuju63.WorkTree.CommandLine.Commands.Worktree;
 
 public class CreateCommand : Command
 {

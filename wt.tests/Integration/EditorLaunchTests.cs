@@ -1,11 +1,11 @@
 using FluentAssertions;
 using System.Diagnostics;
-using wt.cli.Models;
-using wt.cli.Services.Editor;
-using wt.cli.Utils;
+using Kuju63.WorkTree.CommandLine.Models;
+using Kuju63.WorkTree.CommandLine.Services.Editor;
+using Kuju63.WorkTree.CommandLine.Utils;
 using Xunit;
 
-namespace wt.tests.Integration;
+namespace Kuju63.WorkTree.Tests.Integration;
 
 [Collection("Sequential Integration Tests")]
 public class EditorLaunchTests : IDisposable

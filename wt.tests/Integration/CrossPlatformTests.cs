@@ -2,12 +2,12 @@ using FluentAssertions;
 using System.IO.Abstractions;
 using System.Runtime.InteropServices;
 using Moq;
-using wt.cli.Models;
-using wt.cli.Services.Git;
-using wt.cli.Utils;
+using Kuju63.WorkTree.CommandLine.Models;
+using Kuju63.WorkTree.CommandLine.Services.Git;
+using Kuju63.WorkTree.CommandLine.Utils;
 using Xunit;
 
-namespace wt.tests.Integration;
+namespace Kuju63.WorkTree.Tests.Integration;
 
 [Collection("Sequential")]
 public class CrossPlatformTests

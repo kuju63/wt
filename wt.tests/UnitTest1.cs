@@ -1,4 +1,4 @@
-﻿namespace wt.tests;
+﻿namespace Kuju63.WorkTree.Tests;
 
 public class UnitTest1
 {

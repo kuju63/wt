@@ -1,12 +1,12 @@
 using FluentAssertions;
 using System.IO.Abstractions;
-using wt.cli.Models;
-using wt.cli.Services.Git;
-using wt.cli.Services.Worktree;
-using wt.cli.Utils;
+using Kuju63.WorkTree.CommandLine.Models;
+using Kuju63.WorkTree.CommandLine.Services.Git;
+using Kuju63.WorkTree.CommandLine.Services.Worktree;
+using Kuju63.WorkTree.CommandLine.Utils;
 using Xunit;
 
-namespace wt.tests.Integration;
+namespace Kuju63.WorkTree.Tests.Integration;
 
 [Collection("Sequential Integration Tests")]
 public class CustomPathTests : IDisposable

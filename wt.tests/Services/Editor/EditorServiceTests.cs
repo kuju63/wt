@@ -1,11 +1,11 @@
 using FluentAssertions;
 using Moq;
-using wt.cli.Models;
-using wt.cli.Services.Editor;
-using wt.cli.Utils;
+using Kuju63.WorkTree.CommandLine.Models;
+using Kuju63.WorkTree.CommandLine.Services.Editor;
+using Kuju63.WorkTree.CommandLine.Utils;
 using Xunit;
 
-namespace wt.tests.Services.Editor;
+namespace Kuju63.WorkTree.Tests.Services.Editor;
 
 public class EditorServiceTests
 {

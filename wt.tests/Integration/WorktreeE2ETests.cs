@@ -1,12 +1,12 @@
 using FluentAssertions;
 using System.CommandLine;
-using wt.cli.Commands.Worktree;
-using wt.cli.Services.Git;
-using wt.cli.Services.Worktree;
-using wt.cli.Utils;
+using Kuju63.WorkTree.CommandLine.Commands.Worktree;
+using Kuju63.WorkTree.CommandLine.Services.Git;
+using Kuju63.WorkTree.CommandLine.Services.Worktree;
+using Kuju63.WorkTree.CommandLine.Utils;
 using Xunit;
 
-namespace wt.tests.Integration;
+namespace Kuju63.WorkTree.Tests.Integration;
 
 [Collection("Sequential Integration Tests")]
 public class WorktreeE2ETests : IDisposable

@@ -1,7 +1,7 @@
-using wt.cli.Models;
-using wt.cli.Utils;
+using Kuju63.WorkTree.CommandLine.Models;
+using Kuju63.WorkTree.CommandLine.Utils;
 
-namespace wt.cli.Services.Editor;
+namespace Kuju63.WorkTree.CommandLine.Services.Editor;
 
 public class EditorService : IEditorService
 {

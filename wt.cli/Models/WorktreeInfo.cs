@@ -1,4 +1,4 @@
-namespace wt.cli.Models;
+namespace Kuju63.WorkTree.CommandLine.Models;
 
 /// <summary>
 /// Worktree情報を表すレコード

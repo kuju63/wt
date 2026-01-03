@@ -1,4 +1,4 @@
-namespace wt.cli.Utils;
+namespace Kuju63.WorkTree.CommandLine.Utils;
 
 public interface IProcessRunner
 {

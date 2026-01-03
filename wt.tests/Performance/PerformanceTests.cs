@@ -2,11 +2,11 @@ using FluentAssertions;
 using System.Diagnostics;
 using System.IO.Abstractions;
 using Moq;
-using wt.cli.Utils;
+using Kuju63.WorkTree.CommandLine.Utils;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace wt.tests.Performance;
+namespace Kuju63.WorkTree.Tests.Performance;
 
 [Collection("Sequential")]
 public class PerformanceTests

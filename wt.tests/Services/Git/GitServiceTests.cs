@@ -1,11 +1,11 @@
 using FluentAssertions;
 using Moq;
-using wt.cli.Models;
-using wt.cli.Services.Git;
-using wt.cli.Utils;
+using Kuju63.WorkTree.CommandLine.Models;
+using Kuju63.WorkTree.CommandLine.Services.Git;
+using Kuju63.WorkTree.CommandLine.Utils;
 using Xunit;
 
-namespace wt.tests.Services.Git;
+namespace Kuju63.WorkTree.Tests.Services.Git;
 
 public class GitServiceTests
 {

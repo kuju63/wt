@@ -1,6 +1,6 @@
-using wt.cli.Models;
+using Kuju63.WorkTree.CommandLine.Models;
 
-namespace wt.cli.Services.Worktree;
+namespace Kuju63.WorkTree.CommandLine.Services.Worktree;
 
 public interface IWorktreeService
 {

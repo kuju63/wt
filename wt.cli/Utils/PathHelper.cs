@@ -1,6 +1,6 @@
 using System.IO.Abstractions;
 
-namespace wt.cli.Utils;
+namespace Kuju63.WorkTree.CommandLine.Utils;
 
 /// <summary>
 /// パス検証結果

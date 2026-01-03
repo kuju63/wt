@@ -1,10 +1,10 @@
 ﻿using System.CommandLine;
 using System.IO.Abstractions;
-using wt.cli.Commands.Worktree;
-using wt.cli.Services.Editor;
-using wt.cli.Services.Git;
-using wt.cli.Services.Worktree;
-using wt.cli.Utils;
+using Kuju63.WorkTree.CommandLine.Commands.Worktree;
+using Kuju63.WorkTree.CommandLine.Services.Editor;
+using Kuju63.WorkTree.CommandLine.Services.Git;
+using Kuju63.WorkTree.CommandLine.Services.Worktree;
+using Kuju63.WorkTree.CommandLine.Utils;
 
 // Setup Dependency Injection
 var fileSystem = new FileSystem();
