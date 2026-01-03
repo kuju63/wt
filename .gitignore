@@ -112,3 +112,17 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+
+# Environment variables
+.env*
+!.env.example
+
+# Logs
+*.log
+*.log.*
