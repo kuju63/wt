@@ -565,14 +565,14 @@ A: このプロジェクトは MIT ライセンスの下で公開されていま
 
 問題が解決しない場合は、以下の方法でサポートを受けることができます：
 
-1. **GitHub Issues**: [Issues ページ](https://github.com/your-org/wt/issues) でバグ報告や機能リクエストを投稿
+1. **GitHub Issues**: [Issues ページ](https://github.com/kuju63/wt/issues) でバグ報告や機能リクエストを投稿
 2. **ドキュメント**: [README.md](../../README.md) を参照
 3. **コミュニティ**: GitHub Discussions で質問
 
 ## 関連リンク
 
 - [Git Worktree 公式ドキュメント](https://git-scm.com/docs/git-worktree)
-- [GitHub リポジトリ](https://github.com/your-org/wt)
+- [GitHub リポジトリ](https://github.com/kuju63/wt)
 - [変更履歴](../../CHANGELOG.md)
 
 ---

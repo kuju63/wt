@@ -126,3 +126,7 @@ Thumbs.db
 # Logs
 *.log
 *.log.*
+
+# DocFX output
+/_site
+/api/
