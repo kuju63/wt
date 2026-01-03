@@ -26,8 +26,25 @@ public class CustomPathTests : IDisposable
                 Environment.CurrentDirectory = Path.GetTempPath();
             }
         }
-        catch
+        catch (IOException ex)
         {
+            Console.Error.WriteLine($"Ignored IO error setting current directory in test ctor: {ex.Message}");
+            Environment.CurrentDirectory = Path.GetTempPath();
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            Console.Error.WriteLine($"Ignored permission error setting current directory in test ctor: {ex.Message}");
+            Environment.CurrentDirectory = Path.GetTempPath();
+        }
+        catch (ArgumentException ex)
+        {
+            Console.Error.WriteLine($"Ignored argument error setting current directory in test ctor: {ex.Message}");
+            Environment.CurrentDirectory = Path.GetTempPath();
+        }
+        catch (Exception ex)
+        {
+            // Fallback for unexpected exceptions: log and use temp directory.
+            Console.Error.WriteLine($"Ignored unexpected error setting current directory in test ctor: {ex.Message}");
             Environment.CurrentDirectory = Path.GetTempPath();
         }
 
@@ -77,7 +94,18 @@ public class CustomPathTests : IDisposable
                 Directory.Delete(_testRepoPath, true);
             }
         }
-        catch { }
+        catch (IOException ex)
+        {
+            Console.Error.WriteLine($"Ignored IO error deleting test repo '{_testRepoPath}': {ex.Message}");
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            Console.Error.WriteLine($"Ignored permission error deleting test repo '{_testRepoPath}': {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Ignored error deleting test repo '{_testRepoPath}': {ex.Message}");
+        }
 
         try
         {
@@ -86,7 +114,18 @@ public class CustomPathTests : IDisposable
                 Directory.Delete(_customWorktreePath, true);
             }
         }
-        catch { }
+        catch (IOException ex)
+        {
+            Console.Error.WriteLine($"Ignored IO error deleting custom worktree '{_customWorktreePath}': {ex.Message}");
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            Console.Error.WriteLine($"Ignored permission error deleting custom worktree '{_customWorktreePath}': {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Ignored error deleting custom worktree '{_customWorktreePath}': {ex.Message}");
+        }
 
         try
         {
@@ -95,7 +134,18 @@ public class CustomPathTests : IDisposable
                 Directory.Delete(_relativeWorktreePath, true);
             }
         }
-        catch { }
+        catch (IOException ex)
+        {
+            Console.Error.WriteLine($"Ignored IO error deleting relative worktree '{_relativeWorktreePath}': {ex.Message}");
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            Console.Error.WriteLine($"Ignored permission error deleting relative worktree '{_relativeWorktreePath}': {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Ignored error deleting relative worktree '{_relativeWorktreePath}': {ex.Message}");
+        }
         GC.SuppressFinalize(this);
     }
 
@@ -143,8 +193,19 @@ public class CustomPathTests : IDisposable
                     Environment.CurrentDirectory = Path.GetTempPath();
                 }
             }
-            catch
+            catch (IOException ex)
             {
+                Console.Error.WriteLine($"Ignored IO error restoring current directory: {ex.Message}");
+                Environment.CurrentDirectory = Path.GetTempPath();
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Console.Error.WriteLine($"Ignored permission error restoring current directory: {ex.Message}");
+                Environment.CurrentDirectory = Path.GetTempPath();
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Ignored error restoring current directory: {ex.Message}");
                 Environment.CurrentDirectory = Path.GetTempPath();
             }
         }
@@ -213,6 +274,7 @@ public class CustomPathTests : IDisposable
             }
             catch
             {
+                Console.Error.WriteLine($"Ignored error restoring current directory");
                 Environment.CurrentDirectory = Path.GetTempPath();
             }
         }
@@ -263,6 +325,7 @@ public class CustomPathTests : IDisposable
             }
             catch
             {
+                Console.Error.WriteLine("Ignored error restoring current directory");
                 Environment.CurrentDirectory = Path.GetTempPath();
             }
         }

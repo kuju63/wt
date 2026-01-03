@@ -24,8 +24,38 @@ public class WorktreeE2ETests : IDisposable
                 Environment.CurrentDirectory = Path.GetTempPath();
             }
         }
-        catch
+        catch (IOException ex)
         {
+            // IO error when checking/setting current directory: fallback to temp and log.
+            Console.Error.WriteLine($"Ignored IO error setting current directory in test ctor: {ex.Message}");
+            Environment.CurrentDirectory = Path.GetTempPath();
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            // Permission denied: fallback to temp and log.
+            Console.Error.WriteLine($"Ignored permission error setting current directory in test ctor: {ex.Message}");
+            Environment.CurrentDirectory = Path.GetTempPath();
+        }
+        catch (ArgumentException ex)
+        {
+            // Invalid path argument: fallback to temp and log.
+            Console.Error.WriteLine($"Ignored argument error setting current directory in test ctor: {ex.Message}");
+            Environment.CurrentDirectory = Path.GetTempPath();
+        }
+        catch (NotSupportedException ex)
+        {
+            Console.Error.WriteLine($"Ignored not-supported error setting current directory in test ctor: {ex.Message}");
+            Environment.CurrentDirectory = Path.GetTempPath();
+        }
+        catch (System.Security.SecurityException ex)
+        {
+            Console.Error.WriteLine($"Ignored security error setting current directory in test ctor: {ex.Message}");
+            Environment.CurrentDirectory = Path.GetTempPath();
+        }
+        catch (Exception ex)
+        {
+            // Fallback for unexpected exceptions: log and use temp directory.
+            Console.Error.WriteLine($"Ignored unexpected error setting current directory in test ctor: {ex.Message}");
             Environment.CurrentDirectory = Path.GetTempPath();
         }
 
@@ -82,7 +112,27 @@ public class WorktreeE2ETests : IDisposable
                         {
                             RunGitCommand($"worktree remove \"{path}\" --force");
                         }
-                        catch { }
+                        catch (InvalidOperationException ex)
+                        {
+                            Console.Error.WriteLine($"Ignored invalid operation removing worktree '{path}': {ex.Message}");
+                        }
+                        catch (System.ComponentModel.Win32Exception ex)
+                        {
+                            Console.Error.WriteLine($"Ignored process error removing worktree '{path}': {ex.Message}");
+                        }
+                        catch (IOException ex)
+                        {
+                            Console.Error.WriteLine($"Ignored IO error removing worktree '{path}': {ex.Message}");
+                        }
+                        catch (UnauthorizedAccessException ex)
+                        {
+                            Console.Error.WriteLine($"Ignored permission error removing worktree '{path}': {ex.Message}");
+                        }
+                        catch (Exception ex)
+                        {
+                            // Fallback: log unexpected error during worktree removal.
+                            Console.Error.WriteLine($"Ignored error removing worktree '{path}': {ex.Message}");
+                        }
                     }
                 }
             }
@@ -98,13 +148,36 @@ public class WorktreeE2ETests : IDisposable
                     {
                         RunGitCommand($"branch -D \"{branch.Trim()}\"");
                     }
-                    catch { }
+                    catch (InvalidOperationException ex)
+                    {
+                        Console.Error.WriteLine($"Ignored invalid operation deleting branch '{branch.Trim()}': {ex.Message}");
+                    }
+                    catch (IOException ex)
+                    {
+                        Console.Error.WriteLine($"Ignored IO error deleting branch '{branch.Trim()}': {ex.Message}");
+                    }
+                    catch (UnauthorizedAccessException ex)
+                    {
+                        Console.Error.WriteLine($"Ignored permission error deleting branch '{branch.Trim()}': {ex.Message}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine($"Ignored error deleting branch '{branch.Trim()}': {ex.Message}");
+                    }
                 }
             }
         }
-        catch
+        catch (IOException ex)
         {
-            // Ignore cleanup errors
+            Console.Error.WriteLine($"Ignored IO error during worktree cleanup: {ex.Message}");
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            Console.Error.WriteLine($"Ignored permission error during worktree cleanup: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Ignored error during worktree cleanup: {ex.Message}");
         }
 
         // Delete worktree directories that may not have been removed
@@ -120,13 +193,32 @@ public class WorktreeE2ETests : IDisposable
                     {
                         Directory.Delete(dir, true);
                     }
-                    catch { }
+                    catch (IOException ex)
+                    {
+                        Console.Error.WriteLine($"Ignored IO error deleting directory '{dir}': {ex.Message}");
+                    }
+                    catch (UnauthorizedAccessException ex)
+                    {
+                        Console.Error.WriteLine($"Ignored permission error deleting directory '{dir}': {ex.Message}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine($"Ignored error deleting directory '{dir}': {ex.Message}");
+                    }
                 }
             }
         }
-        catch
+        catch (IOException ex)
         {
-            // Ignore cleanup errors
+            Console.Error.WriteLine($"Ignored IO error during final cleanup: {ex.Message}");
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            Console.Error.WriteLine($"Ignored permission error during final cleanup: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Ignored error during final cleanup: {ex.Message}");
         }
 
         // Delete test repository
