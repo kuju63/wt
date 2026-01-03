@@ -35,6 +35,9 @@ exclude_paths:
   - "**/GlobalUsings.g.cs"
   - "**/AssemblyInfo.cs"
 
+  # Spec kit files
+  - .specify/scripts/**
+
 # Duplication configuration
 duplication:
   enabled: true
