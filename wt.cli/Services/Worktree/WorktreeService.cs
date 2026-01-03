@@ -37,6 +37,21 @@ public class WorktreeService : IWorktreeService
                 ErrorCodes.GetSolution(ErrorCodes.NotGitRepository));
         }
 
+        // Get base branch (use current branch if not specified)
+        var baseBranch = options.BaseBranch;
+        if (string.IsNullOrEmpty(baseBranch))
+        {
+            var currentBranchResult = await _gitService.GetCurrentBranchAsync(cancellationToken);
+            if (!currentBranchResult.IsSuccess)
+            {
+                return CommandResult<WorktreeInfo>.Failure(
+                    currentBranchResult.ErrorCode!,
+                    currentBranchResult.ErrorMessage!,
+                    currentBranchResult.Solution);
+            }
+            baseBranch = currentBranchResult.Data;
+        }
+
         // Check if branch already exists
         var branchExistsResult = await _gitService.BranchExistsAsync(options.BranchName, cancellationToken);
         if (!branchExistsResult.IsSuccess)
@@ -56,7 +71,7 @@ public class WorktreeService : IWorktreeService
         }
 
         // Create branch
-        var createBranchResult = await _gitService.CreateBranchAsync(options.BranchName, options.BaseBranch!, cancellationToken);
+        var createBranchResult = await _gitService.CreateBranchAsync(options.BranchName, baseBranch!, cancellationToken);
         if (!createBranchResult.IsSuccess)
         {
             return CommandResult<WorktreeInfo>.Failure(
@@ -94,7 +109,7 @@ public class WorktreeService : IWorktreeService
         var worktreeInfo = new WorktreeInfo(
             normalizedPath,
             options.BranchName,
-            options.BaseBranch!,
+            baseBranch!,
             DateTime.UtcNow);
 
         return CommandResult<WorktreeInfo>.Success(worktreeInfo);
