@@ -10,51 +10,79 @@ public class CreateCommand : Command
         : base("create", "Create a new worktree with a new branch")
     {
         // Arguments
-        var branchArgument = new Argument<string>("branch", "Name of the branch to create");
+        var branchArgument = new Argument<string>("branch")
+        {
+            Description = "Name of the branch to create"
+        };
 
         // Options
-        var baseOption = new Option<string?>(new[] { "--base", "-b" }, "Base branch to branch from (default: current branch)");
-        var pathOption = new Option<string?>(new[] { "--path", "-p" }, "Path where the worktree will be created (default: ../wt-<branch>)");
-        var editorOption = new Option<EditorType?>(new[] { "--editor", "-e" }, "Editor to launch after creating worktree");
-        var outputOption = new Option<OutputFormat>(new[] { "--output" }, () => OutputFormat.Human, "Output format (human or json)");
-        var verboseOption = new Option<bool>(new[] { "--verbose", "-v" }, () => false, "Show detailed diagnostic information");
-
-        // Add
-        this.Add(branchArgument);
-        this.Add(baseOption);
-        this.Add(pathOption);
-        this.Add(editorOption);
-        this.Add(outputOption);
-        this.Add(verboseOption);
-
-        // Handler
-        this.SetHandler(async (branch, baseBranch, path, editor, output, verbose) =>
+        var baseOption = new Option<string?>("--base", "-b")
         {
+            Description = "Base branch to branch from (default: current branch)"
+        };
+        var pathOption = new Option<string?>("--path", "-p")
+        {
+            Description = "Path where the worktree will be created (default: ../wt-<branch>)"
+        };
+        var editorOption = new Option<EditorType?>("--editor", "-e")
+        {
+            Description = "Editor to launch after creating worktree"
+        };
+        var outputOption = new Option<OutputFormat>("--output")
+        {
+            Description = "Output format (human or json)",
+            DefaultValueFactory = _ => OutputFormat.Human
+        };
+        var verboseOption = new Option<bool>("--verbose", "-v")
+        {
+            Description = "Show detailed diagnostic information",
+            DefaultValueFactory = _ => false
+        };
+
+        // Add arguments and options
+        this.Arguments.Add(branchArgument);
+        this.Options.Add(baseOption);
+        this.Options.Add(pathOption);
+        this.Options.Add(editorOption);
+        this.Options.Add(outputOption);
+        this.Options.Add(verboseOption);
+
+        // Set action using System.CommandLine 2.0 API
+        this.SetAction(async (parseResult, cancellationToken) =>
+        {
+            var branch = parseResult.GetValue(branchArgument);
+            if (string.IsNullOrEmpty(branch))
+            {
+                parseResult.InvocationConfiguration.Error.WriteLine("Error: branch argument is required");
+                return 1;
+            }
+
             var options = new CreateWorktreeOptions
             {
                 BranchName = branch,
-                BaseBranch = baseBranch,
-                WorktreePath = path,
-                EditorType = editor,
-                OutputFormat = output,
-                Verbose = verbose
+                BaseBranch = parseResult.GetValue(baseOption),
+                WorktreePath = parseResult.GetValue(pathOption),
+                EditorType = parseResult.GetValue(editorOption),
+                OutputFormat = parseResult.GetValue(outputOption),
+                Verbose = parseResult.GetValue(verboseOption)
             };
 
-            var result = await worktreeService.CreateWorktreeAsync(options);
+            var result = await worktreeService.CreateWorktreeAsync(options, cancellationToken);
 
             if (result.IsSuccess)
             {
-                DisplaySuccess(result.Data!, output);
+                DisplaySuccess(result.Data!, options.OutputFormat, parseResult.InvocationConfiguration.Output);
+                return 0;
             }
             else
             {
-                DisplayError(result, verbose);
-                Environment.ExitCode = 1;
+                DisplayError(result, options.Verbose, parseResult.InvocationConfiguration.Error);
+                return 1;
             }
-        }, branchArgument, baseOption, pathOption, editorOption, outputOption, verboseOption);
+        });
     }
 
-    private static void DisplaySuccess(WorktreeInfo worktreeInfo, OutputFormat format)
+    private static void DisplaySuccess(WorktreeInfo worktreeInfo, OutputFormat format, TextWriter output)
     {
         if (format == OutputFormat.Json)
         {
@@ -72,29 +100,29 @@ public class CreateCommand : Command
             {
                 WriteIndented = true
             });
-            Console.WriteLine(json);
+            output.WriteLine(json);
         }
         else
         {
-            Console.WriteLine($"✓ Worktree created successfully");
-            Console.WriteLine($"  Path:   {worktreeInfo.Path}");
-            Console.WriteLine($"  Branch: {worktreeInfo.Branch}");
-            Console.WriteLine($"  Base:   {worktreeInfo.BaseBranch}");
+            output.WriteLine($"✓ Worktree created successfully");
+            output.WriteLine($"  Path:   {worktreeInfo.Path}");
+            output.WriteLine($"  Branch: {worktreeInfo.Branch}");
+            output.WriteLine($"  Base:   {worktreeInfo.BaseBranch}");
         }
     }
 
-    private static void DisplayError(CommandResult<WorktreeInfo> result, bool verbose)
+    private static void DisplayError(CommandResult<WorktreeInfo> result, bool verbose, TextWriter error)
     {
-        Console.Error.WriteLine($"✗ {result.ErrorMessage}");
+        error.WriteLine($"✗ {result.ErrorMessage}");
 
         if (!string.IsNullOrEmpty(result.Solution))
         {
-            Console.Error.WriteLine($"  Solution: {result.Solution}");
+            error.WriteLine($"  Solution: {result.Solution}");
         }
 
         if (verbose && !string.IsNullOrEmpty(result.ErrorCode))
         {
-            Console.Error.WriteLine($"  Error Code: {result.ErrorCode}");
+            error.WriteLine($"  Error Code: {result.ErrorCode}");
         }
     }
 }

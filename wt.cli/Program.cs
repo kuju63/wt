@@ -17,7 +17,8 @@ var rootCommand = new RootCommand("Git worktree management CLI tool");
 
 // Add commands
 var createCommand = new CreateCommand(worktreeService);
-rootCommand.Add(createCommand);
+rootCommand.Subcommands.Add(createCommand);
 
-// Execute
-return await rootCommand.InvokeAsync(args);
+// Parse and execute
+ParseResult parseResult = rootCommand.Parse(args);
+return await parseResult.InvokeAsync();

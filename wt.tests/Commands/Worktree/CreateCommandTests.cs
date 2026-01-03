@@ -1,8 +1,6 @@
 using FluentAssertions;
 using Moq;
 using System.CommandLine;
-using System.CommandLine.IO;
-using System.CommandLine.Parsing;
 using wt.cli.Commands.Worktree;
 using wt.cli.Models;
 using wt.cli.Services.Worktree;
@@ -14,13 +12,21 @@ public class CreateCommandTests
 {
     private readonly Mock<IWorktreeService> _mockWorktreeService;
     private readonly CreateCommand _command;
-    private readonly TestConsole _console;
+    private readonly StringWriter _outputWriter;
+    private readonly StringWriter _errorWriter;
+    private readonly InvocationConfiguration _invocationConfig;
 
     public CreateCommandTests()
     {
         _mockWorktreeService = new Mock<IWorktreeService>();
         _command = new CreateCommand(_mockWorktreeService.Object);
-        _console = new TestConsole();
+        _outputWriter = new StringWriter();
+        _errorWriter = new StringWriter();
+        _invocationConfig = new InvocationConfiguration
+        {
+            Output = _outputWriter,
+            Error = _errorWriter
+        };
     }
 
     [Fact]
@@ -34,25 +40,23 @@ public class CreateCommandTests
             DateTime.UtcNow);
 
         _mockWorktreeService
-            .Setup(x => x.CreateWorktreeAsync(It.IsAny<CreateWorktreeOptions>(), default))
+            .Setup(x => x.CreateWorktreeAsync(It.IsAny<CreateWorktreeOptions>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(CommandResult<WorktreeInfo>.Success(worktreeInfo));
 
         var rootCommand = new RootCommand();
-        rootCommand.AddCommand(_command);
-        var parser = new CommandLineBuilder(rootCommand)
-            .UseDefaults()
-            .Build();
+        rootCommand.Subcommands.Add(_command);
 
         // Act
-        var result = await parser.InvokeAsync("create feature-x", _console);
+        var parseResult = rootCommand.Parse(new[] { "create", "feature-x" });
+        var result = await parseResult.InvokeAsync(_invocationConfig);
 
         // Assert
         result.Should().Be(0);
-        _console.Out.ToString().Should().Contain("feature-x");
+        _outputWriter.ToString().Should().Contain("feature-x");
         _mockWorktreeService.Verify(
             x => x.CreateWorktreeAsync(
                 It.Is<CreateWorktreeOptions>(o => o.BranchName == "feature-x"),
-                default),
+                It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -67,17 +71,15 @@ public class CreateCommandTests
             DateTime.UtcNow);
 
         _mockWorktreeService
-            .Setup(x => x.CreateWorktreeAsync(It.IsAny<CreateWorktreeOptions>(), default))
+            .Setup(x => x.CreateWorktreeAsync(It.IsAny<CreateWorktreeOptions>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(CommandResult<WorktreeInfo>.Success(worktreeInfo));
 
         var rootCommand = new RootCommand();
-        rootCommand.AddCommand(_command);
-        var parser = new CommandLineBuilder(rootCommand)
-            .UseDefaults()
-            .Build();
+        rootCommand.Subcommands.Add(_command);
 
         // Act
-        var result = await parser.InvokeAsync("create feature-x --base develop", _console);
+        var parseResult = rootCommand.Parse(new[] { "create", "feature-x", "--base", "develop" });
+        var result = await parseResult.InvokeAsync(_invocationConfig);
 
         // Assert
         result.Should().Be(0);
@@ -86,7 +88,7 @@ public class CreateCommandTests
                 It.Is<CreateWorktreeOptions>(o =>
                     o.BranchName == "feature-x" &&
                     o.BaseBranch == "develop"),
-                default),
+                It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -101,17 +103,15 @@ public class CreateCommandTests
             DateTime.UtcNow);
 
         _mockWorktreeService
-            .Setup(x => x.CreateWorktreeAsync(It.IsAny<CreateWorktreeOptions>(), default))
+            .Setup(x => x.CreateWorktreeAsync(It.IsAny<CreateWorktreeOptions>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(CommandResult<WorktreeInfo>.Success(worktreeInfo));
 
         var rootCommand = new RootCommand();
-        rootCommand.AddCommand(_command);
-        var parser = new CommandLineBuilder(rootCommand)
-            .UseDefaults()
-            .Build();
+        rootCommand.Subcommands.Add(_command);
 
         // Act
-        var result = await parser.InvokeAsync("create feature-x --path /custom/path/feature-x", _console);
+        var parseResult = rootCommand.Parse(new[] { "create", "feature-x", "--path", "/custom/path/feature-x" });
+        var result = await parseResult.InvokeAsync(_invocationConfig);
 
         // Assert
         result.Should().Be(0);
@@ -120,7 +120,7 @@ public class CreateCommandTests
                 It.Is<CreateWorktreeOptions>(o =>
                     o.BranchName == "feature-x" &&
                     o.WorktreePath == "/custom/path/feature-x"),
-                default),
+                It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -129,24 +129,22 @@ public class CreateCommandTests
     {
         // Arrange
         _mockWorktreeService
-            .Setup(x => x.CreateWorktreeAsync(It.IsAny<CreateWorktreeOptions>(), default))
+            .Setup(x => x.CreateWorktreeAsync(It.IsAny<CreateWorktreeOptions>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(CommandResult<WorktreeInfo>.Failure(
                 ErrorCodes.BranchAlreadyExists,
                 "Branch 'feature-x' already exists",
                 ErrorCodes.GetSolution(ErrorCodes.BranchAlreadyExists)));
 
         var rootCommand = new RootCommand();
-        rootCommand.AddCommand(_command);
-        var parser = new CommandLineBuilder(rootCommand)
-            .UseDefaults()
-            .Build();
+        rootCommand.Subcommands.Add(_command);
 
         // Act
-        var result = await parser.InvokeAsync("create feature-x", _console);
+        var parseResult = rootCommand.Parse(new[] { "create", "feature-x" });
+        var result = await parseResult.InvokeAsync(_invocationConfig);
 
         // Assert
         result.Should().NotBe(0);
-        _console.Error.ToString().Should().Contain("Branch 'feature-x' already exists");
+        _errorWriter.ToString().Should().Contain("Branch 'feature-x' already exists");
     }
 
     [Fact]
@@ -160,17 +158,15 @@ public class CreateCommandTests
             DateTime.UtcNow);
 
         _mockWorktreeService
-            .Setup(x => x.CreateWorktreeAsync(It.IsAny<CreateWorktreeOptions>(), default))
+            .Setup(x => x.CreateWorktreeAsync(It.IsAny<CreateWorktreeOptions>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(CommandResult<WorktreeInfo>.Success(worktreeInfo));
 
         var rootCommand = new RootCommand();
-        rootCommand.AddCommand(_command);
-        var parser = new CommandLineBuilder(rootCommand)
-            .UseDefaults()
-            .Build();
+        rootCommand.Subcommands.Add(_command);
 
         // Act
-        var result = await parser.InvokeAsync("create feature-x -b develop -p /custom/path", _console);
+        var parseResult = rootCommand.Parse(new[] { "create", "feature-x", "-b", "develop", "-p", "/custom/path" });
+        var result = await parseResult.InvokeAsync(_invocationConfig);
 
         // Assert
         result.Should().Be(0);
@@ -180,7 +176,7 @@ public class CreateCommandTests
                     o.BranchName == "feature-x" &&
                     o.BaseBranch == "develop" &&
                     o.WorktreePath == "/custom/path"),
-                default),
+                It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -189,13 +185,11 @@ public class CreateCommandTests
     {
         // Arrange
         var rootCommand = new RootCommand();
-        rootCommand.AddCommand(_command);
-        var parser = new CommandLineBuilder(rootCommand)
-            .UseDefaults()
-            .Build();
+        rootCommand.Subcommands.Add(_command);
 
         // Act
-        var result = await parser.InvokeAsync("create", _console);
+        var parseResult = rootCommand.Parse(new[] { "create" });
+        var result = await parseResult.InvokeAsync(_invocationConfig);
 
         // Assert
         result.Should().NotBe(0);
