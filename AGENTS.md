@@ -83,6 +83,8 @@ uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
 - APIドキュメントの生成には`docfx`を使用すること
 - ドキュメントコメントの作成対象はpublic,protected,protected internalとなるclass,interface,enum,struct,delegate,fieldに限定すること
 - ドキュメントコメントのフォーマットはXMLドキュメントコメントを使用すること
+- ドキュメントコメントは英語で記述すること
+- ドキュメントコメントの記述は[dotnet-api-docs](https://github.com/dotnet/dotnet-api-docs/wiki)を参照のこと
 
 ## 6. バージョン管理とコミット
 
