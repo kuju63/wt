@@ -156,9 +156,9 @@
 - [ ] T055 [P] パフォーマンステストを追加: wt.tests/Performance/PerformanceTests.cs（5秒以内の実行時間、メモリ100MB以下）
 - [X] T056 [P] README.md を更新: README.md（インストール、使用方法、例、トラブルシューティング）
 - [ ] T057 [P] 日本語ユーザーガイドを作成: docs/ja/user-guide.md（全オプション説明、使用例）
-- [ ] T058 quickstart.md のバリデーションを実行（5フェーズワークフローが正しく動作することを確認）
-- [ ] T059 全テストを実行してカバレッジ80%以上を確認: `dotnet test --collect:"XPlat Code Coverage"`
-- [ ] T060 憲章チェックリストを最終確認: 全12項目 PASS を検証
+- [X] T058 quickstart.md のバリデーションを実行（5フェーズワークフローが正しく動作することを確認）
+- [X] T059 全テストを実行してカバレッジ80%以上を確認: `dotnet test --collect:"XPlat Code Coverage"`
+- [X] T060 憲章チェックリストを最終確認: 全12項目 PASS を検証
 
 **Checkpoint**: 機能完成 - すべてのオプションが動作し、品質基準を満たす
 
