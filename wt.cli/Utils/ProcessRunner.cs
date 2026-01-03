@@ -14,7 +14,7 @@ public record ProcessResult(
 /// <summary>
 /// プロセス実行のラッパークラス
 /// </summary>
-public class ProcessRunner
+public class ProcessRunner : IProcessRunner
 {
     /// <summary>
     /// コマンドを実行する

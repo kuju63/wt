@@ -67,23 +67,23 @@
 
 ### Tests for US1 (Write FIRST, ensure they FAIL) ⚠️
 
-- [ ] T013 [P] [US1] WorktreeInfo モデルのユニットテストを作成: wt.tests/Models/WorktreeInfoTests.cs（プロパティ検証）
-- [ ] T014 [P] [US1] BranchInfo モデルのユニットテストを作成: wt.tests/Models/BranchInfoTests.cs（バリデーション規則）
-- [ ] T015 [P] [US1] CreateWorktreeOptions モデルのユニットテストを作成: wt.tests/Models/CreateWorktreeOptionsTests.cs
-- [ ] T016 [P] [US1] GitService のユニットテストを作成: wt.tests/Services/Git/GitServiceTests.cs（IsGitRepository, GetCurrentBranch, BranchExists, CreateBranch, AddWorktree の各メソッド）
-- [ ] T017 [P] [US1] WorktreeService のユニットテストを作成: wt.tests/Services/Worktree/WorktreeServiceTests.cs（CreateWorktreeAsync の成功・失敗ケース）
+- [X] T013 [P] [US1] WorktreeInfo モデルのユニットテストを作成: wt.tests/Models/WorktreeInfoTests.cs（プロパティ検証）
+- [X] T014 [P] [US1] BranchInfo モデルのユニットテストを作成: wt.tests/Models/BranchInfoTests.cs（バリデーション規則）
+- [X] T015 [P] [US1] CreateWorktreeOptions モデルのユニットテストを作成: wt.tests/Models/CreateWorktreeOptionsTests.cs
+- [X] T016 [P] [US1] GitService のユニットテストを作成: wt.tests/Services/Git/GitServiceTests.cs（IsGitRepository, GetCurrentBranch, BranchExists, CreateBranch, AddWorktree の各メソッド）
+- [X] T017 [P] [US1] WorktreeService のユニットテストを作成: wt.tests/Services/Worktree/WorktreeServiceTests.cs（CreateWorktreeAsync の成功・失敗ケース）
 - [ ] T018 [US1] WorktreeCreateCommand のユニットテストを作成: wt.tests/Commands/Worktree/CreateCommandTests.cs（コマンド解析、実行フロー）
 - [ ] T019 [US1] E2E統合テストを作成: wt.tests/Integration/WorktreeE2ETests.cs（テスト用Gitリポジトリ作成、worktree作成、クリーンアップ）
 
 ### Implementation for US1
 
-- [ ] T020 [P] [US1] WorktreeInfo モデルを実装: wt.cli/Models/WorktreeInfo.cs（Path, Branch, BaseBranch, CreatedAt プロパティ）
-- [ ] T021 [P] [US1] BranchInfo モデルを実装: wt.cli/Models/BranchInfo.cs（Name, BaseBranch, Exists, IsRemote プロパティ + バリデーション）
-- [ ] T022 [P] [US1] CreateWorktreeOptions モデルを実装: wt.cli/Models/CreateWorktreeOptions.cs（BranchName, BaseBranch, Path, Editor, CheckoutExisting, OutputFormat, Verbose）
-- [ ] T023 [P] [US1] IGitService インターフェースを定義: wt.cli/Services/Git/IGitService.cs（IsGitRepositoryAsync, GetCurrentBranchAsync, BranchExistsAsync, CreateBranchAsync, AddWorktreeAsync）
-- [ ] T024 [US1] GitService を実装: wt.cli/Services/Git/GitService.cs（ProcessRunner 使用、全メソッド実装、エラーハンドリング）
-- [ ] T025 [P] [US1] IWorktreeService インターフェースを定義: wt.cli/Services/Worktree/IWorktreeService.cs（CreateWorktreeAsync）
-- [ ] T026 [US1] WorktreeService を実装: wt.cli/Services/Worktree/WorktreeService.cs（GitService, PathHelper, Validators 依存、CreateWorktreeAsync 実装）
+- [X] T020 [P] [US1] WorktreeInfo モデルを実装: wt.cli/Models/WorktreeInfo.cs（Path, Branch, BaseBranch, CreatedAt プロパティ）
+- [X] T021 [P] [US1] BranchInfo モデルを実装: wt.cli/Models/BranchInfo.cs（Name, BaseBranch, Exists, IsRemote プロパティ + バリデーション）
+- [X] T022 [P] [US1] CreateWorktreeOptions モデルを実装: wt.cli/Models/CreateWorktreeOptions.cs（BranchName, BaseBranch, Path, Editor, CheckoutExisting, OutputFormat, Verbose）
+- [X] T023 [P] [US1] IGitService インターフェースを定義: wt.cli/Services/Git/IGitService.cs（IsGitRepositoryAsync, GetCurrentBranchAsync, BranchExistsAsync, CreateBranchAsync, AddWorktreeAsync）
+- [X] T024 [US1] GitService を実装: wt.cli/Services/Git/GitService.cs（ProcessRunner 使用、全メソッド実装、エラーハンドリング）
+- [X] T025 [P] [US1] IWorktreeService インターフェースを定義: wt.cli/Services/Worktree/IWorktreeService.cs（CreateWorktreeAsync）
+- [X] T026 [US1] WorktreeService を実装: wt.cli/Services/Worktree/WorktreeService.cs（GitService, PathHelper, Validators 依存、CreateWorktreeAsync 実装）
 - [ ] T027 [US1] WorktreeCreateCommand を実装: wt.cli/Commands/Worktree/CreateCommand.cs（System.CommandLine 使用、引数・オプション定義、handler 実装）
 - [ ] T028 [US1] Program.cs を更新: wt.cli/Program.cs（WorktreeCreateCommand を RootCommand に追加、DI設定）
 - [ ] T029 [US1] エラー処理とログ出力を追加: wt.cli/Commands/Worktree/CreateCommand.cs（CommandResult に基づくエラー表示、✓/✗記号、解決策表示）

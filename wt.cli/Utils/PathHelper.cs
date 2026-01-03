@@ -13,7 +13,7 @@ public record PathValidationResult(
 /// <summary>
 /// パス操作ヘルパークラス
 /// </summary>
-public class PathHelper
+public class PathHelper : IPathHelper
 {
     private readonly IFileSystem _fileSystem;
 

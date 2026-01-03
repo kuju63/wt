@@ -10,9 +10,10 @@ public static class ErrorCodes
     public const string NotGitRepository = "GIT002";
     public const string GitCommandFailed = "GIT003";
 
-    // ブランチ関連エラー (BR001-002)
+    // ブランチ関連エラー (BR001-003)
     public const string InvalidBranchName = "BR001";
     public const string BranchAlreadyExists = "BR002";
+    public const string BranchAlreadyInUse = "BR003";
 
     // Worktree関連エラー (WT001-002)
     public const string WorktreeAlreadyExists = "WT001";
@@ -38,6 +39,7 @@ public static class ErrorCodes
             GitCommandFailed => "Check Git configuration and repository state",
             InvalidBranchName => "Use only alphanumeric characters, '-', '_', '/' in branch names",
             BranchAlreadyExists => "Use a different branch name or use --checkout-existing flag",
+            BranchAlreadyInUse => "The branch is already checked out in another worktree. Choose a different branch or remove the other worktree",
             WorktreeAlreadyExists => "Remove the existing worktree or choose a different path",
             WorktreeCreationFailed => "Check file permissions and disk space",
             InvalidPath => "Provide a valid file system path",
