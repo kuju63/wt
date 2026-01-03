@@ -1,6 +1,7 @@
 ﻿using System.CommandLine;
 using System.IO.Abstractions;
 using wt.cli.Commands.Worktree;
+using wt.cli.Services.Editor;
 using wt.cli.Services.Git;
 using wt.cli.Services.Worktree;
 using wt.cli.Utils;
@@ -10,7 +11,8 @@ var fileSystem = new FileSystem();
 var processRunner = new ProcessRunner();
 var pathHelper = new PathHelper(fileSystem);
 var gitService = new GitService(processRunner);
-var worktreeService = new WorktreeService(gitService, pathHelper);
+var editorService = new EditorService(processRunner);
+var worktreeService = new WorktreeService(gitService, pathHelper, editorService);
 
 // Setup root command
 var rootCommand = new RootCommand("Git worktree management CLI tool");

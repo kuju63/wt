@@ -1,4 +1,5 @@
 using wt.cli.Models;
+using wt.cli.Services.Editor;
 using wt.cli.Services.Git;
 using wt.cli.Utils;
 
@@ -8,11 +9,13 @@ public class WorktreeService : IWorktreeService
 {
     private readonly IGitService _gitService;
     private readonly IPathHelper _pathHelper;
+    private readonly IEditorService? _editorService;
 
-    public WorktreeService(IGitService gitService, IPathHelper pathHelper)
+    public WorktreeService(IGitService gitService, IPathHelper pathHelper, IEditorService? editorService = null)
     {
         _gitService = gitService;
         _pathHelper = pathHelper;
+        _editorService = editorService;
     }
 
     public async Task<CommandResult<WorktreeInfo>> CreateWorktreeAsync(CreateWorktreeOptions options, CancellationToken cancellationToken = default)
@@ -111,6 +114,24 @@ public class WorktreeService : IWorktreeService
             options.BranchName,
             baseBranch!,
             DateTime.UtcNow);
+
+        // Launch editor if specified
+        if (options.EditorType.HasValue && _editorService != null)
+        {
+            var editorResult = await _editorService.LaunchEditorAsync(
+                normalizedPath,
+                options.EditorType.Value,
+                cancellationToken);
+
+            // Editor launch failure is a warning, not an error
+            // The worktree was created successfully
+            if (!editorResult.IsSuccess)
+            {
+                return CommandResult<WorktreeInfo>.Success(
+                    worktreeInfo,
+                    new List<string> { $"Warning: {editorResult.ErrorMessage ?? "Failed to launch editor"}" });
+            }
+        }
 
         return CommandResult<WorktreeInfo>.Success(worktreeInfo);
     }

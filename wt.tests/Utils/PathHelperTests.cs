@@ -87,4 +87,98 @@ public class PathHelperTests
         // Assert
         fileSystem.Directory.Exists("/new/directory").Should().BeTrue();
     }
+
+    [Fact]
+    public void ValidatePath_WithNonExistentParentDirectory_ShouldReturnFalse()
+    {
+        // Arrange
+        var fileSystem = new MockFileSystem();
+        var helper = new PathHelper(fileSystem);
+        var path = "/nonexistent/parent/worktree";
+
+        // Act
+        var result = helper.ValidatePath(path);
+
+        // Assert
+        result.IsValid.Should().BeFalse();
+        result.ErrorMessage.Should().Contain("parent directory");
+    }
+
+    [Theory]
+    [InlineData("/absolute/custom/path")]
+    [InlineData("../custom/relative/path")]
+    [InlineData("./local/path")]
+    public void ResolvePath_WithCustomPaths_ShouldResolveCorrectly(string customPath)
+    {
+        // Arrange
+        var fileSystem = new MockFileSystem();
+        var helper = new PathHelper(fileSystem);
+        var basePath = "/Users/dev/projects/repo";
+
+        // Act
+        var result = helper.ResolvePath(customPath, basePath);
+
+        // Assert
+        result.Should().NotBeNullOrEmpty();
+        if (Path.IsPathRooted(customPath))
+        {
+            result.Should().Be(customPath);
+        }
+        else
+        {
+            result.Should().StartWith(basePath);
+        }
+    }
+
+    [Fact]
+    public void ValidatePath_WithExistingDirectory_ShouldReturnFalse()
+    {
+        // Arrange
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { "/existing/worktree", new MockDirectoryData() }
+        });
+        var helper = new PathHelper(fileSystem);
+
+        // Act
+        var result = helper.ValidatePath("/existing/worktree");
+
+        // Assert
+        result.IsValid.Should().BeFalse();
+        result.ErrorMessage.Should().Contain("already exists");
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData(null)]
+    public void ValidatePath_WithEmptyOrNullPath_ShouldReturnFalse(string? invalidPath)
+    {
+        // Arrange
+        var fileSystem = new MockFileSystem();
+        var helper = new PathHelper(fileSystem);
+
+        // Act
+        var result = helper.ValidatePath(invalidPath!);
+
+        // Assert
+        result.IsValid.Should().BeFalse();
+        result.ErrorMessage.Should().Contain("empty");
+    }
+
+    [Fact]
+    public void ValidatePath_WithPathTooLong_ShouldReturnFalse()
+    {
+        // Arrange
+        var fileSystem = new MockFileSystem();
+        var helper = new PathHelper(fileSystem);
+        var longPath = "/path/" + new string('a', 500);
+
+        // Act
+        var result = helper.ValidatePath(longPath);
+
+        // Assert
+        result.IsValid.Should().BeFalse();
+        result.ErrorMessage.Should().Contain("too long");
+    }
 }

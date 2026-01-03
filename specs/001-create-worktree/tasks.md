@@ -100,19 +100,19 @@
 
 ### Tests for US2 (Write FIRST, ensure they FAIL) ⚠️
 
-- [ ] T030 [P] [US2] EditorConfig モデルのユニットテストを作成: wt.tests/Models/EditorConfigTests.cs（EditorType, Command, Arguments, IsAvailable）
-- [ ] T031 [P] [US2] EditorService のユニットテストを作成: wt.tests/Services/Editor/EditorServiceTests.cs（LaunchEditorAsync, ResolveEditorCommand の各ケース）
-- [ ] T032 [US2] エディター起動のE2Eテストを作成: wt.tests/Integration/EditorLaunchTests.cs（VS Code起動の統合テスト）
+- [X] T030 [P] [US2] EditorConfig モデルのユニットテストを作成: wt.tests/Models/EditorConfigTests.cs（EditorType, Command, Arguments, IsAvailable）
+- [X] T031 [P] [US2] EditorService のユニットテストを作成: wt.tests/Services/Editor/EditorServiceTests.cs（LaunchEditorAsync, ResolveEditorCommand の各ケース）
+- [X] T032 [US2] エディター起動のE2Eテストを作成: wt.tests/Integration/EditorLaunchTests.cs（VS Code起動の統合テスト）
 
 ### Implementation for US2
 
-- [ ] T033 [P] [US2] EditorConfig モデルを実装: wt.cli/Models/EditorConfig.cs（EditorType enum, Command, Arguments, IsAvailable プロパティ）
-- [ ] T034 [P] [US2] EditorPresets を実装: wt.cli/Services/Editor/EditorPresets.cs（5エディター: vscode, vim, emacs, nano, idea のプリセット定義）
-- [ ] T035 [P] [US2] IEditorService インターフェースを定義: wt.cli/Services/Editor/IEditorService.cs（LaunchEditorAsync, ResolveEditorCommand）
-- [ ] T036 [US2] EditorService を実装: wt.cli/Services/Editor/EditorService.cs（EditorPresets 使用、PATH検索、ProcessRunner でエディター起動）
-- [ ] T037 [US2] CreateCommand に --editor オプションを追加: wt.cli/Commands/Worktree/CreateCommand.cs（-e エイリアス、EditorType enum、handler でエディター起動）
-- [ ] T038 [US2] WorktreeService にエディター起動統合: wt.cli/Services/Worktree/WorktreeService.cs（CreateWorktreeAsync 完了後に EditorService.LaunchEditorAsync 呼び出し）
-- [ ] T039 [US2] エディターが見つからない場合の警告表示: wt.cli/Services/Editor/EditorService.cs（ED001 エラーコード、worktree 作成は継続）
+- [X] T033 [P] [US2] EditorConfig モデルを実装: wt.cli/Models/EditorConfig.cs（EditorType enum, Command, Arguments, IsAvailable プロパティ）
+- [X] T034 [P] [US2] EditorPresets を実装: wt.cli/Services/Editor/EditorPresets.cs（5エディター: vscode, vim, emacs, nano, idea のプリセット定義）
+- [X] T035 [P] [US2] IEditorService インターフェースを定義: wt.cli/Services/Editor/IEditorService.cs（LaunchEditorAsync, ResolveEditorCommand）
+- [X] T036 [US2] EditorService を実装: wt.cli/Services/Editor/EditorService.cs（EditorPresets 使用、PATH検索、ProcessRunner でエディター起動）
+- [X] T037 [US2] CreateCommand に --editor オプションを追加: wt.cli/Commands/Worktree/CreateCommand.cs（-e エイリアス、EditorType enum、handler でエディター起動）
+- [X] T038 [US2] WorktreeService にエディター起動統合: wt.cli/Services/Worktree/WorktreeService.cs（CreateWorktreeAsync 完了後に EditorService.LaunchEditorAsync 呼び出し）
+- [X] T039 [US2] エディターが見つからない場合の警告表示: wt.cli/Services/Editor/EditorService.cs（ED001 エラーコード、worktree 作成は継続）
 
 **Checkpoint**: US2 完了 - `wt create <branch> --editor <type>` でエディター自動起動が動作
 
@@ -126,15 +126,15 @@
 
 ### Tests for US3 (Write FIRST, ensure they FAIL) ⚠️
 
-- [ ] T040 [P] [US3] カスタムパスバリデーションのユニットテストを追加: wt.tests/Utils/PathHelperTests.cs（無効パス、権限エラー、ディスク容量チェック）
-- [ ] T041 [US3] カスタムパスのE2Eテストを作成: wt.tests/Integration/CustomPathTests.cs（絶対パス、相対パス、無効パスのテスト）
+- [X] T040 [P] [US3] カスタムパスバリデーションのユニットテストを追加: wt.tests/Utils/PathHelperTests.cs（無効パス、権限エラー、ディスク容量チェック）
+- [X] T041 [US3] カスタムパスのE2Eテストを作成: wt.tests/Integration/CustomPathTests.cs（絶対パス、相対パス、無効パスのテスト）
 
 ### Implementation for US3
 
-- [ ] T042 [US3] PathHelper にカスタムパス検証を追加: wt.cli/Utils/PathHelper.cs（親ディレクトリ存在チェック、書き込み権限チェック、ディスク容量チェック）
-- [ ] T043 [US3] CreateCommand に --path オプションを追加: wt.cli/Commands/Worktree/CreateCommand.cs（-p エイリアス、デフォルト: ../worktrees/<branch>）
-- [ ] T044 [US3] WorktreeService でカスタムパス処理: wt.cli/Services/Worktree/WorktreeService.cs（options.Path が null の場合デフォルトパス、非 null の場合カスタムパス使用）
-- [ ] T045 [US3] パスエラーハンドリングを追加: wt.cli/Services/Worktree/WorktreeService.cs（FS001-FS003 エラーコード、解決策表示）
+- [X] T042 [US3] PathHelper にカスタムパス検証を追加: wt.cli/Utils/PathHelper.cs（親ディレクトリ存在チェック、書き込み権限チェック、ディスク容量チェック）
+- [X] T043 [US3] CreateCommand に --path オプションを追加: wt.cli/Commands/Worktree/CreateCommand.cs（-p エイリアス、デフォルト: ../worktrees/<branch>）
+- [X] T044 [US3] WorktreeService でカスタムパス処理: wt.cli/Services/Worktree/WorktreeService.cs（options.Path が null の場合デフォルトパス、非 null の場合カスタムパス使用）
+- [X] T045 [US3] パスエラーハンドリングを追加: wt.cli/Services/Worktree/WorktreeService.cs（FS001-FS003 エラーコード、解決策表示）
 
 **Checkpoint**: US3 完了 - `wt create <branch> --path <custom>` でカスタムパス指定が動作
 

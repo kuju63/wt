@@ -63,6 +63,26 @@ public class PathHelper : IPathHelper
                 return new PathValidationResult(false, "Path contains invalid characters");
             }
 
+            // パス長チェック（Windows: 260文字、Unix系: 4096文字）
+            var maxPathLength = OperatingSystem.IsWindows() ? 260 : 4096;
+            if (path.Length > maxPathLength)
+            {
+                return new PathValidationResult(false, $"Path is too long (max {maxPathLength} characters)");
+            }
+
+            // 既に存在するディレクトリはエラー
+            if (_fileSystem.Directory.Exists(path))
+            {
+                return new PathValidationResult(false, $"Path already exists: {path}");
+            }
+
+            // 親ディレクトリの存在チェック
+            var parentDirectory = _fileSystem.Path.GetDirectoryName(path);
+            if (!string.IsNullOrEmpty(parentDirectory) && !_fileSystem.Directory.Exists(parentDirectory))
+            {
+                return new PathValidationResult(false, $"Parent directory does not exist: {parentDirectory}");
+            }
+
             return new PathValidationResult(true);
         }
         catch (Exception ex)

@@ -1,0 +1,65 @@
+using wt.cli.Models;
+using wt.cli.Utils;
+
+namespace wt.cli.Services.Editor;
+
+public class EditorService : IEditorService
+{
+    private readonly IProcessRunner _processRunner;
+
+    public EditorService(IProcessRunner processRunner)
+    {
+        _processRunner = processRunner ?? throw new ArgumentNullException(nameof(processRunner));
+    }
+
+    public async Task<CommandResult<string>> LaunchEditorAsync(
+        string path,
+        EditorType editorType,
+        CancellationToken cancellationToken = default)
+    {
+        var config = ResolveEditorCommand(editorType);
+
+        // Check if editor is available
+        var whichCommand = OperatingSystem.IsWindows() ? "where" : "which";
+        var checkResult = await _processRunner.RunAsync(
+            whichCommand,
+            config.Command,
+            null,
+            cancellationToken);
+
+        if (checkResult.ExitCode != 0)
+        {
+            return CommandResult<string>.Failure(
+                ErrorCodes.EditorNotFound,
+                $"Editor command '{config.Command}' not found in PATH",
+                $"Install {editorType} or add it to your PATH environment variable");
+        }
+
+        // Launch the editor
+        var launchResult = await _processRunner.RunAsync(
+            config.Command,
+            $"\"{path}\"",
+            null,
+            cancellationToken);
+
+        if (launchResult.ExitCode != 0)
+        {
+            return CommandResult<string>.Failure(
+                ErrorCodes.EditorNotFound,
+                $"Failed to launch {editorType}",
+                "Check editor installation and permissions");
+        }
+
+        return CommandResult<string>.Success($"Launched {editorType} with path: {path}");
+    }
+
+    public EditorConfig ResolveEditorCommand(EditorType editorType)
+    {
+        if (EditorPresets.KnownEditors.TryGetValue(editorType, out var config))
+        {
+            return config;
+        }
+
+        throw new ArgumentException($"Unknown editor type: {editorType}", nameof(editorType));
+    }
+}
