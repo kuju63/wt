@@ -1,5 +1,3 @@
-using Xunit;
-
 namespace Kuju63.WorkTree.Tests.Integration;
 
 /// <summary>

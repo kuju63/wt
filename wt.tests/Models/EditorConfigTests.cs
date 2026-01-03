@@ -1,6 +1,5 @@
 using FluentAssertions;
 using Kuju63.WorkTree.CommandLine.Models;
-using Xunit;
 
 namespace Kuju63.WorkTree.Tests.Models;
 

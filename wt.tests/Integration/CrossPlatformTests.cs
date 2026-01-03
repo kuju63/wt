@@ -1,11 +1,9 @@
 using System.IO.Abstractions;
 using System.Runtime.InteropServices;
 using FluentAssertions;
-using Kuju63.WorkTree.CommandLine.Models;
 using Kuju63.WorkTree.CommandLine.Services.Git;
 using Kuju63.WorkTree.CommandLine.Utils;
 using Moq;
-using Xunit;
 
 namespace Kuju63.WorkTree.Tests.Integration;
 

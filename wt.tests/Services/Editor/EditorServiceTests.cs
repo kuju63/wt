@@ -3,7 +3,6 @@ using Kuju63.WorkTree.CommandLine.Models;
 using Kuju63.WorkTree.CommandLine.Services.Editor;
 using Kuju63.WorkTree.CommandLine.Utils;
 using Moq;
-using Xunit;
 
 namespace Kuju63.WorkTree.Tests.Services.Editor;
 

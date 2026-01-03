@@ -1,7 +1,6 @@
 using System.IO.Abstractions.TestingHelpers;
 using FluentAssertions;
 using Kuju63.WorkTree.CommandLine.Utils;
-using Xunit;
 
 namespace Kuju63.WorkTree.Tests.Utils;
 

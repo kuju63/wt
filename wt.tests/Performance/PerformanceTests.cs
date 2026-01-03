@@ -3,7 +3,6 @@ using System.IO.Abstractions;
 using FluentAssertions;
 using Kuju63.WorkTree.CommandLine.Utils;
 using Moq;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Kuju63.WorkTree.Tests.Performance;

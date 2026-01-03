@@ -5,7 +5,6 @@ using Kuju63.WorkTree.CommandLine.Services.Git;
 using Kuju63.WorkTree.CommandLine.Services.Worktree;
 using Kuju63.WorkTree.CommandLine.Utils;
 using Moq;
-using Xunit;
 
 namespace Kuju63.WorkTree.Tests.Services.Worktree;
 
