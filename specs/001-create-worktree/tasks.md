@@ -144,17 +144,17 @@
 
 **Purpose**: 全User Storyに影響する改善と仕上げ
 
-- [ ] T046 [P] --checkout-existing オプションを実装: wt.cli/Commands/Worktree/CreateCommand.cs（既存ブランチをチェックアウト、BR002エラー時の提案）
-- [ ] T047 [P] --output オプションを実装: wt.cli/Commands/Worktree/CreateCommand.cs（human|json 出力形式、JsonFormatter/HumanFormatter）
-- [ ] T048 [P] --verbose オプションを実装: wt.cli/Commands/Worktree/CreateCommand.cs（詳細診断情報、Git コマンド実行ログ）
-- [ ] T049 [P] --base オプションを実装: wt.cli/Commands/Worktree/CreateCommand.cs（-b エイリアス、ベースブランチ指定）
-- [ ] T050 IOutputFormatter インターフェースを定義: wt.cli/Services/Output/IOutputFormatter.cs（Format メソッド）
-- [ ] T051 [P] JsonFormatter を実装: wt.cli/Services/Output/JsonFormatter.cs（System.Text.Json 使用）
-- [ ] T052 [P] HumanFormatter を実装: wt.cli/Services/Output/HumanFormatter.cs（✓/✗記号、色付き出力）
-- [ ] T053 プログレス表示を追加: wt.cli/Commands/Worktree/CreateCommand.cs（"Creating branch...", "Adding worktree..." メッセージ）
+- [X] T046 [P] --checkout-existing オプションを実装: wt.cli/Commands/Worktree/CreateCommand.cs（既存ブランチをチェックアウト、BR002エラー時の提案）
+- [X] T047 [P] --output オプションを実装: wt.cli/Commands/Worktree/CreateCommand.cs（human|json 出力形式、JsonFormatter/HumanFormatter）
+- [X] T048 [P] --verbose オプションを実装: wt.cli/Commands/Worktree/CreateCommand.cs（詳細診断情報、Git コマンド実行ログ）
+- [X] T049 [P] --base オプションを実装: wt.cli/Commands/Worktree/CreateCommand.cs（-b エイリアス、ベースブランチ指定）
+- [X] T050 IOutputFormatter インターフェースを定義: wt.cli/Services/Output/IOutputFormatter.cs（Format メソッド）
+- [X] T051 [P] JsonFormatter を実装: wt.cli/Services/Output/JsonFormatter.cs（System.Text.Json 使用）
+- [X] T052 [P] HumanFormatter を実装: wt.cli/Services/Output/HumanFormatter.cs（✓/✗記号、色付き出力）
+- [X] T053 プログレス表示を追加: wt.cli/Commands/Worktree/CreateCommand.cs（"Creating branch...", "Adding worktree..." メッセージ）
 - [ ] T054 [P] クロスプラットフォーム対応を検証: wt.tests/Integration/CrossPlatformTests.cs（Windows/macOS/Linux でのパス処理、改行コード）
 - [ ] T055 [P] パフォーマンステストを追加: wt.tests/Performance/PerformanceTests.cs（5秒以内の実行時間、メモリ100MB以下）
-- [ ] T056 [P] README.md を更新: README.md（インストール、使用方法、例、トラブルシューティング）
+- [X] T056 [P] README.md を更新: README.md（インストール、使用方法、例、トラブルシューティング）
 - [ ] T057 [P] 日本語ユーザーガイドを作成: docs/ja/user-guide.md（全オプション説明、使用例）
 - [ ] T058 quickstart.md のバリデーションを実行（5フェーズワークフローが正しく動作することを確認）
 - [ ] T059 全テストを実行してカバレッジ80%以上を確認: `dotnet test --collect:"XPlat Code Coverage"`
