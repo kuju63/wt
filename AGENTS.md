@@ -78,6 +78,12 @@ uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
 
 - 仕様書の作成と管理は Spec Kit の規約に従うこと
 
+### API ドキュメントの生成
+
+- APIドキュメントの生成には`docfx`を使用すること
+- ドキュメントコメントの作成対象はpublic,protected,protected internalとなるclass,interface,enum,struct,delegate,fieldに限定すること
+- ドキュメントコメントのフォーマットはXMLドキュメントコメントを使用すること
+
 ## 6. バージョン管理とコミット
 
 - **コミットはユーザーが行う**こと
