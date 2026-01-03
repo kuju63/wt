@@ -1,0 +1,65 @@
+---
+# Codacy Configuration File
+# https://docs.codacy.com/repositories-configure/codacy-configuration-file/
+
+# Exclude patterns
+exclude_paths:
+  # Build outputs
+  - "bin/**"
+  - "obj/**"
+  - "**/bin/**"
+  - "**/obj/**"
+
+  # Documentation site
+  - "_site/**"
+  - "api/**/*.yml"
+
+  # Test results
+  - "TestResults/**"
+  - "**/TestResults/**"
+
+  # NuGet packages
+  - "packages/**"
+  - ".nuget/**"
+
+  # IDE and OS files
+  - ".vs/**"
+  - ".vscode/**"
+  - "*.user"
+  - "*.suo"
+
+  # Generated files
+  - "**/*.Designer.cs"
+  - "**/*.designer.cs"
+  - "**/*.generated.cs"
+  - "**/GlobalUsings.g.cs"
+  - "**/AssemblyInfo.cs"
+
+# Duplication configuration
+duplication:
+  enabled: true
+  # Exclude test files from duplication checks
+  exclude_paths:
+    - "wt.tests/**"
+    - "**/*.Tests/**"
+
+# Coverage configuration
+coverage:
+  enabled: true
+
+# Language-specific settings
+engines:
+  # Roslyn analyzers for C#
+  roslyn:
+    enabled: true
+
+  # Security analysis
+  trivy:
+    enabled: true
+
+  # Markdown linting
+  markdownlint:
+    enabled: true
+    exclude_paths:
+      - "_site/**"
+      - "api/**"
