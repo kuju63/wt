@@ -1,6 +1,6 @@
 using System.IO.Abstractions.TestingHelpers;
-using FluentAssertions;
 using Kuju63.WorkTree.CommandLine.Utils;
+using Shouldly;
 
 namespace Kuju63.WorkTree.Tests.Utils;
 
@@ -20,7 +20,7 @@ public class PathHelperTests
         var result = helper.ResolvePath(inputPath, basePath);
 
         // Assert
-        result.Should().Be(expectedPath);
+        result.ShouldBe(expectedPath);
     }
 
     [Fact]
@@ -35,8 +35,8 @@ public class PathHelperTests
         var result = helper.NormalizePath(path);
 
         // Assert
-        result.Should().NotContain("\\");
-        result.Should().Be("/path/to/mixed/separators");
+        result.ShouldNotContain("\\");
+        result.ShouldBe("/path/to/mixed/separators");
     }
 
     [Fact]
@@ -53,7 +53,7 @@ public class PathHelperTests
         var result = helper.ValidatePath("/valid/newpath");
 
         // Assert
-        result.IsValid.Should().BeTrue();
+        result.IsValid.ShouldBeTrue();
     }
 
     [Fact]
@@ -68,8 +68,9 @@ public class PathHelperTests
         var result = helper.ValidatePath(invalidPath);
 
         // Assert
-        result.IsValid.Should().BeFalse();
-        result.ErrorMessage.Should().Contain("invalid characters");
+        result.IsValid.ShouldBeFalse();
+        result.ErrorMessage.ShouldNotBeNullOrEmpty();
+        result.ErrorMessage.ShouldContain("invalid characters");
     }
 
     [Fact]
@@ -84,7 +85,7 @@ public class PathHelperTests
         helper.EnsureParentDirectoryExists(path);
 
         // Assert
-        fileSystem.Directory.Exists("/new/directory").Should().BeTrue();
+        fileSystem.Directory.Exists("/new/directory").ShouldBeTrue();
     }
 
     [Fact]
@@ -99,7 +100,7 @@ public class PathHelperTests
         var result = helper.ValidatePath(path);
 
         // Assert - Parent directory check is removed, will be created by EnsureParentDirectoryExists
-        result.IsValid.Should().BeTrue();
+        result.IsValid.ShouldBeTrue();
     }
 
     [Theory]
@@ -117,7 +118,7 @@ public class PathHelperTests
         var result = helper.ResolvePath(customPath, basePath);
 
         // Assert
-        result.Should().Be(expectedPath);
+        result.ShouldBe(expectedPath);
     }
 
     [Fact]
@@ -134,8 +135,9 @@ public class PathHelperTests
         var result = helper.ValidatePath("/existing/worktree");
 
         // Assert
-        result.IsValid.Should().BeFalse();
-        result.ErrorMessage.Should().Contain("already exists");
+        result.IsValid.ShouldBeFalse();
+        result.ErrorMessage.ShouldNotBeNullOrEmpty();
+        result.ErrorMessage.ShouldContain("already exists");
     }
 
     [Theory]
@@ -152,8 +154,9 @@ public class PathHelperTests
         var result = helper.ValidatePath(invalidPath!);
 
         // Assert
-        result.IsValid.Should().BeFalse();
-        result.ErrorMessage.Should().Contain("empty");
+        result.IsValid.ShouldBeFalse();
+        result.ErrorMessage.ShouldNotBeNullOrEmpty();
+        result.ErrorMessage.ShouldContain("empty");
     }
 
     [Fact]
@@ -173,7 +176,8 @@ public class PathHelperTests
         var result = helper.ValidatePath(longPath);
 
         // Assert
-        result.IsValid.Should().BeFalse();
-        result.ErrorMessage.Should().Contain("too long");
+        result.IsValid.ShouldBeFalse();
+        result.ErrorMessage.ShouldNotBeNullOrEmpty();
+        result.ErrorMessage.ShouldContain("too long");
     }
 }

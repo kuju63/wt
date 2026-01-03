@@ -1,8 +1,8 @@
 using System.Diagnostics;
 using System.IO.Abstractions;
-using FluentAssertions;
 using Kuju63.WorkTree.CommandLine.Utils;
 using Moq;
+using Shouldly;
 using Xunit.Abstractions;
 
 namespace Kuju63.WorkTree.Tests.Performance;
@@ -36,13 +36,13 @@ public class PerformanceTests
         foreach (var branch in testBranches)
         {
             var result = Validators.ValidateBranchName(branch);
-            result.IsValid.Should().BeTrue();
+            result.IsValid.ShouldBeTrue();
         }
 
         stopwatch.Stop();
 
         // Assert
-        stopwatch.ElapsedMilliseconds.Should().BeLessThan(10,
+        stopwatch.ElapsedMilliseconds.ShouldBeLessThan(10,
             $"Branch validation took {stopwatch.ElapsedMilliseconds}ms, expected < 10ms");
 
         _output.WriteLine($"Validated {testBranches.Length} branches in {stopwatch.ElapsedMilliseconds}ms");
@@ -69,13 +69,13 @@ public class PerformanceTests
         foreach (var path in testPaths)
         {
             var normalized = pathHelper.NormalizePath(path);
-            normalized.Should().NotBeNullOrEmpty();
+            (!string.IsNullOrEmpty(normalized)).ShouldBeTrue();
         }
 
         stopwatch.Stop();
 
         // Assert
-        stopwatch.ElapsedMilliseconds.Should().BeLessThan(10,
+        stopwatch.ElapsedMilliseconds.ShouldBeLessThan(10,
             $"Path normalization took {stopwatch.ElapsedMilliseconds}ms, expected < 10ms");
 
         _output.WriteLine($"Normalized {testPaths.Length} paths in {stopwatch.ElapsedMilliseconds}ms");
@@ -104,8 +104,8 @@ public class PerformanceTests
         stopwatch.Stop();
 
         // Assert
-        results.Should().AllSatisfy(r => r.IsValid.Should().BeTrue());
-        stopwatch.ElapsedMilliseconds.Should().BeLessThan(100,
+        foreach (var r in results) r.IsValid.ShouldBeTrue();
+        stopwatch.ElapsedMilliseconds.ShouldBeLessThan(100,
             $"Validated {branchCount} branches concurrently in {stopwatch.ElapsedMilliseconds}ms, expected < 100ms");
 
         _output.WriteLine($"Validated {branchCount} branches concurrently in {stopwatch.ElapsedMilliseconds}ms");

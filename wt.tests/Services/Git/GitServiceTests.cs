@@ -1,8 +1,8 @@
-using FluentAssertions;
 using Kuju63.WorkTree.CommandLine.Models;
 using Kuju63.WorkTree.CommandLine.Services.Git;
 using Kuju63.WorkTree.CommandLine.Utils;
 using Moq;
+using Shouldly;
 
 namespace Kuju63.WorkTree.Tests.Services.Git;
 
@@ -29,8 +29,8 @@ public class GitServiceTests
         var result = await _gitService.IsGitRepositoryAsync();
 
         // Assert
-        result.IsSuccess.Should().BeTrue();
-        result.Data.Should().BeTrue();
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldBeTrue();
     }
 
     [Fact]
@@ -45,8 +45,8 @@ public class GitServiceTests
         var result = await _gitService.IsGitRepositoryAsync();
 
         // Assert
-        result.IsSuccess.Should().BeTrue();
-        result.Data.Should().BeFalse();
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldBeFalse();
     }
 
     [Fact]
@@ -61,8 +61,8 @@ public class GitServiceTests
         var result = await _gitService.GetCurrentBranchAsync();
 
         // Assert
-        result.IsSuccess.Should().BeTrue();
-        result.Data.Should().Be("main");
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldBe("main");
     }
 
     [Fact]
@@ -77,8 +77,8 @@ public class GitServiceTests
         var result = await _gitService.GetCurrentBranchAsync();
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.ErrorCode.Should().Be(ErrorCodes.GitCommandFailed);
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe(ErrorCodes.GitCommandFailed);
     }
 
     [Fact]
@@ -93,8 +93,8 @@ public class GitServiceTests
         var result = await _gitService.BranchExistsAsync("feature-x");
 
         // Assert
-        result.IsSuccess.Should().BeTrue();
-        result.Data.Should().BeTrue();
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldBeTrue();
     }
 
     [Fact]
@@ -109,8 +109,8 @@ public class GitServiceTests
         var result = await _gitService.BranchExistsAsync("nonexistent");
 
         // Assert
-        result.IsSuccess.Should().BeTrue();
-        result.Data.Should().BeFalse();
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldBeFalse();
     }
 
     [Fact]
@@ -125,10 +125,10 @@ public class GitServiceTests
         var result = await _gitService.CreateBranchAsync("feature-x", "main");
 
         // Assert
-        result.IsSuccess.Should().BeTrue();
-        result.Data.Should().NotBeNull();
-        result.Data!.Name.Should().Be("feature-x");
-        result.Data.BaseBranch.Should().Be("main");
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldNotBeNull();
+        result.Data!.Name.ShouldBe("feature-x");
+        result.Data.BaseBranch.ShouldBe("main");
     }
 
     [Fact]
@@ -143,8 +143,8 @@ public class GitServiceTests
         var result = await _gitService.CreateBranchAsync("feature-x", "main");
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.ErrorCode.Should().Be(ErrorCodes.BranchAlreadyExists);
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe(ErrorCodes.BranchAlreadyExists);
     }
 
     [Fact]
@@ -160,8 +160,8 @@ public class GitServiceTests
         var result = await _gitService.AddWorktreeAsync(worktreePath, "feature-x");
 
         // Assert
-        result.IsSuccess.Should().BeTrue();
-        result.Data.Should().BeTrue();
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldBeTrue();
     }
 
     [Fact]
@@ -177,7 +177,7 @@ public class GitServiceTests
         var result = await _gitService.AddWorktreeAsync(worktreePath, "feature-x");
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.ErrorCode.Should().Be(ErrorCodes.WorktreeAlreadyExists);
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe(ErrorCodes.WorktreeAlreadyExists);
     }
 }

@@ -1,5 +1,5 @@
-using FluentAssertions;
 using Kuju63.WorkTree.CommandLine.Models;
+using Shouldly;
 
 namespace Kuju63.WorkTree.Tests.Models;
 
@@ -18,10 +18,10 @@ public class EditorConfigTests
         };
 
         // Assert
-        config.EditorType.Should().Be(EditorType.VSCode);
-        config.Command.Should().Be("code");
-        config.Arguments.Should().Be("{path}");
-        config.IsAvailable.Should().BeTrue();
+        config.EditorType.ShouldBe(EditorType.VSCode);
+        config.Command.ShouldBe("code");
+        config.Arguments.ShouldBe("{path}");
+        config.IsAvailable.ShouldBeTrue();
     }
 
     [Fact]
@@ -29,19 +29,19 @@ public class EditorConfigTests
     {
         // Arrange & Act & Assert
         var vsCode = new EditorConfig { EditorType = EditorType.VSCode };
-        vsCode.EditorType.Should().Be(EditorType.VSCode);
+        vsCode.EditorType.ShouldBe(EditorType.VSCode);
 
         var vim = new EditorConfig { EditorType = EditorType.Vim };
-        vim.EditorType.Should().Be(EditorType.Vim);
+        vim.EditorType.ShouldBe(EditorType.Vim);
 
         var emacs = new EditorConfig { EditorType = EditorType.Emacs };
-        emacs.EditorType.Should().Be(EditorType.Emacs);
+        emacs.EditorType.ShouldBe(EditorType.Emacs);
 
         var nano = new EditorConfig { EditorType = EditorType.Nano };
-        nano.EditorType.Should().Be(EditorType.Nano);
+        nano.EditorType.ShouldBe(EditorType.Nano);
 
         var idea = new EditorConfig { EditorType = EditorType.IntelliJIDEA };
-        idea.EditorType.Should().Be(EditorType.IntelliJIDEA);
+        idea.EditorType.ShouldBe(EditorType.IntelliJIDEA);
     }
 
     [Fact]
@@ -57,7 +57,7 @@ public class EditorConfigTests
         };
 
         // Assert
-        config.IsAvailable.Should().BeFalse();
+        config.IsAvailable.ShouldBeFalse();
     }
 
     [Theory]
@@ -76,8 +76,8 @@ public class EditorConfigTests
         };
 
         // Assert
-        config.Command.Should().Be(command);
-        config.Arguments.Should().Be(arguments);
+        config.Command.ShouldBe(command);
+        config.Arguments.ShouldBe(arguments);
     }
 
     [Fact]
@@ -91,6 +91,6 @@ public class EditorConfigTests
         };
 
         // Assert
-        config.Arguments.Should().Contain("{path}");
+        config.Arguments.ShouldContain("{path}");
     }
 }

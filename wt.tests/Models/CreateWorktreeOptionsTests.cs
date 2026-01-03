@@ -1,5 +1,5 @@
-using FluentAssertions;
 using Kuju63.WorkTree.CommandLine.Models;
+using Shouldly;
 
 namespace Kuju63.WorkTree.Tests.Models;
 
@@ -15,13 +15,13 @@ public class CreateWorktreeOptionsTests
         };
 
         // Assert
-        options.BranchName.Should().Be("feature-x");
-        options.BaseBranch.Should().BeNull();
-        options.WorktreePath.Should().BeNull();
-        options.EditorType.Should().BeNull();
-        options.CheckoutExisting.Should().BeFalse();
-        options.OutputFormat.Should().Be(OutputFormat.Human);
-        options.Verbose.Should().BeFalse();
+        options.BranchName.ShouldBe("feature-x");
+        options.BaseBranch.ShouldBeNull();
+        options.WorktreePath.ShouldBeNull();
+        options.EditorType.ShouldBeNull();
+        options.CheckoutExisting.ShouldBeFalse();
+        options.OutputFormat.ShouldBe(OutputFormat.Human);
+        options.Verbose.ShouldBeFalse();
     }
 
     [Fact]
@@ -40,13 +40,13 @@ public class CreateWorktreeOptionsTests
         };
 
         // Assert
-        options.BranchName.Should().Be("feature-x");
-        options.BaseBranch.Should().Be("develop");
-        options.WorktreePath.Should().Be("/custom/path");
-        options.EditorType.Should().Be(EditorType.VSCode);
-        options.CheckoutExisting.Should().BeTrue();
-        options.OutputFormat.Should().Be(OutputFormat.Json);
-        options.Verbose.Should().BeTrue();
+        options.BranchName.ShouldBe("feature-x");
+        options.BaseBranch.ShouldBe("develop");
+        options.WorktreePath.ShouldBe("/custom/path");
+        options.EditorType.ShouldBe(EditorType.VSCode);
+        options.CheckoutExisting.ShouldBeTrue();
+        options.OutputFormat.ShouldBe(OutputFormat.Json);
+        options.Verbose.ShouldBeTrue();
     }
 
     [Fact]
@@ -59,7 +59,7 @@ public class CreateWorktreeOptionsTests
         };
 
         // Assert
-        options.OutputFormat.Should().Be(OutputFormat.Human);
+        options.OutputFormat.ShouldBe(OutputFormat.Human);
     }
 
     [Theory]
@@ -78,7 +78,7 @@ public class CreateWorktreeOptionsTests
         };
 
         // Assert
-        options.EditorType.Should().Be(editorType);
+        options.EditorType.ShouldBe(editorType);
     }
 
     [Theory]
@@ -94,7 +94,7 @@ public class CreateWorktreeOptionsTests
         };
 
         // Assert
-        options.OutputFormat.Should().Be(format);
+        options.OutputFormat.ShouldBe(format);
     }
 
     [Fact]
@@ -110,8 +110,9 @@ public class CreateWorktreeOptionsTests
         var result = options.Validate();
 
         // Assert
-        result.IsValid.Should().BeFalse();
-        result.ErrorMessage.Should().Contain("Branch name");
+        result.IsValid.ShouldBeFalse();
+        result.ErrorMessage.ShouldNotBeNullOrEmpty();
+        result.ErrorMessage.ShouldContain("Branch name");
     }
 
     [Fact]
@@ -127,6 +128,6 @@ public class CreateWorktreeOptionsTests
         var result = options.Validate();
 
         // Assert
-        result.IsValid.Should().BeTrue();
+        result.IsValid.ShouldBeTrue();
     }
 }

@@ -1,5 +1,5 @@
-using FluentAssertions;
 using Kuju63.WorkTree.CommandLine.Utils;
+using Shouldly;
 
 namespace Kuju63.WorkTree.Tests.Utils;
 
@@ -18,10 +18,10 @@ public class ValidatorsTests
         var result = Validators.ValidateBranchName(branchName);
 
         // Assert
-        result.IsValid.Should().Be(expected);
+        result.IsValid.ShouldBe(expected);
         if (expected)
         {
-            result.ErrorMessage.Should().BeNull();
+            result.ErrorMessage.ShouldBeNull();
         }
     }
 
@@ -41,8 +41,8 @@ public class ValidatorsTests
         var result = Validators.ValidateBranchName(branchName);
 
         // Assert
-        result.IsValid.Should().Be(expected);
-        result.ErrorMessage.Should().NotBeNull();
+        result.IsValid.ShouldBe(expected);
+        result.ErrorMessage.ShouldNotBeNull();
     }
 
     [Fact]
@@ -52,8 +52,9 @@ public class ValidatorsTests
         var result = Validators.ValidateBranchName(null!);
 
         // Assert
-        result.IsValid.Should().BeFalse();
-        result.ErrorMessage.Should().Contain("null or empty");
+        result.IsValid.ShouldBeFalse();
+        result.ErrorMessage.ShouldNotBeNullOrEmpty();
+        result.ErrorMessage.ShouldContain("null or empty");
     }
 
     [Theory]
@@ -66,6 +67,6 @@ public class ValidatorsTests
         var result = Validators.SanitizeBranchName(input);
 
         // Assert
-        result.Should().Be(expected);
+        result.ShouldBe(expected);
     }
 }

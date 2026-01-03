@@ -1,9 +1,9 @@
 using System.CommandLine;
-using FluentAssertions;
 using Kuju63.WorkTree.CommandLine.Commands.Worktree;
 using Kuju63.WorkTree.CommandLine.Services.Git;
 using Kuju63.WorkTree.CommandLine.Services.Worktree;
 using Kuju63.WorkTree.CommandLine.Utils;
+using Shouldly;
 
 namespace Kuju63.WorkTree.Tests.Integration;
 
@@ -141,6 +141,7 @@ public class WorktreeE2ETests : IDisposable
         {
             // Ignore cleanup errors
         }
+        GC.SuppressFinalize(this);
     }
 
     [Fact]
@@ -182,20 +183,20 @@ public class WorktreeE2ETests : IDisposable
                 var output = outputWriter.ToString();
                 throw new Exception($"Command failed with exit code {exitCode}. Output: {output}\nError: {errorOutput}");
             }
-            exitCode.Should().Be(0, "command should succeed");
-            outputWriter.ToString().Should().Contain("Worktree created successfully");
+            exitCode.ShouldBe(0, "command should succeed");
+            outputWriter.ToString().ShouldContain("Worktree created successfully");
 
             // Verify worktree was created
             var worktreePath = Path.Combine(Path.GetDirectoryName(_testRepoPath)!, "wt-feature-test");
-            Directory.Exists(worktreePath).Should().BeTrue("worktree directory should exist");
+            Directory.Exists(worktreePath).ShouldBeTrue("worktree directory should exist");
 
             // Verify branch was created and checked out
             var gitDirPath = Path.Combine(worktreePath, ".git");
-            File.Exists(gitDirPath).Should().BeTrue("worktree should have .git file");
+            File.Exists(gitDirPath).ShouldBeTrue("worktree should have .git file");
 
             // Verify branch exists in main repository
             var branchesOutput = RunGitCommand("branch --list feature-test");
-            branchesOutput.Should().Contain("feature-test", "branch should be created");
+            branchesOutput.ShouldContain("feature-test");
         }
         finally
         {
@@ -242,15 +243,15 @@ public class WorktreeE2ETests : IDisposable
             var exitCode = await parseResult.InvokeAsync(invocationConfig);
 
             // Assert
-            exitCode.Should().Be(0, "command should succeed");
+            exitCode.ShouldBe(0, "command should succeed");
 
             // Verify worktree was created
             var worktreePath = Path.Combine(Path.GetDirectoryName(_testRepoPath)!, "wt-feature-from-dev");
-            Directory.Exists(worktreePath).Should().BeTrue("worktree directory should exist");
+            Directory.Exists(worktreePath).ShouldBeTrue("worktree directory should exist");
 
             // Verify DEVELOP.md exists in the new worktree (inherited from develop branch)
             var devFileInWorktree = Path.Combine(worktreePath, "DEVELOP.md");
-            File.Exists(devFileInWorktree).Should().BeTrue("file from base branch should exist in worktree");
+            File.Exists(devFileInWorktree).ShouldBeTrue("file from base branch should exist in worktree");
         }
         finally
         {
@@ -292,14 +293,14 @@ public class WorktreeE2ETests : IDisposable
             var exitCode = await parseResult.InvokeAsync(invocationConfig);
 
             // Assert
-            exitCode.Should().Be(0, "command should succeed");
+            exitCode.ShouldBe(0, "command should succeed");
 
             // Verify worktree was created at custom location
-            Directory.Exists(customPath).Should().BeTrue("worktree should be created at custom path");
+            Directory.Exists(customPath).ShouldBeTrue("worktree should be created at custom path");
 
             // Verify it's a valid worktree
             var gitDirPath = Path.Combine(customPath, ".git");
-            File.Exists(gitDirPath).Should().BeTrue("worktree should have .git file");
+            File.Exists(gitDirPath).ShouldBeTrue("worktree should have .git file");
 
             // Cleanup custom path
             if (Directory.Exists(customPath))
@@ -347,8 +348,8 @@ public class WorktreeE2ETests : IDisposable
             var exitCode = await parseResult.InvokeAsync(invocationConfig);
 
             // Assert
-            exitCode.Should().NotBe(0, "command should fail");
-            errorWriter.ToString().Should().Contain("already exists", "error message should indicate branch exists");
+            exitCode.ShouldNotBe(0, "command should fail");
+            errorWriter.ToString().ShouldContain("already exists");
         }
         finally
         {
@@ -391,8 +392,8 @@ public class WorktreeE2ETests : IDisposable
             var exitCode = await parseResult.InvokeAsync(invocationConfig);
 
             // Assert
-            exitCode.Should().NotBe(0, "command should fail");
-            errorWriter.ToString().Should().Contain("Git repository", "error message should mention git repository");
+            exitCode.ShouldNotBe(0, "command should fail");
+            errorWriter.ToString().ShouldContain("Git repository");
         }
         finally
         {

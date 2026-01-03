@@ -1,5 +1,5 @@
-using FluentAssertions;
 using Kuju63.WorkTree.CommandLine.Models;
+using Shouldly;
 
 namespace Kuju63.WorkTree.Tests.Models;
 
@@ -18,10 +18,10 @@ public class WorktreeInfoTests
         var info = new WorktreeInfo(path, branch, baseBranch, createdAt);
 
         // Assert
-        info.Path.Should().Be(path);
-        info.Branch.Should().Be(branch);
-        info.BaseBranch.Should().Be(baseBranch);
-        info.CreatedAt.Should().Be(createdAt);
+        info.Path.ShouldBe(path);
+        info.Branch.ShouldBe(branch);
+        info.BaseBranch.ShouldBe(baseBranch);
+        info.CreatedAt.ShouldBe(createdAt);
     }
 
     [Fact]
@@ -34,8 +34,8 @@ public class WorktreeInfoTests
         var info3 = new WorktreeInfo("/different/path", "feature-x", "main", createdAt);
 
         // Assert
-        info1.Should().Be(info2);
-        info1.Should().NotBe(info3);
+        info1.ShouldBe(info2);
+        info1.ShouldNotBe(info3);
     }
 
     [Theory]
@@ -47,7 +47,7 @@ public class WorktreeInfoTests
         var info = new WorktreeInfo(path!, "branch", "main", DateTime.UtcNow);
 
         // Assert
-        info.Path.Should().Be(path);
+        info.Path.ShouldBe(path);
     }
 
     [Fact]
@@ -60,8 +60,8 @@ public class WorktreeInfoTests
         var result = info.ToString();
 
         // Assert
-        result.Should().Contain("/path/to/worktree");
-        result.Should().Contain("feature-x");
-        result.Should().Contain("main");
+        result.ShouldContain("/path/to/worktree");
+        result.ShouldContain("feature-x");
+        result.ShouldContain("main");
     }
 }

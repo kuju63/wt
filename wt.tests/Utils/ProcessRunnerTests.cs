@@ -1,5 +1,5 @@
-using FluentAssertions;
 using Kuju63.WorkTree.CommandLine.Utils;
+using Shouldly;
 
 namespace Kuju63.WorkTree.Tests.Utils;
 
@@ -15,10 +15,10 @@ public class ProcessRunnerTests
         var result = await runner.RunAsync("git", "--version");
 
         // Assert
-        result.Should().NotBeNull();
-        result.ExitCode.Should().Be(0);
-        result.StandardOutput.Should().Contain("git version");
-        result.StandardError.Should().BeEmpty();
+        result.ShouldNotBeNull();
+        result.ExitCode.ShouldBe(0);
+        result.StandardOutput.ShouldContain("git version");
+        result.StandardError.ShouldBeEmpty();
     }
 
     [Fact]
@@ -31,8 +31,8 @@ public class ProcessRunnerTests
         var result = await runner.RunAsync("git", "invalid-command");
 
         // Assert
-        result.Should().NotBeNull();
-        result.ExitCode.Should().NotBe(0);
+        result.ShouldNotBeNull();
+        result.ExitCode.ShouldNotBe(0);
     }
 
     [Fact]
@@ -49,11 +49,11 @@ public class ProcessRunnerTests
             var result = await runner.RunAsync("pwd", "", tempDir);
 
             // Assert
-            result.Should().NotBeNull();
-            result.ExitCode.Should().Be(0);
+            result.ShouldNotBeNull();
+            result.ExitCode.ShouldBe(0);
             // macOSでは /private プレフィックスが付くことがあるため、両方を許容
             var output = result.StandardOutput.Trim();
-            (output == tempDir || output == $"/private{tempDir}").Should().BeTrue();
+            (output == tempDir || output == $"/private{tempDir}").ShouldBeTrue();
         }
         finally
         {

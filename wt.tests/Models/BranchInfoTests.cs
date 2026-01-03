@@ -1,5 +1,5 @@
-using FluentAssertions;
 using Kuju63.WorkTree.CommandLine.Models;
+using Shouldly;
 
 namespace Kuju63.WorkTree.Tests.Models;
 
@@ -12,10 +12,10 @@ public class BranchInfoTests
         var info = new BranchInfo("feature-x", "main", false, false);
 
         // Assert
-        info.Name.Should().Be("feature-x");
-        info.BaseBranch.Should().Be("main");
-        info.Exists.Should().BeFalse();
-        info.IsRemote.Should().BeFalse();
+        info.Name.ShouldBe("feature-x");
+        info.BaseBranch.ShouldBe("main");
+        info.Exists.ShouldBeFalse();
+        info.IsRemote.ShouldBeFalse();
     }
 
     [Fact]
@@ -25,8 +25,8 @@ public class BranchInfoTests
         var info = new BranchInfo("feature-x", null, false, false);
 
         // Assert
-        info.Name.Should().Be("feature-x");
-        info.BaseBranch.Should().BeNull();
+        info.Name.ShouldBe("feature-x");
+        info.BaseBranch.ShouldBeNull();
     }
 
     [Fact]
@@ -36,7 +36,7 @@ public class BranchInfoTests
         var info = new BranchInfo("existing-branch", "main", true, false);
 
         // Assert
-        info.Exists.Should().BeTrue();
+        info.Exists.ShouldBeTrue();
     }
 
     [Fact]
@@ -46,7 +46,7 @@ public class BranchInfoTests
         var info = new BranchInfo("origin/feature-x", "main", true, true);
 
         // Assert
-        info.IsRemote.Should().BeTrue();
+        info.IsRemote.ShouldBeTrue();
     }
 
     [Fact]
@@ -58,8 +58,8 @@ public class BranchInfoTests
         var info3 = new BranchInfo("feature-y", "main", false, false);
 
         // Assert
-        info1.Should().Be(info2);
-        info1.Should().NotBe(info3);
+        info1.ShouldBe(info2);
+        info1.ShouldNotBe(info3);
     }
 
     [Theory]
@@ -73,6 +73,6 @@ public class BranchInfoTests
         var isValid = BranchInfo.IsValidName(name);
 
         // Assert
-        isValid.Should().Be(expectedValid);
+        isValid.ShouldBe(expectedValid);
     }
 }

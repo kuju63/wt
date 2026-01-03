@@ -1,8 +1,8 @@
-using FluentAssertions;
 using Kuju63.WorkTree.CommandLine.Models;
 using Kuju63.WorkTree.CommandLine.Services.Editor;
 using Kuju63.WorkTree.CommandLine.Utils;
 using Moq;
+using Shouldly;
 
 namespace Kuju63.WorkTree.Tests.Services.Editor;
 
@@ -38,7 +38,7 @@ public class EditorServiceTests
         var result = await _editorService.LaunchEditorAsync(path, editorType);
 
         // Assert
-        result.IsSuccess.Should().BeTrue();
+        result.IsSuccess.ShouldBeTrue();
         _mockProcessRunner.Verify(
             x => x.RunAsync("which", "code", null, It.IsAny<CancellationToken>()),
             Times.Once);
@@ -63,9 +63,10 @@ public class EditorServiceTests
         var result = await _editorService.LaunchEditorAsync(path, editorType);
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.ErrorCode.Should().Be("ED001");
-        result.ErrorMessage.Should().Contain("not found in PATH");
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe("ED001");
+        result.ErrorMessage.ShouldNotBeNullOrEmpty();
+        result.ErrorMessage.ShouldContain("not found in PATH");
     }
 
     [Theory]
@@ -124,7 +125,7 @@ public class EditorServiceTests
         var result = await _editorService.LaunchEditorAsync(path, editorType);
 
         // Assert
-        result.IsSuccess.Should().BeTrue();
+        result.IsSuccess.ShouldBeTrue();
         _mockProcessRunner.Verify(
             x => x.RunAsync("code", It.IsAny<string>(), null, It.IsAny<CancellationToken>()),
             Times.Once);
@@ -137,10 +138,10 @@ public class EditorServiceTests
         var config = _editorService.ResolveEditorCommand(EditorType.VSCode);
 
         // Assert
-        config.Should().NotBeNull();
-        config.EditorType.Should().Be(EditorType.VSCode);
-        config.Command.Should().Be("code");
-        config.Arguments.Should().Be("{path}");
+        config.ShouldNotBeNull();
+        config.EditorType.ShouldBe(EditorType.VSCode);
+        config.Command.ShouldBe("code");
+        config.Arguments.ShouldBe("{path}");
     }
 
     [Fact]
@@ -150,10 +151,10 @@ public class EditorServiceTests
         var config = _editorService.ResolveEditorCommand(EditorType.Vim);
 
         // Assert
-        config.Should().NotBeNull();
-        config.EditorType.Should().Be(EditorType.Vim);
-        config.Command.Should().Be("vim");
-        config.Arguments.Should().Be("{path}");
+        config.ShouldNotBeNull();
+        config.EditorType.ShouldBe(EditorType.Vim);
+        config.Command.ShouldBe("vim");
+        config.Arguments.ShouldBe("{path}");
     }
 
     [Fact]
@@ -163,10 +164,10 @@ public class EditorServiceTests
         var config = _editorService.ResolveEditorCommand(EditorType.Emacs);
 
         // Assert
-        config.Should().NotBeNull();
-        config.EditorType.Should().Be(EditorType.Emacs);
-        config.Command.Should().Be("emacs");
-        config.Arguments.Should().Be("{path}");
+        config.ShouldNotBeNull();
+        config.EditorType.ShouldBe(EditorType.Emacs);
+        config.Command.ShouldBe("emacs");
+        config.Arguments.ShouldBe("{path}");
     }
 
     [Fact]
@@ -176,10 +177,10 @@ public class EditorServiceTests
         var config = _editorService.ResolveEditorCommand(EditorType.Nano);
 
         // Assert
-        config.Should().NotBeNull();
-        config.EditorType.Should().Be(EditorType.Nano);
-        config.Command.Should().Be("nano");
-        config.Arguments.Should().Be("{path}");
+        config.ShouldNotBeNull();
+        config.EditorType.ShouldBe(EditorType.Nano);
+        config.Command.ShouldBe("nano");
+        config.Arguments.ShouldBe("{path}");
     }
 
     [Fact]
@@ -189,10 +190,10 @@ public class EditorServiceTests
         var config = _editorService.ResolveEditorCommand(EditorType.IntelliJIDEA);
 
         // Assert
-        config.Should().NotBeNull();
-        config.EditorType.Should().Be(EditorType.IntelliJIDEA);
-        config.Command.Should().Be("idea");
-        config.Arguments.Should().Be("{path}");
+        config.ShouldNotBeNull();
+        config.EditorType.ShouldBe(EditorType.IntelliJIDEA);
+        config.Command.ShouldBe("idea");
+        config.Arguments.ShouldBe("{path}");
     }
 
     [Fact]
@@ -216,8 +217,9 @@ public class EditorServiceTests
         var result = await _editorService.LaunchEditorAsync(path, editorType);
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.ErrorCode.Should().Be("ED001");
-        result.ErrorMessage.Should().Contain("Failed to launch");
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe("ED001");
+        result.ErrorMessage.ShouldNotBeNullOrEmpty();
+        result.ErrorMessage.ShouldContain("Failed to launch");
     }
 }

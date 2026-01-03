@@ -1,9 +1,9 @@
 using System.CommandLine;
-using FluentAssertions;
 using Kuju63.WorkTree.CommandLine.Commands.Worktree;
 using Kuju63.WorkTree.CommandLine.Models;
 using Kuju63.WorkTree.CommandLine.Services.Worktree;
 using Moq;
+using Shouldly;
 
 namespace Kuju63.WorkTree.Tests.Commands.Worktree;
 
@@ -50,8 +50,8 @@ public class CreateCommandTests
         var result = await parseResult.InvokeAsync(_invocationConfig);
 
         // Assert
-        result.Should().Be(0);
-        _outputWriter.ToString().Should().Contain("feature-x");
+        result.ShouldBe(0);
+        _outputWriter.ToString().ShouldContain("feature-x");
         _mockWorktreeService.Verify(
             x => x.CreateWorktreeAsync(
                 It.Is<CreateWorktreeOptions>(o => o.BranchName == "feature-x"),
@@ -81,7 +81,7 @@ public class CreateCommandTests
         var result = await parseResult.InvokeAsync(_invocationConfig);
 
         // Assert
-        result.Should().Be(0);
+        result.ShouldBe(0);
         _mockWorktreeService.Verify(
             x => x.CreateWorktreeAsync(
                 It.Is<CreateWorktreeOptions>(o =>
@@ -113,7 +113,7 @@ public class CreateCommandTests
         var result = await parseResult.InvokeAsync(_invocationConfig);
 
         // Assert
-        result.Should().Be(0);
+        result.ShouldBe(0);
         _mockWorktreeService.Verify(
             x => x.CreateWorktreeAsync(
                 It.Is<CreateWorktreeOptions>(o =>
@@ -142,8 +142,8 @@ public class CreateCommandTests
         var result = await parseResult.InvokeAsync(_invocationConfig);
 
         // Assert
-        result.Should().NotBe(0);
-        _errorWriter.ToString().Should().Contain("Branch 'feature-x' already exists");
+        result.ShouldNotBe(0);
+        _errorWriter.ToString().ShouldContain("Branch 'feature-x' already exists");
     }
 
     [Fact]
@@ -168,7 +168,7 @@ public class CreateCommandTests
         var result = await parseResult.InvokeAsync(_invocationConfig);
 
         // Assert
-        result.Should().Be(0);
+        result.ShouldBe(0);
         _mockWorktreeService.Verify(
             x => x.CreateWorktreeAsync(
                 It.Is<CreateWorktreeOptions>(o =>
@@ -191,6 +191,6 @@ public class CreateCommandTests
         var result = await parseResult.InvokeAsync(_invocationConfig);
 
         // Assert
-        result.Should().NotBe(0);
+        result.ShouldNotBe(0);
     }
 }

@@ -1,7 +1,7 @@
-using FluentAssertions;
 using Kuju63.WorkTree.CommandLine.Models;
 using Kuju63.WorkTree.CommandLine.Services.Editor;
 using Kuju63.WorkTree.CommandLine.Utils;
+using Shouldly;
 
 namespace Kuju63.WorkTree.Tests.Integration;
 
@@ -70,7 +70,7 @@ public class EditorLaunchTests : IDisposable
         var result = await editorService.LaunchEditorAsync(_testWorktreePath, EditorType.VSCode);
 
         // Assert
-        result.IsSuccess.Should().BeTrue();
+        result.IsSuccess.ShouldBeTrue();
     }
 
     [Fact]
@@ -78,7 +78,6 @@ public class EditorLaunchTests : IDisposable
     {
         // Arrange
         var processRunner = new ProcessRunner();
-        var editorService = new EditorService(processRunner);
         Directory.CreateDirectory(_testWorktreePath);
 
         // Use a non-existent editor command
@@ -92,7 +91,7 @@ public class EditorLaunchTests : IDisposable
             CancellationToken.None);
 
         // Assert
-        whichResult.ExitCode.Should().NotBe(0);
+        whichResult.ExitCode.ShouldNotBe(0);
     }
 
     [Fact]
@@ -104,20 +103,20 @@ public class EditorLaunchTests : IDisposable
 
         // Act & Assert
         var vsCodeConfig = editorService.ResolveEditorCommand(EditorType.VSCode);
-        vsCodeConfig.Command.Should().Be("code");
-        vsCodeConfig.Arguments.Should().Be("{path}");
+        vsCodeConfig.Command.ShouldBe("code");
+        vsCodeConfig.Arguments.ShouldBe("{path}");
 
         var vimConfig = editorService.ResolveEditorCommand(EditorType.Vim);
-        vimConfig.Command.Should().Be("vim");
+        vimConfig.Command.ShouldBe("vim");
 
         var emacsConfig = editorService.ResolveEditorCommand(EditorType.Emacs);
-        emacsConfig.Command.Should().Be("emacs");
+        emacsConfig.Command.ShouldBe("emacs");
 
         var nanoConfig = editorService.ResolveEditorCommand(EditorType.Nano);
-        nanoConfig.Command.Should().Be("nano");
+        nanoConfig.Command.ShouldBe("nano");
 
         var ideaConfig = editorService.ResolveEditorCommand(EditorType.IntelliJIDEA);
-        ideaConfig.Command.Should().Be("idea");
+        ideaConfig.Command.ShouldBe("idea");
     }
 
     [Fact]
@@ -125,7 +124,6 @@ public class EditorLaunchTests : IDisposable
     {
         // Arrange
         var processRunner = new ProcessRunner();
-        var editorService = new EditorService(processRunner);
         var specialPath = Path.Combine(Path.GetTempPath(), $"test path with spaces-{Guid.NewGuid()}");
 
         try
@@ -141,7 +139,8 @@ public class EditorLaunchTests : IDisposable
 
             // Assert - We just verify the service can handle special paths
             // Actual editor launch is skipped if not installed
-            specialPath.Should().Contain(" ");
+            specialPath.ShouldContain(" ");
+            whichResult.ExitCode.ShouldBe(0);
         }
         finally
         {

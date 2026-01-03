@@ -1,9 +1,9 @@
 using System.IO.Abstractions;
-using FluentAssertions;
 using Kuju63.WorkTree.CommandLine.Models;
 using Kuju63.WorkTree.CommandLine.Services.Git;
 using Kuju63.WorkTree.CommandLine.Services.Worktree;
 using Kuju63.WorkTree.CommandLine.Utils;
+using Shouldly;
 
 namespace Kuju63.WorkTree.Tests.Integration;
 
@@ -96,6 +96,7 @@ public class CustomPathTests : IDisposable
             }
         }
         catch { }
+        GC.SuppressFinalize(this);
     }
 
     [Fact]
@@ -124,14 +125,28 @@ public class CustomPathTests : IDisposable
             var result = await worktreeService.CreateWorktreeAsync(options);
 
             // Assert
-            result.IsSuccess.Should().BeTrue();
-            result.Data.Should().NotBeNull();
-            result.Data!.Path.Should().Be(_customWorktreePath);
-            Directory.Exists(_customWorktreePath).Should().BeTrue();
+            result.IsSuccess.ShouldBeTrue();
+            result.Data.ShouldNotBeNull();
+            result.Data!.Path.ShouldBe(_customWorktreePath);
+            Directory.Exists(_customWorktreePath).ShouldBeTrue();
         }
         finally
         {
-            try { if (Directory.Exists(originalDir)) Environment.CurrentDirectory = originalDir; else Environment.CurrentDirectory = Path.GetTempPath(); } catch { Environment.CurrentDirectory = Path.GetTempPath(); }
+            try
+            {
+                if (Directory.Exists(originalDir))
+                {
+                    Environment.CurrentDirectory = originalDir;
+                }
+                else
+                {
+                    Environment.CurrentDirectory = Path.GetTempPath();
+                }
+            }
+            catch
+            {
+                Environment.CurrentDirectory = Path.GetTempPath();
+            }
         }
     }
 
@@ -161,20 +176,21 @@ public class CustomPathTests : IDisposable
             // Act
             var result = await worktreeService.CreateWorktreeAsync(options);
 
+
             // Assert
-            result.IsSuccess.Should().BeTrue();
-            result.Data.Should().NotBeNull();
+            result.IsSuccess.ShouldBeTrue();
+            result.Data.ShouldNotBeNull();
 
             // Verify worktree directory exists
-            Directory.Exists(result.Data!.Path).Should().BeTrue();
+            Directory.Exists(result.Data!.Path).ShouldBeTrue();
 
             // Verify the directory name matches the expected pattern
             var directoryName = Path.GetFileName(result.Data.Path);
-            directoryName.Should().StartWith("relative-worktree-");
+            directoryName.StartsWith("relative-worktree-").ShouldBeTrue();
 
             // Verify git worktree was created (should have .git file)
             var gitFile = Path.Combine(result.Data.Path, ".git");
-            File.Exists(gitFile).Should().BeTrue("worktree should have .git file");
+            File.Exists(gitFile).ShouldBeTrue("worktree should have .git file");
 
             // Clean up
             if (Directory.Exists(result.Data.Path))
@@ -184,7 +200,21 @@ public class CustomPathTests : IDisposable
         }
         finally
         {
-            try { if (Directory.Exists(originalDir)) Environment.CurrentDirectory = originalDir; else Environment.CurrentDirectory = Path.GetTempPath(); } catch { Environment.CurrentDirectory = Path.GetTempPath(); }
+            try
+            {
+                if (Directory.Exists(originalDir))
+                {
+                    Environment.CurrentDirectory = originalDir;
+                }
+                else
+                {
+                    Environment.CurrentDirectory = Path.GetTempPath();
+                }
+            }
+            catch
+            {
+                Environment.CurrentDirectory = Path.GetTempPath();
+            }
         }
     }
 
@@ -215,12 +245,26 @@ public class CustomPathTests : IDisposable
             var result = await worktreeService.CreateWorktreeAsync(options);
 
             // Assert
-            result.IsSuccess.Should().BeFalse();
-            result.ErrorCode.Should().Be(ErrorCodes.InvalidPath);
+            result.IsSuccess.ShouldBeFalse();
+            result.ErrorCode.ShouldBe(ErrorCodes.InvalidPath);
         }
         finally
         {
-            try { if (Directory.Exists(originalDir)) Environment.CurrentDirectory = originalDir; else Environment.CurrentDirectory = Path.GetTempPath(); } catch { Environment.CurrentDirectory = Path.GetTempPath(); }
+            try
+            {
+                if (Directory.Exists(originalDir))
+                {
+                    Environment.CurrentDirectory = originalDir;
+                }
+                else
+                {
+                    Environment.CurrentDirectory = Path.GetTempPath();
+                }
+            }
+            catch
+            {
+                Environment.CurrentDirectory = Path.GetTempPath();
+            }
         }
     }
 
@@ -253,12 +297,26 @@ public class CustomPathTests : IDisposable
             var result = await worktreeService.CreateWorktreeAsync(options);
 
             // Assert
-            result.IsSuccess.Should().BeFalse();
-            result.ErrorCode.Should().Be(ErrorCodes.InvalidPath);
+            result.IsSuccess.ShouldBeFalse();
+            result.ErrorCode.ShouldBe(ErrorCodes.InvalidPath);
         }
         finally
         {
-            try { if (Directory.Exists(originalDir)) Environment.CurrentDirectory = originalDir; else Environment.CurrentDirectory = Path.GetTempPath(); } catch { Environment.CurrentDirectory = Path.GetTempPath(); }
+            try
+            {
+                if (Directory.Exists(originalDir))
+                {
+                    Environment.CurrentDirectory = originalDir;
+                }
+                else
+                {
+                    Environment.CurrentDirectory = Path.GetTempPath();
+                }
+            }
+            catch
+            {
+                Environment.CurrentDirectory = Path.GetTempPath();
+            }
         }
     }
 
@@ -289,10 +347,10 @@ public class CustomPathTests : IDisposable
             var result = await worktreeService.CreateWorktreeAsync(options);
 
             // Assert
-            result.IsSuccess.Should().BeTrue($"Expected success but got error: {result.ErrorMessage}");
-            result.Data.Should().NotBeNull();
-            result.Data!.Path.Should().Be(pathWithSpaces);
-            Directory.Exists(pathWithSpaces).Should().BeTrue();
+            result.IsSuccess.ShouldBeTrue($"Expected success but got error: {result.ErrorMessage}");
+            result.Data.ShouldNotBeNull();
+            result.Data!.Path.ShouldBe(pathWithSpaces);
+            Directory.Exists(pathWithSpaces).ShouldBeTrue();
 
             // Clean up
             if (Directory.Exists(pathWithSpaces))

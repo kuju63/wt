@@ -45,7 +45,7 @@ public class ProcessRunner : IProcessRunner
         var outputBuilder = new System.Text.StringBuilder();
         var errorBuilder = new System.Text.StringBuilder();
 
-        process.OutputDataReceived += (sender, e) =>
+        process.OutputDataReceived += (_, e) =>
         {
             if (!string.IsNullOrEmpty(e.Data))
             {
@@ -53,7 +53,7 @@ public class ProcessRunner : IProcessRunner
             }
         };
 
-        process.ErrorDataReceived += (sender, e) =>
+        process.ErrorDataReceived += (_, e) =>
         {
             if (!string.IsNullOrEmpty(e.Data))
             {

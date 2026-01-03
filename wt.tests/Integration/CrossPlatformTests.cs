@@ -1,9 +1,9 @@
 using System.IO.Abstractions;
 using System.Runtime.InteropServices;
-using FluentAssertions;
 using Kuju63.WorkTree.CommandLine.Services.Git;
 using Kuju63.WorkTree.CommandLine.Utils;
 using Moq;
+using Shouldly;
 
 namespace Kuju63.WorkTree.Tests.Integration;
 
@@ -31,9 +31,9 @@ public class CrossPlatformTests
         var normalizedPath = pathHelper.NormalizePath(testPath);
 
         // Assert
-        normalizedPath.Should().NotBeNullOrEmpty();
-        normalizedPath.Should().Contain("/");
-        normalizedPath.Should().NotContain("\\");
+        normalizedPath.ShouldNotBeNullOrEmpty();
+        normalizedPath.ShouldContain("/");
+        normalizedPath.ShouldNotContain("\\");
     }
 
     [Fact]
@@ -58,8 +58,8 @@ public class CrossPlatformTests
         var absolutePath = pathHelper.ResolvePath(relativePath, basePath);
 
         // Assert
-        absolutePath.Should().NotBeNullOrEmpty();
-        absolutePath.Should().Be(expectedAbsolutePath);
+        absolutePath.ShouldNotBeNullOrEmpty();
+        absolutePath.ShouldBe(expectedAbsolutePath);
     }
 
     [Theory]
@@ -72,22 +72,27 @@ public class CrossPlatformTests
         var result = Validators.ValidateBranchName(branchName);
 
         // Assert
-        result.IsValid.Should().BeTrue();
+        result.IsValid.ShouldBeTrue();
     }
 
     [Theory]
-    [InlineData("-invalid")]        // Starts with dash
-    [InlineData("invalid..branch")]  // Contains double dots
-    [InlineData("invalid@{branch")]  // Contains @{
-    [InlineData("invalid branch")]   // Contains space
-    [InlineData("")]                 // Empty string
+    // Starts with dash
+    [InlineData("-invalid")]
+    // Contains double dots
+    [InlineData("invalid..branch")]
+    // Contains @{
+    [InlineData("invalid@{branch")]
+    // Contains space
+    [InlineData("invalid branch")]
+    // Empty string
+    [InlineData("")]
     public void Validators_BranchName_ShouldRejectInvalidNames(string branchName)
     {
         // Act
         var result = Validators.ValidateBranchName(branchName);
 
         // Assert
-        result.IsValid.Should().BeFalse();
+        result.IsValid.ShouldBeFalse();
     }
 
     [Fact]
@@ -100,7 +105,7 @@ public class CrossPlatformTests
 
         // Act & Assert
         // This test verifies that output processing doesn't break on different line endings
-        Environment.NewLine.Should().Be(expectedNewLine);
+        Environment.NewLine.ShouldBe(expectedNewLine);
     }
 
     [Fact]
@@ -114,7 +119,7 @@ public class CrossPlatformTests
         var result = await gitService.IsGitRepositoryAsync(default);
 
         // Assert
-        result.Should().NotBeNull();
+        result.ShouldNotBeNull();
     }
 }
 

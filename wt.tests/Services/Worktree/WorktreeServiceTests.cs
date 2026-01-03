@@ -1,10 +1,10 @@
 using System.IO.Abstractions;
-using FluentAssertions;
 using Kuju63.WorkTree.CommandLine.Models;
 using Kuju63.WorkTree.CommandLine.Services.Git;
 using Kuju63.WorkTree.CommandLine.Services.Worktree;
 using Kuju63.WorkTree.CommandLine.Utils;
 using Moq;
+using Shouldly;
 
 namespace Kuju63.WorkTree.Tests.Services.Worktree;
 
@@ -65,11 +65,11 @@ public class WorktreeServiceTests
         var result = await _worktreeService.CreateWorktreeAsync(options);
 
         // Assert
-        result.IsSuccess.Should().BeTrue();
-        result.Data.Should().NotBeNull();
-        result.Data!.Branch.Should().Be("feature-x");
-        result.Data.BaseBranch.Should().Be("main");
-        result.Data.Path.Should().Be("/Users/dev/wt-feature-x");
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldNotBeNull();
+        result.Data!.Branch.ShouldBe("feature-x");
+        result.Data.BaseBranch.ShouldBe("main");
+        result.Data.Path.ShouldBe("/Users/dev/wt-feature-x");
     }
 
     [Fact]
@@ -90,8 +90,8 @@ public class WorktreeServiceTests
         var result = await _worktreeService.CreateWorktreeAsync(options);
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.ErrorCode.Should().Be(ErrorCodes.NotGitRepository);
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe(ErrorCodes.NotGitRepository);
     }
 
     [Fact]
@@ -116,8 +116,8 @@ public class WorktreeServiceTests
         var result = await _worktreeService.CreateWorktreeAsync(options);
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.ErrorCode.Should().Be(ErrorCodes.BranchAlreadyExists);
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe(ErrorCodes.BranchAlreadyExists);
     }
 
     [Fact]
@@ -158,8 +158,8 @@ public class WorktreeServiceTests
         var result = await _worktreeService.CreateWorktreeAsync(options);
 
         // Assert
-        result.IsSuccess.Should().BeFalse();
-        result.ErrorCode.Should().Be(ErrorCodes.InvalidPath);
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe(ErrorCodes.InvalidPath);
     }
 
     [Fact]
@@ -205,8 +205,8 @@ public class WorktreeServiceTests
         var result = await _worktreeService.CreateWorktreeAsync(options);
 
         // Assert
-        result.IsSuccess.Should().BeTrue();
-        result.Data.Should().NotBeNull();
-        result.Data!.Path.Should().Be("/custom/path/feature-x");
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldNotBeNull();
+        result.Data!.Path.ShouldBe("/custom/path/feature-x");
     }
 }
