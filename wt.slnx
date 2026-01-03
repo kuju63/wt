@@ -1,9 +1,0 @@
-<Solution>
-  <Configurations>
-    <Platform Name="Any CPU" />
-    <Platform Name="x64" />
-    <Platform Name="x86" />
-  </Configurations>
-  <Project Path="wt.cli/wt.cli.csproj" />
-  <Project Path="wt.tests/wt.tests.csproj" />
-</Solution>
