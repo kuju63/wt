@@ -21,6 +21,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false  # OPTIONAL platform failures don't block MANDATORY platforms
+      max-parallel: 4  # Build all platforms in parallel
       matrix:
         include:
           # Windows x64 (MANDATORY)
