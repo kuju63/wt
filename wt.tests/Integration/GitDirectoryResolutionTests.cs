@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using Kuju63.WorkTree.CommandLine.Services.Git;
 using Kuju63.WorkTree.CommandLine.Utils;
 using Shouldly;
@@ -17,38 +16,31 @@ public class GitDirectoryResolutionTests : IDisposable
     private readonly string _worktreePath;
     private readonly string _originalDirectory;
 
-    // P/Invoke for realpath on Unix-like systems
-    [DllImport("libc", SetLastError = true)]
-    private static extern IntPtr realpath(string path, IntPtr resolvedPath);
-
     /// <summary>
-    /// Resolves a path to its real absolute path, resolving all symlinks.
-    /// Works cross-platform: uses realpath on Unix/macOS, Path.GetFullPath on Windows.
+    /// Resolves a path to its real absolute path, resolving symlinks if possible.
+    /// Uses managed code approach via FileInfo to avoid P/Invoke.
     /// </summary>
     private static string GetRealPath(string path)
     {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            // On Windows, no symlink resolution needed for temp paths
-            return Path.GetFullPath(path);
-        }
-
-        // On Unix/macOS, use realpath to resolve symlinks
-        var ptr = realpath(path, IntPtr.Zero);
-        if (ptr == IntPtr.Zero)
-        {
-            // If realpath fails, fall back to GetFullPath
-            return Path.GetFullPath(path);
-        }
-
         try
         {
-            return Marshal.PtrToStringAnsi(ptr) ?? Path.GetFullPath(path);
+            // Use FileInfo/DirectoryInfo which can resolve some symlinks on both Windows and Unix
+            if (File.Exists(path))
+            {
+                return new FileInfo(path).FullName;
+            }
+            else if (Directory.Exists(path))
+            {
+                return new DirectoryInfo(path).FullName;
+            }
+            
+            // If path doesn't exist yet, just normalize it
+            return Path.GetFullPath(path);
         }
-        finally
+        catch
         {
-            // Free the memory allocated by realpath
-            Marshal.FreeHGlobal(ptr);
+            // Fallback to simple normalization if anything fails
+            return Path.GetFullPath(path);
         }
     }
 
@@ -186,7 +178,8 @@ public class GitDirectoryResolutionTests : IDisposable
                                         .Where(l => l != _testRepoPath)
                                         .Where(Directory.Exists)
                                         .ToArray();
-                foreach (var path in worktreePaths)
+                
+                foreach (var path in worktreePaths.Where(p => !string.IsNullOrEmpty(p)))
                 {
                     try
                     {

@@ -310,24 +310,49 @@ public class GitService : IGitService
             var gitDir = ".git";
             if (File.Exists(gitDir))
             {
-                var lines = File.ReadAllLines(gitDir);
-                if (lines.Length > 0)
+                try
                 {
-                    var firstLine = lines[0];
-                    const string prefix = "gitdir:";
-                    if (firstLine.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                    var lines = File.ReadAllLines(gitDir);
+                    if (lines.Length > 0)
                     {
-                        var gitDirPath = firstLine.Substring(prefix.Length).Trim();
-                        if (!string.IsNullOrWhiteSpace(gitDirPath))
+                        var firstLine = lines[0];
+                        const string prefix = "gitdir:";
+                        if (firstLine.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
                         {
-                            if (!Path.IsPathRooted(gitDirPath))
+                            var gitDirPath = firstLine.Substring(prefix.Length).Trim();
+                            if (!string.IsNullOrWhiteSpace(gitDirPath))
                             {
-                                gitDirPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), gitDirPath));
-                            }
+                                // Resolve to absolute path
+                                if (!Path.IsPathRooted(gitDirPath))
+                                {
+                                    gitDirPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), gitDirPath));
+                                }
+                                else
+                                {
+                                    gitDirPath = Path.GetFullPath(gitDirPath);
+                                }
 
-                            gitDir = gitDirPath;
+                                // Security: Validate that the resolved path points to a valid git directory
+                                // This helps prevent path traversal attacks from malicious .git files
+                                if (Directory.Exists(gitDirPath) && 
+                                    (Directory.Exists(Path.Combine(gitDirPath, "worktrees")) || 
+                                     File.Exists(Path.Combine(gitDirPath, "config"))))
+                                {
+                                    gitDir = gitDirPath;
+                                }
+                            }
                         }
                     }
+                }
+                catch (IOException ex)
+                {
+                    System.Console.Error.WriteLine($"[GitService] Error reading .git file: {ex.Message}");
+                    // Continue with default ".git" value
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    System.Console.Error.WriteLine($"[GitService] Access denied reading .git file: {ex.Message}");
+                    // Continue with default ".git" value
                 }
             }
 
