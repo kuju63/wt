@@ -226,7 +226,7 @@ public class ListCommandTests
             .Setup(x => x.ListWorktreesAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(CommandResult<List<WorktreeInfo>>.Failure(
                 "UNKNOWN", // Using unknown error code
-                string.Empty));
+                null!));
 
         var rootCommand = new RootCommand();
         rootCommand.Subcommands.Add(_command);
