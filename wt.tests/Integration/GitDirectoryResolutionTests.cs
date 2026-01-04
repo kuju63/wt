@@ -1,7 +1,7 @@
+using System.Runtime.InteropServices;
 using Kuju63.WorkTree.CommandLine.Services.Git;
 using Kuju63.WorkTree.CommandLine.Utils;
 using Shouldly;
-using System.Runtime.InteropServices;
 
 namespace Kuju63.WorkTree.Tests.Integration;
 
@@ -180,22 +180,21 @@ public class GitDirectoryResolutionTests : IDisposable
                 result?.WaitForExit();
                 var output = result?.StandardOutput.ReadToEnd() ?? "";
 
-                foreach (var line in output.Split('\n'))
+                var worktreePaths = output.Split('\n')
+                                        .Where(l => l.StartsWith("worktree "))
+                                        .Select(l => l.Substring(9).Trim())
+                                        .Where(l => l != _testRepoPath)
+                                        .Where(Directory.Exists)
+                                        .ToArray();
+                foreach (var path in worktreePaths)
                 {
-                    if (line.StartsWith("worktree "))
+                    try
                     {
-                        var path = line.Substring(9).Trim();
-                        if (path != _testRepoPath && Directory.Exists(path))
-                        {
-                            try
-                            {
-                                RunGitCommand($"worktree remove \"{path}\" --force");
-                            }
-                            catch
-                            {
-                                // Ignore cleanup errors
-                            }
-                        }
+                        RunGitCommand($"worktree remove \"{path}\" --force");
+                    }
+                    catch
+                    {
+                        // Ignore cleanup errors
                     }
                 }
             }
