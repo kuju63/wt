@@ -108,7 +108,7 @@ This story delivers file hashes and SBOM for binary integrity and dependency ver
 
 - [X] T033 Add file hash verification instructions to `quickstart.md`
 - [X] T034 Add SBOM interpretation guide to `quickstart.md`
-- [ ] T035 Create ADR (Architecture Decision Record) explaining SBOM format choice (CycloneDX JSON/XML) and signature tool selection
+- [X] T035 Create ADR (Architecture Decision Record) explaining SBOM format choice (CycloneDX JSON/XML) and signature tool selection
 - [X] T035a Add signature verification guide to `quickstart.md` (download .sig files, verify with public key)
 
 ---
@@ -148,7 +148,7 @@ This story delivers automatic version management and release notes.
 
 #### Release Documentation
 
-- [ ] T050 Document versioning strategy in ADR (Conventional Commits → SemVer)
+- [X] T050 Document versioning strategy in ADR (Conventional Commits → SemVer)
 - [X] T051 Add release notification setup guide to `quickstart.md`
 
 ---
@@ -181,7 +181,7 @@ This story delivers automated testing, coverage reporting, and quality gates.
 
 - [ ] T062 Configure Codacy check to warn (not block) on coverage below 80%
 - [ ] T063 Configure test failure check to block merge
-- [ ] T064 Document quality gate policy in ADR
+- [X] T064 Document quality gate policy in ADR
 - [ ] T065 Test: verify test failure blocks merge, coverage drop shows warning but allows merge
 
 #### Release Trigger on Quality Gate Pass
@@ -194,14 +194,14 @@ This story delivers automated testing, coverage reporting, and quality gates.
 #### Release Performance SLA Configuration
 
 - [X] T048a Configure GitHub Actions job timeout in `release.yml` to 25 minutes (buffer before 30-minute SLA from SC-003)
-- [ ] T048b Document timeout rationale in ADR (5-minute buffer for cleanup, upload finalization)
+- [X] T048b Document timeout rationale in ADR (5-minute buffer for cleanup, upload finalization)
 - [ ] T048c Test: verify workflow kills gracefully at timeout and logs clear error message
 
 #### Testing Documentation
 
 - [ ] T070 Document testing requirements in `quickstart.md`
 - [ ] T071 Document Codacy integration in `quickstart.md`
-- [ ] T072 Create testing ADR explaining TDD expectations and coverage goals
+- [X] T072 Create testing ADR explaining TDD expectations and coverage goals
 
 ---
 
@@ -223,11 +223,11 @@ This story delivers automated testing, coverage reporting, and quality gates.
 
 ### Documentation & Handoff
 
-- [ ] T081 Complete `research.md` with all Phase 0 research findings
-- [ ] T082 Complete `data-model.md` with release pipeline data model (versions, tags, releases)
-- [ ] T083 Complete `contracts/` directory with detailed workflow specifications
-- [ ] T084 Complete `quickstart.md` with end-to-end user journey walkthrough
-- [ ] T085 Create troubleshooting guide in `specs/001-automated-release-pipeline/troubleshooting.md`
+- [X] T081 Complete `research.md` with all Phase 0 research findings
+- [X] T082 Complete `data-model.md` with release pipeline data model (versions, tags, releases)
+- [X] T083 Complete `contracts/` directory with detailed workflow specifications
+- [X] T084 Complete `quickstart.md` with end-to-end user journey walkthrough
+- [X] T085 Create troubleshooting guide in `specs/001-automated-release-pipeline/troubleshooting.md`
 
 ### Final Validation & Testing
 

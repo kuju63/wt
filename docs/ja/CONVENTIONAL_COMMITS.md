@@ -120,12 +120,12 @@ test: add integration tests for SBOM generation
 
 Conventional Commitsは、自動バージョニングに使用されます:
 
-| Commit Type | Version Bump | 例 |
-|-------------|--------------|-----|
-| `fix:` | PATCH (0.0.X) | 0.1.0 → 0.1.1 |
-| `feat:` | MINOR (0.X.0) | 0.1.0 → 0.2.0 |
-| `BREAKING CHANGE:` | MAJOR (X.0.0) | 0.1.0 → 1.0.0 |
-| その他 (docs, style, etc.) | バージョン変更なし | - |
+| Commit Type                | Version Bump       | 例            |
+| -------------------------- | ------------------ | ------------- |
+| `fix:`                     | PATCH (0.0.X)      | 0.1.0 → 0.1.1 |
+| `feat:`                    | MINOR (0.X.0)      | 0.1.0 → 0.2.0 |
+| `BREAKING CHANGE:`         | MAJOR (X.0.0)      | 0.1.0 → 1.0.0 |
+| その他 (docs, style, etc.) | バージョン変更なし | -             |
 
 ## 自動バージョニングの仕組み
 
