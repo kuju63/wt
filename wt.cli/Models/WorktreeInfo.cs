@@ -29,9 +29,8 @@ public record WorktreeInfo(
     {
         if (IsDetached)
         {
-            var shortHash = CommitHash.Length >= 7
-                ? CommitHash.Substring(0, 7)
-                : CommitHash;
+            var safeHash = CommitHash ?? string.Empty;
+            var shortHash = safeHash[..Math.Min(7, safeHash.Length)];
             return $"{shortHash} (detached)";
         }
         return Branch;
