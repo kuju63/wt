@@ -36,9 +36,9 @@ This is a single CLI project with the following structure:
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Review existing project structure and ensure it matches plan.md
-- [ ] T002 Verify System.CommandLine 2.0.1 and System.IO.Abstractions 22.1.0 dependencies
-- [ ] T003 [P] Verify xUnit, Shouldly, and Moq test dependencies are configured
+- [X] T001 Review existing project structure and ensure it matches plan.md
+- [X] T002 Verify System.CommandLine 2.0.1 and System.IO.Abstractions 22.1.0 dependencies
+- [X] T003 [P] Verify xUnit, Shouldly, and Moq test dependencies are configured
 
 ---
 
@@ -48,12 +48,12 @@ This is a single CLI project with the following structure:
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create WorktreeInfo model with all properties and methods in wt.cli/Models/WorktreeInfo.cs
-- [ ] T005 [P] Create BranchInfo model (future extension placeholder) in wt.cli/Models/BranchInfo.cs
-- [ ] T006 [P] Create IOutputFormatter interface in wt.cli/Formatters/IOutputFormatter.cs
-- [ ] T007 Implement TableFormatter class in wt.cli/Formatters/TableFormatter.cs
-- [ ] T008 Extend IGitService interface to add ListWorktreesAsync method signature
-- [ ] T009 Implement GitService.ListWorktreesAsync() method to parse `git worktree list --porcelain` output in wt.cli/Services/Git/GitService.cs
+- [X] T004 Create WorktreeInfo model with all properties and methods in wt.cli/Models/WorktreeInfo.cs
+- [X] T005 [P] Create BranchInfo model (future extension placeholder) in wt.cli/Models/BranchInfo.cs
+- [X] T006 [P] Create IOutputFormatter interface in wt.cli/Formatters/IOutputFormatter.cs
+- [X] T007 Implement TableFormatter class in wt.cli/Formatters/TableFormatter.cs
+- [X] T008 Extend IGitService interface to add ListWorktreesAsync method signature
+- [X] T009 Implement GitService.ListWorktreesAsync() method to parse `git worktree list --porcelain` output in wt.cli/Services/Git/GitService.cs
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -67,20 +67,20 @@ This is a single CLI project with the following structure:
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Create ListCommand class inheriting from Command in wt.cli/Commands/ListCommand.cs
-- [ ] T011 [US1] Implement ListCommand constructor with IWorktreeService dependency
-- [ ] T012 [US1] Implement ListCommand.SetHandler to call WorktreeService and format output
-- [ ] T013 [US1] Extend IWorktreeService interface to add ListWorktreesAsync method signature
-- [ ] T014 [US1] Implement WorktreeService.ListWorktreesAsync() to call GitService.ListWorktreesAsync() in wt.cli/Services/Worktree/WorktreeService.cs
-- [ ] T015 [US1] Add worktree creation time retrieval logic using `.git/worktrees/<name>/gitdir` file timestamp in WorktreeService
-- [ ] T016 [US1] Add worktree existence validation using Directory.Exists() in WorktreeService
-- [ ] T017 [US1] Add sorting by creation date (newest first) in WorktreeService.ListWorktreesAsync()
-- [ ] T018 [US1] Register ListCommand in Program.cs with dependency injection
-- [ ] T019 [US1] Add warning message output to stderr for missing worktrees in ListCommand handler
-- [ ] T020 [US1] Add "No worktrees found" message handling in ListCommand handler
-- [ ] T021 [US1] Add error handling for Git not found (exit code 1) in ListCommand handler
-- [ ] T022 [US1] Add error handling for not a Git repository (exit code 2) in ListCommand handler
-- [ ] T023 [US1] Add error handling for Git command failure (exit code 10) in ListCommand handler
+- [X] T010 [US1] Create ListCommand class inheriting from Command in wt.cli/Commands/ListCommand.cs
+- [X] T011 [US1] Implement ListCommand constructor with IWorktreeService dependency
+- [X] T012 [US1] Implement ListCommand.SetHandler to call WorktreeService and format output
+- [X] T013 [US1] Extend IWorktreeService interface to add ListWorktreesAsync method signature
+- [X] T014 [US1] Implement WorktreeService.ListWorktreesAsync() to call GitService.ListWorktreesAsync() in wt.cli/Services/Worktree/WorktreeService.cs
+- [X] T015 [US1] Add worktree creation time retrieval logic using `.git/worktrees/<name>/gitdir` file timestamp in WorktreeService
+- [X] T016 [US1] Add worktree existence validation using Directory.Exists() in WorktreeService
+- [X] T017 [US1] Add sorting by creation date (newest first) in WorktreeService.ListWorktreesAsync()
+- [X] T018 [US1] Register ListCommand in Program.cs with dependency injection
+- [X] T019 [US1] Add warning message output to stderr for missing worktrees in ListCommand handler
+- [X] T020 [US1] Add "No worktrees found" message handling in ListCommand handler
+- [X] T021 [US1] Add error handling for Git not found (exit code 1) in ListCommand handler
+- [X] T022 [US1] Add error handling for not a Git repository (exit code 2) in ListCommand handler
+- [X] T023 [US1] Add error handling for Git command failure (exit code 10) in ListCommand handler
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - `wt list` command displays all worktrees with branches
 
@@ -94,14 +94,14 @@ This is a single CLI project with the following structure:
 
 ### Implementation for User Story 2
 
-- [ ] T024 [US2] Implement TableFormatter.Format() method to calculate column widths in wt.cli/Formatters/TableFormatter.cs
-- [ ] T025 [US2] Implement TableFormatter header row generation with Unicode box drawing characters (┌─┬─┐)
-- [ ] T026 [US2] Implement TableFormatter separator line generation (├─┼─┤)
-- [ ] T027 [US2] Implement TableFormatter data row generation with proper column alignment
-- [ ] T028 [US2] Implement TableFormatter footer line generation (└─┴─┘)
-- [ ] T029 [US2] Update ListCommand to use TableFormatter.Format() for output
-- [ ] T030 [US2] Ensure table displays Path, Branch (using GetDisplayBranch()), and Status (using GetDisplayStatus()) columns
-- [ ] T031 [US2] Verify table output handles long paths and branch names correctly with dynamic column widths
+- [X] T024 [US2] Implement TableFormatter.Format() method to calculate column widths in wt.cli/Formatters/TableFormatter.cs
+- [X] T025 [US2] Implement TableFormatter header row generation with Unicode box drawing characters (┌─┬─┐)
+- [X] T026 [US2] Implement TableFormatter separator line generation (├─┼─┤)
+- [X] T027 [US2] Implement TableFormatter data row generation with proper column alignment
+- [X] T028 [US2] Implement TableFormatter footer line generation (└─┴─┘)
+- [X] T029 [US2] Update ListCommand to use TableFormatter.Format() for output
+- [X] T030 [US2] Ensure table displays Path, Branch (using GetDisplayBranch()), and Status (using GetDisplayStatus()) columns
+- [X] T031 [US2] Verify table output handles long paths and branch names correctly with dynamic column widths
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work - output is in a clear table format
 
@@ -131,13 +131,13 @@ This is a single CLI project with the following structure:
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T039 [P] Update README.md with `wt list` command documentation
-- [ ] T040 [P] Add usage examples to getting-started.md documentation
+- [X] T039 [P] Update README.md with `wt list` command documentation
+- [X] T040 [P] Add usage examples to getting-started.md documentation
 - [ ] T041 [P] Add ADR for table formatting implementation decision (no external dependencies)
 - [ ] T042 [P] Add ADR for worktree creation time retrieval approach (filesystem timestamp)
-- [ ] T043 Code review and refactoring for clarity and maintainability
-- [ ] T044 Verify all exit codes are correctly implemented (0, 1, 2, 10, 99)
-- [ ] T045 Verify cross-platform compatibility (Windows path separators, Unicode support)
+- [X] T043 Code review and refactoring for clarity and maintainability
+- [X] T044 Verify all exit codes are correctly implemented (0, 1, 2, 10, 99)
+- [X] T045 Verify cross-platform compatibility (Windows path separators, Unicode support)
 - [ ] T046 Performance testing with 100 worktrees (should complete within 1 second)
 - [ ] T047 Run quickstart.md validation following TDD workflow
 - [ ] T048 [P] Update docfx documentation with API documentation for new classes

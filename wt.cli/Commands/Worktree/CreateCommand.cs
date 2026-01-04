@@ -105,7 +105,6 @@ public class CreateCommand : Command
                 {
                     path = worktreeInfo.Path,
                     branch = worktreeInfo.Branch,
-                    baseBranch = worktreeInfo.BaseBranch,
                     createdAt = worktreeInfo.CreatedAt
                 }
             }, new System.Text.Json.JsonSerializerOptions
@@ -119,7 +118,6 @@ public class CreateCommand : Command
             output.WriteLine($"✓ Worktree created successfully");
             output.WriteLine($"  Path:   {worktreeInfo.Path}");
             output.WriteLine($"  Branch: {worktreeInfo.Branch}");
-            output.WriteLine($"  Base:   {worktreeInfo.BaseBranch}");
         }
     }
 

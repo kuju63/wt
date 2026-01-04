@@ -68,7 +68,6 @@ public class WorktreeServiceTests
         result.IsSuccess.ShouldBeTrue();
         result.Data.ShouldNotBeNull();
         result.Data!.Branch.ShouldBe("feature-x");
-        result.Data.BaseBranch.ShouldBe("main");
         result.Data.Path.ShouldBe("/Users/dev/wt-feature-x");
     }
 

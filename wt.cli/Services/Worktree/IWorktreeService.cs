@@ -27,4 +27,17 @@ public interface IWorktreeService
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>A <see cref="CommandResult{WorktreeInfo}"/> containing the created worktree information.</returns>
     Task<CommandResult<WorktreeInfo>> CreateWorktreeAsync(CreateWorktreeOptions options, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Lists all worktrees in the repository asynchronously.
+    /// </summary>
+    /// <returns>A <see cref="CommandResult{T}"/> containing a list of worktree information, sorted by creation date (newest first).</returns>
+    Task<CommandResult<List<WorktreeInfo>>> ListWorktreesAsync();
+
+    /// <summary>
+    /// Lists all worktrees in the repository asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <returns>A <see cref="CommandResult{T}"/> containing a list of worktree information, sorted by creation date (newest first).</returns>
+    Task<CommandResult<List<WorktreeInfo>>> ListWorktreesAsync(CancellationToken cancellationToken);
 }

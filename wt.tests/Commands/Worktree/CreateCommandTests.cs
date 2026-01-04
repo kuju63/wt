@@ -35,8 +35,10 @@ public class CreateCommandTests
         var worktreeInfo = new WorktreeInfo(
             "/Users/dev/wt-feature-x",
             "feature-x",
-            "main",
-            DateTime.UtcNow);
+            false,
+            "abc1234567890abcdef1234567890abcdef1234",
+            DateTime.UtcNow,
+            true);
 
         _mockWorktreeService
             .Setup(x => x.CreateWorktreeAsync(It.IsAny<CreateWorktreeOptions>(), It.IsAny<CancellationToken>()))
@@ -66,8 +68,10 @@ public class CreateCommandTests
         var worktreeInfo = new WorktreeInfo(
             "/Users/dev/wt-feature-x",
             "feature-x",
-            "develop",
-            DateTime.UtcNow);
+            false,
+            "abc1234567890abcdef1234567890abcdef1234",
+            DateTime.UtcNow,
+            true);
 
         _mockWorktreeService
             .Setup(x => x.CreateWorktreeAsync(It.IsAny<CreateWorktreeOptions>(), It.IsAny<CancellationToken>()))
@@ -98,8 +102,10 @@ public class CreateCommandTests
         var worktreeInfo = new WorktreeInfo(
             "/custom/path/feature-x",
             "feature-x",
-            "main",
-            DateTime.UtcNow);
+            false,
+            "abc1234567890abcdef1234567890abcdef1234",
+            DateTime.UtcNow,
+            true);
 
         _mockWorktreeService
             .Setup(x => x.CreateWorktreeAsync(It.IsAny<CreateWorktreeOptions>(), It.IsAny<CancellationToken>()))
@@ -153,8 +159,10 @@ public class CreateCommandTests
         var worktreeInfo = new WorktreeInfo(
             "/custom/path",
             "feature-x",
-            "develop",
-            DateTime.UtcNow);
+            false,
+            "abc1234567890abcdef1234567890abcdef1234",
+            DateTime.UtcNow,
+            true);
 
         _mockWorktreeService
             .Setup(x => x.CreateWorktreeAsync(It.IsAny<CreateWorktreeOptions>(), It.IsAny<CancellationToken>()))
