@@ -231,6 +231,11 @@ public class GitService : IGitService
 
     private WorktreeData ParseWorktreeLine(string line)
     {
+        if (string.IsNullOrEmpty(line) || line.Length <= 9)
+        {
+            return new WorktreeData();
+        }
+
         return new WorktreeData
         {
             Path = line.Substring(9)
@@ -241,11 +246,17 @@ public class GitService : IGitService
     {
         if (line.StartsWith("HEAD "))
         {
-            worktree.Head = line.Substring(5);
+            if (line.Length >= 5)
+            {
+                worktree.Head = line.Substring(5);
+            }
         }
         else if (line.StartsWith("branch "))
         {
-            worktree.Branch = NormalizeBranchName(line.Substring(7));
+            if (line.Length >= 7)
+            {
+                worktree.Branch = NormalizeBranchName(line.Substring(7));
+            }
         }
         else if (line.Trim() == "detached")
         {
@@ -295,9 +306,13 @@ public class GitService : IGitService
                 createdAt = File.GetCreationTime(gitWorktreePath);
             }
         }
-        catch
+        catch (System.IO.IOException ex)
         {
-            // Ignore errors when reading creation time
+            System.Console.Error.WriteLine($"[GitService] Error reading creation time for worktree at '{path}': {ex.Message}");
+        }
+        catch (System.UnauthorizedAccessException ex)
+        {
+            System.Console.Error.WriteLine($"[GitService] Access denied when reading creation time for worktree at '{path}': {ex.Message}");
         }
 
         return new WorktreeInfo(path, branch, isDetached, commitHash, createdAt, exists);
