@@ -108,7 +108,10 @@ public class PerformanceTests
             stopwatch.Stop();
 
             // Ensure validation correctness for each trial
-            foreach (var r in results) r.IsValid.ShouldBeTrue();
+            foreach (var r in results)
+            {
+                r.IsValid.ShouldBeTrue();
+            }
 
             elapsedList.Add(stopwatch.ElapsedMilliseconds);
         }

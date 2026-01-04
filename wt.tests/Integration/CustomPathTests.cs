@@ -427,7 +427,21 @@ public class CustomPathTests : IDisposable
             {
                 if (Directory.Exists(originalDir))
                 {
-                    try { if (Directory.Exists(originalDir)) Environment.CurrentDirectory = originalDir; else Environment.CurrentDirectory = Path.GetTempPath(); } catch { Environment.CurrentDirectory = Path.GetTempPath(); }
+                    try
+                    {
+                        if (Directory.Exists(originalDir))
+                        {
+                            Environment.CurrentDirectory = originalDir;
+                        }
+                        else
+                        {
+                            Environment.CurrentDirectory = Path.GetTempPath();
+                        }
+                    }
+                    catch
+                    {
+                        Environment.CurrentDirectory = Path.GetTempPath();
+                    }
                 }
                 else
                 {
