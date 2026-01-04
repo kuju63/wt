@@ -4,23 +4,7 @@
 
 ## 必須シークレット
 
-### 1. GH_RELEASE_TOKEN
-
-- **用途**: GitHub Releasesへのバイナリアップロード、タグ作成、リリースノート公開
-- **権限**: `repo` (フルリポジトリアクセス)、`write:packages` (オプション)
-- **取得方法**:
-  1. GitHub Settings > Developer settings > Personal access tokens > Tokens (classic)
-  2. "Generate new token (classic)" をクリック
-  3. スコープで `repo` を選択
-  4. トークンを生成し、安全な場所にコピー
-- **設定方法**:
-  1. リポジトリ Settings > Secrets and variables > Actions
-  2. "New repository secret" をクリック
-  3. Name: `GH_RELEASE_TOKEN`
-  4. Value: 生成したトークン
-  5. "Add secret" をクリック
-
-### 2. CODACY_PROJECT_TOKEN
+### 1. CODACY_PROJECT_TOKEN
 
 - **用途**: Codacyへのテストカバレッジレポートアップロード
 - **権限**: プロジェクト固有のトークン (読み取り/書き込み)
@@ -37,7 +21,7 @@
 
 ## オプションシークレット
 
-### 3. GPG_PRIVATE_KEY (デジタル署名用)
+### 2. GPG_PRIVATE_KEY (デジタル署名用)
 
 - **用途**: SBOM、SHA256SUMSファイルのGPG署名生成
 - **権限**: GPG秘密鍵 (ASCII-armored形式)
@@ -52,7 +36,7 @@
   4. Value: エクスポートした秘密鍵
   5. "Add secret" をクリック
 
-### 4. GPG_PASSPHRASE (GPG鍵のパスフレーズ)
+### 3. GPG_PASSPHRASE (GPG鍵のパスフレーズ)
 
 - **用途**: GPG署名生成時のパスフレーズ入力
 - **権限**: GPG鍵のパスフレーズ文字列
@@ -64,13 +48,23 @@
   4. Value: パスフレーズ
   5. "Add secret" をクリック
 
+## 自動提供されるシークレット
+
+### GITHUB_TOKEN (自動生成)
+
+- **用途**: GitHub Releasesの作成、タグプッシュ、アーティファクトのアップロード
+- **権限**: GitHub Actionsが自動生成するトークン（`contents: write` 権限付き）
+- **設定不要**: GitHub Actionsが自動的に `secrets.GITHUB_TOKEN` として提供
+- **使用箇所**: `release.yml` の `softprops/action-gh-release` アクション
+- **注意**: Personal Access Tokenは不要です
+
 ## 検証方法
 
 シークレットが正しく設定されているか確認するには、GitHub Actions workflowを実行し、以下をチェックします:
 
-1. **GH_RELEASE_TOKEN**: リリース作成ステップでエラーが発生しないこと
+1. **GITHUB_TOKEN**: リリース作成ステップでエラーが発生しないこと（自動提供のため設定不要）
 2. **CODACY_PROJECT_TOKEN**: Codacyアップロードステップが成功し、Codacyダッシュボードにカバレッジが表示されること
-3. **GPG_PRIVATE_KEY / GPG_PASSPHRASE**: 署名ステップが成功し、.sigファイルが生成されること
+3. **GPG_PRIVATE_KEY / GPG_PASSPHRASE**: 署名ステップが成功し、.ascファイルが生成されること
 
 ## セキュリティベストプラクティス
 
@@ -83,8 +77,8 @@
 
 ### 問題: リリース作成が "Resource not accessible by integration" エラーで失敗する
 
-**原因**: `GH_RELEASE_TOKEN` の権限が不足している、またはトークンが無効  
-**解決策**: トークンが `repo` スコープを持っていることを確認し、必要に応じて再生成する
+**原因**: ワークフローの `permissions` 設定で `contents: write` が不足している  
+**解決策**: `release.yml` の permissions セクションを確認し、`contents: write` が設定されていることを確認する
 
 ### 問題: Codacyアップロードが "Unauthorized" エラーで失敗する
 

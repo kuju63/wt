@@ -151,5 +151,5 @@ Conventional Commitsは、自動バージョニングに使用されます:
 
 ---
 
-**最終更新**: 2026-01-04  
+**最終更新**: 2026-01-05  
 **担当者**: Release Pipeline Team

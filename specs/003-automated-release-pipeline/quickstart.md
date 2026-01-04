@@ -144,7 +144,7 @@ jq '.components[] | select(.name | contains("System.CommandLine"))' wt-v<version
 
 2. **Conventional Commits規約の遵守**:
    - すべてのコミットメッセージは Conventional Commits 規約に従うこと
-   - 詳細: [.github/CONVENTIONAL_COMMITS.md](../../.github/CONVENTIONAL_COMMITS.md)
+   - 詳細: [docs/ja/CONVENTIONAL_COMMITS.md](../../docs/ja/CONVENTIONAL_COMMITS.md)
 
 ### リリース作成フロー
 
@@ -203,6 +203,7 @@ PRが承認されたら、mainブランチにマージします。
 **原因**: Conventional Commits規約に準拠していない、またはバージョン変更が不要なコミット (docs, style等) のみ
 
 **解決策**:
+
 1. コミットメッセージを確認: `git log`
 2. `feat:`, `fix:`, `BREAKING CHANGE:` が含まれているか確認
 3. 必要に応じて、`git commit --amend` で修正
@@ -212,6 +213,7 @@ PRが承認されたら、mainブランチにマージします。
 **原因**: テストが失敗している、またはビルドエラー
 
 **解決策**:
+
 1. GitHub Actions のログを確認
 2. ローカルでテストを実行: `dotnet test wt.sln`
 3. ローカルでビルドを実行: `dotnet build wt.sln --configuration Release`
@@ -221,6 +223,7 @@ PRが承認されたら、mainブランチにマージします。
 **原因**: `GPG_PRIVATE_KEY` または `GPG_PASSPHRASE` が設定されていない
 
 **解決策**:
+
 1. GitHub リポジトリ設定 > Secrets and variables > Actions を確認
 2. 必要なシークレットが設定されているか確認
 3. 詳細: [.github/SECRETS.md](../../.github/SECRETS.md)
@@ -261,7 +264,7 @@ mainブランチを保護するため、以下のルールを設定してくだ�
 
 ## 📚 参考資料
 
-- [Conventional Commits 規約](../../.github/CONVENTIONAL_COMMITS.md)
+- [Conventional Commits 規約](../../docs/ja/CONVENTIONAL_COMMITS.md)
 - [GitHub Secrets 設定ガイド](../../.github/SECRETS.md)
 - [技術調査レポート](research.md)
 - [実装計画](plan.md)

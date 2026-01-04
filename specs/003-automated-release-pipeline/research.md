@@ -22,12 +22,12 @@
 
 ### バージョンインクリメントルール
 
-| Commit Type | Version Bump | 例 |
-|-------------|--------------|-----|
-| `BREAKING CHANGE:` (footer) | MAJOR (X.0.0) | 0.5.2 → 1.0.0 |
-| `feat:` | MINOR (0.X.0) | 0.5.2 → 0.6.0 |
-| `fix:` | PATCH (0.0.X) | 0.5.2 → 0.5.3 |
-| その他 (docs, style, refactor, test, chore, ci) | バージョン変更なし | - |
+| Commit Type                                     | Version Bump       | 例            |
+| ----------------------------------------------- | ------------------ | ------------- |
+| `BREAKING CHANGE:` (footer)                     | MAJOR (X.0.0)      | 0.5.2 → 1.0.0 |
+| `feat:`                                         | MINOR (0.X.0)      | 0.5.2 → 0.6.0 |
+| `fix:`                                          | PATCH (0.0.X)      | 0.5.2 → 0.5.3 |
+| その他 (docs, style, refactor, test, chore, ci) | バージョン変更なし | -             |
 
 ### 初期バージョン
 
@@ -64,7 +64,7 @@
 
 ## 2. CycloneDX統合オプション
 
-### 背景
+### CycloneDX統合の背景
 
 Software Bill of Materials (SBOM) を生成し、依存関係の透明性を確保する必要があります。CycloneDX形式を採用します。
 
@@ -78,10 +78,12 @@ Software Bill of Materials (SBOM) を生成し、依存関係の透明性を確�
 - **出力形式**: CycloneDX JSON/XML, SPDX
 - **インストール**: `dotnet tool install --global Microsoft.Sbom.DotNetTool`
 - **使用例**:
+  
   ```bash
   dotnet tool install --global Microsoft.Sbom.DotNetTool
   sbom-tool generate -b /path/to/project -bc /path/to/project -pn wt -pv 1.0.0 -ps kuju63 -nsb https://github.com/kuju63
   ```
+
 - **メリット**:
   - Microsoft公式ツール
   - .NETプロジェクトに最適化
@@ -99,10 +101,12 @@ Software Bill of Materials (SBOM) を生成し、依存関係の透明性を確�
 - **出力形式**: CycloneDX JSON/XML
 - **インストール**: `npm install -g @cyclonedx/cyclonedx-cli` または GitHub Releasesからバイナリダウンロード
 - **使用例**:
+  
   ```bash
   cyclonedx-cli convert --input-file sbom1.json --output-file sbom-cyclonedx.xml --output-format xml
   cyclonedx-cli merge --input-files sbom1.json sbom2.json --output-file merged.json
   ```
+
 - **メリット**:
   - 汎用ツール (言語非依存)
   - 複数SBOMのマージ機能あり
@@ -119,9 +123,11 @@ Software Bill of Materials (SBOM) を生成し、依存関係の透明性を確�
 - **出力形式**: CycloneDX JSON/XML, SPDX, Syft JSON
 - **インストール**: `curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh`
 - **使用例**:
+
   ```bash
   syft packages dir:/path/to/project -o cyclonedx-json > sbom.json
   ```
+
 - **メリット**:
   - 自動依存関係検出
   - マルチ言語対応
@@ -132,9 +138,10 @@ Software Bill of Materials (SBOM) を生成し、依存関係の透明性を確�
 
 ### 決定
 
-**Option 1: dotnet-sbom を採用**
+Option 1: dotnet-sbom を採用
 
 理由:
+
 - Microsoft公式ツールで、.NETプロジェクトに最適化されている
 - GitHub ActionsのUbuntuランナーでそのまま使用可能
 - CycloneDX 1.4準拠で、仕様要件を満たす
@@ -176,6 +183,7 @@ Conventional Commitsメッセージを解析し、バージョンインクリメ
 - **実装**: `.github/scripts/calculate-version.sh`
 - **依存**: git, grep, sed (GitHub Actions標準環境に含まれる)
 - **使用例**:
+
   ```bash
   #!/usr/bin/env bash
   LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
@@ -195,6 +203,7 @@ Conventional Commitsメッセージを解析し、バージョンインクリメ
     exit 1
   fi
   ```
+
 - **メリット**:
   - 追加依存なし (標準Unixツールのみ)
   - GitHub Actionsで直接実行可能
@@ -210,10 +219,12 @@ Conventional Commitsメッセージを解析し、バージョンインクリメ
 - **リポジトリ**: <https://github.com/semantic-release/semantic-release>
 - **依存**: Node.js, npm
 - **使用例**:
+
   ```bash
   npm install -g semantic-release
   npx semantic-release
   ```
+
 - **メリット**:
   - Conventional Commits完全対応
   - プラグインエコシステム豊富
@@ -232,11 +243,13 @@ Conventional Commitsメッセージを解析し、バージョンインクリメ
   - <https://github.com/conventional-changelog/standard-version>
 - **依存**: Node.js, npm
 - **使用例**:
+
   ```bash
   npm install -g @commitlint/cli @commitlint/config-conventional standard-version
   npx commitlint --from HEAD~1 --to HEAD
   npx standard-version
   ```
+
 - **メリット**:
   - commitlint: コミットメッセージバリデーション
   - standard-version: バージョンインクリメント + CHANGELOG生成
@@ -248,9 +261,10 @@ Conventional Commitsメッセージを解析し、バージョンインクリメ
 
 ### 決定
 
-**Option 1: カスタムBashスクリプト を採用**
+Option 1: カスタムBashスクリプト を採用
 
 理由:
+
 - 追加依存がなく、GitHub Actions標準環境で動作
 - シンプルなユースケース (feat, fix, BREAKING CHANGE のみ) に最適
 - デバッグとカスタマイズが容易
@@ -294,17 +308,20 @@ Conventional Commitsメッセージを解析し、バージョンインクリメ
 #### GitHub-hostedランナーの制限
 
 **Freeプラン (Public repositories)**:
+
 - 並行ジョブ数: 20ジョブ
 - macOSランナー: 5並行ジョブ
 - 月間実行時間: 無制限
 - ストレージ: 500MB
 
 **Proプラン**:
+
 - 並行ジョブ数: 40ジョブ
 - macOSランナー: 5並行ジョブ
 - 月間実行時間: 3,000分 (Linux/Windows), 600分 (macOS)
 
 **Enterpriseプラン**:
+
 - 並行ジョブ数: 180ジョブ
 - macOSランナー: 50並行ジョブ
 - 月間実行時間: 50,000分 (Linux/Windows), 10,000分 (macOS)
@@ -448,6 +465,7 @@ GitHub-hosted runnersで各プラットフォーム向けビルドが可能か�
 - **利用可能ツール**: gcc, clang, make, cmake, git, curl, wget
 
 **ビルドコマンド**:
+
 ```bash
 dotnet publish -c Release -r linux-x64 --self-contained
 dotnet publish -c Release -r linux-arm --self-contained
@@ -461,6 +479,7 @@ dotnet publish -c Release -r linux-arm --self-contained
 - **利用可能ツール**: git, PowerShell, Chocolatey
 
 **ビルドコマンド**:
+
 ```powershell
 dotnet publish -c Release -r win-x64 --self-contained
 ```
@@ -473,18 +492,19 @@ dotnet publish -c Release -r win-x64 --self-contained
 - **利用可能ツール**: Xcode, Homebrew, git
 
 **ビルドコマンド**:
+
 ```bash
 dotnet publish -c Release -r osx-arm64 --self-contained
 ```
 
 ### .NETランタイム識別子 (RID)
 
-| プラットフォーム | RID | ランナー | ビルド可否 |
-|------------------|-----|----------|------------|
-| Windows x64 | `win-x64` | `windows-latest` | ✅ ネイティブ |
-| Linux x64 | `linux-x64` | `ubuntu-latest` | ✅ ネイティブ |
-| Linux ARM | `linux-arm` | `ubuntu-latest` | ✅ クロスコンパイル |
-| macOS ARM64 | `osx-arm64` | `macos-latest` | ✅ ネイティブ |
+| プラットフォーム | RID         | ランナー         | ビルド可否          |
+| ---------------- | ----------- | ---------------- | ------------------- |
+| Windows x64      | `win-x64`   | `windows-latest` | ✅ ネイティブ       |
+| Linux x64        | `linux-x64` | `ubuntu-latest`  | ✅ ネイティブ       |
+| Linux ARM        | `linux-arm` | `ubuntu-latest`  | ✅ クロスコンパイル |
+| macOS ARM64      | `osx-arm64` | `macos-latest`   | ✅ ネイティブ       |
 
 ### 追加依存関係
 
@@ -510,10 +530,12 @@ SBOM と SHA256SUMS ファイルにデジタル署名を付与し、改ざん検
 - **ツール名**: GPG
 - **バージョン**: 2.x
 - **使用例**:
+
   ```bash
   gpg --armor --detach-sign --default-key YOUR_KEY_ID sbom.json
   # 生成: sbom.json.asc
   ```
+
 - **メリット**:
   - 業界標準ツール
   - GitHub Actions環境にプリインストール
@@ -528,10 +550,12 @@ SBOM と SHA256SUMS ファイルにデジタル署名を付与し、改ざん検
 - **ツール名**: Cosign
 - **リポジトリ**: <https://github.com/sigstore/cosign>
 - **使用例**:
+
   ```bash
   cosign sign-blob --key cosign.key sbom.json > sbom.json.sig
   cosign verify-blob --key cosign.pub --signature sbom.json.sig sbom.json
   ```
+
 - **メリット**:
   - モダンな署名ツール
   - Keyless署名対応 (OIDC認証)
@@ -546,12 +570,14 @@ SBOM と SHA256SUMS ファイルにデジタル署名を付与し、改ざん検
 
 - **ツール名**: GitHub Actions Attestation (Beta)
 - **使用例**:
+
   ```yaml
   - name: Attest Build Provenance
     uses: actions/attest-build-provenance@v1
     with:
       subject-path: 'wt-v1.0.0-windows-x64.exe'
   ```
+
 - **メリット**:
   - GitHub公式機能
   - 追加ツール不要
@@ -567,6 +593,7 @@ SBOM と SHA256SUMS ファイルにデジタル署名を付与し、改ざん検
 **Option 1: GPG を採用**
 
 理由:
+
 - GitHub Actions環境に標準でインストール済み
 - 業界標準で広く認知されている
 - SBOM と SHA256SUMS の両方に署名可能
@@ -575,6 +602,7 @@ SBOM と SHA256SUMS ファイルにデジタル署名を付与し、改ざん検
 ### 実装計画
 
 1. **GPG鍵ペア生成** (ローカル作業)
+
    ```bash
    gpg --full-generate-key
    # 鍵タイプ: RSA and RSA (default)
@@ -585,12 +613,14 @@ SBOM と SHA256SUMS ファイルにデジタル署名を付与し、改ざん検
    ```
 
 2. **秘密鍵のエクスポートとシークレット設定**
+
    ```bash
    gpg --armor --export-secret-keys YOUR_KEY_ID
    # 出力を SECRETS.md に従って GitHub Secrets に設定
    ```
 
 3. **署名スクリプト作成** (`.github/scripts/sign-artifacts.sh`)
+
    ```bash
    #!/usr/bin/env bash
    echo "$GPG_PRIVATE_KEY" | gpg --batch --import
@@ -604,6 +634,7 @@ SBOM と SHA256SUMS ファイルにデジタル署名を付与し、改ざん検
    - GitHub Releaseの説明に公開鍵のフィンガープリントを記載
 
 5. **検証方法のドキュメント化** (`quickstart.md`)
+
    ```bash
    # 公開鍵のインポート
    gpg --import docs/GPG_PUBLIC_KEY.asc
@@ -623,14 +654,14 @@ SBOM と SHA256SUMS ファイルにデジタル署名を付与し、改ざん検
 
 ## まとめ
 
-| 技術決定項目 | 選択ツール/手法 | 理由 |
-|--------------|-----------------|------|
-| セマンティックバージョニング | カスタムBashスクリプト | 追加依存なし、シンプル、カスタマイズ容易 |
-| CycloneDX統合 | dotnet-sbom (Microsoft) | .NET最適化、公式ツール、CycloneDX 1.4準拠 |
-| Conventional Commitsパーサー | カスタムBashスクリプト | 追加依存なし、単純なユースケースに最適 |
-| 並行ビルド | GitHub Actionsマトリックス (4並行) | Freeプラン制限内、効率的 |
-| カバレッジ報告 | Codacy Coverage Reporter | 既存Codacy統合活用、PR品質ゲート |
-| デジタル署名 | GPG 2.x | 業界標準、プリインストール、広く普及 |
+| 技術決定項目                 | 選択ツール/手法                    | 理由                                      |
+| ---------------------------- | ---------------------------------- | ----------------------------------------- |
+| セマンティックバージョニング | カスタムBashスクリプト             | 追加依存なし、シンプル、カスタマイズ容易  |
+| CycloneDX統合                | dotnet-sbom (Microsoft)            | .NET最適化、公式ツール、CycloneDX 1.4準拠 |
+| Conventional Commitsパーサー | カスタムBashスクリプト             | 追加依存なし、単純なユースケースに最適    |
+| 並行ビルド                   | GitHub Actionsマトリックス (4並行) | Freeプラン制限内、効率的                  |
+| カバレッジ報告               | Codacy Coverage Reporter           | 既存Codacy統合活用、PR品質ゲート          |
+| デジタル署名                 | GPG 2.x                            | 業界標準、プリインストール、広く普及      |
 
 全ての技術調査が完了しました。Phase 1の実装に進みます。
 

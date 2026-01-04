@@ -99,7 +99,7 @@ jobs:
         with:
           name: binary-${{ matrix.platform }}-${{ matrix.arch }}
           path: |
-            wt.cli/bin/Release/net9.0/${{ matrix.rid }}/publish/wt*
+            wt.cli/bin/Release/net10.0/${{ matrix.rid }}/publish/wt*
           retention-days: 7
 
       - name: Report build status

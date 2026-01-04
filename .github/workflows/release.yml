@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
-      previous-version: ${{ steps.version.outputs.previous-version }}
+      previous-version: ${{ steps.version.outputs.previous_version }}
       should-release: ${{ steps.check.outputs.should-release }}
     steps:
       - name: Checkout repository
@@ -32,10 +32,15 @@ jobs:
       - name: Calculate next version
         id: version
         if: github.event.inputs.force-version == ''
-        shell: bash
-        run: |
-          chmod +x .github/scripts/calculate-version.sh
-          .github/scripts/calculate-version.sh
+        uses: paulhatch/semantic-version@a8f8f59fd7f0625188492e945240f12d7ad2dca3 # v5.4.0
+        with:
+          tag_prefix: "v"
+          major_pattern: "(BREAKING CHANGE:|BREAKING:)"
+          minor_pattern: "feat:"
+          version_format: "v${major}.${minor}.${patch}"
+          bump_each_commit: false
+          search_commit_body: true
+          user_format_type: "csv"
 
       - name: Use forced version
         id: forced-version
@@ -49,9 +54,9 @@ jobs:
         id: check
         run: |
           VERSION="${{ steps.version.outputs.version || steps.forced-version.outputs.version }}"
-          PREVIOUS="${{ steps.version.outputs.previous-version || steps.forced-version.outputs.previous-version }}"
+          PREVIOUS="${{ steps.version.outputs.previous_version || steps.forced-version.outputs.previous-version }}"
 
-          if [ "$VERSION" == "$PREVIOUS" ]; then
+          if [ "$VERSION" == "$PREVIOUS" ] || [ "$VERSION" == "" ]; then
             echo "should-release=false" >> $GITHUB_OUTPUT
             echo "::notice::No version change detected, skipping release"
           else
@@ -120,10 +125,11 @@ jobs:
           .github/scripts/generate-checksums.sh release-assets/
 
       - name: Generate SBOM
-        run: |
-          chmod +x .github/scripts/generate-sbom.sh
-          .github/scripts/generate-sbom.sh "${{ needs.calculate-version.outputs.version }}" .
-          mv wt-*.sbom.json release-assets/
+        uses: anchore/sbom-action@61119d458adab75f756bc0b9e4bde25725f86a7a # v0.17.2
+        with:
+          path: ./wt.cli
+          format: cyclonedx-json
+          output-file: release-assets/wt-${{ needs.calculate-version.outputs.version }}-sbom.json
 
       - name: Sign artifacts
         env:
