@@ -138,29 +138,30 @@ Software Bill of Materials (SBOM) を生成し、依存関係の透明性を確�
 
 ### 決定
 
-Option 1: dotnet-sbom を採用
+**Option 4: anchore/sbom-action (GitHub Action)** を採用 ← 実装時に変更
 
 理由:
 
-- Microsoft公式ツールで、.NETプロジェクトに最適化されている
-- GitHub ActionsのUbuntuランナーでそのまま使用可能
-- CycloneDX 1.4準拠で、仕様要件を満たす
-- 追加の外部依存が少ない (dotnet tool としてインストール可能)
+- より広く使われている（1.5k+ stars）
+- セットアップが簡単（dotnet tool installが不要）
+- エラーハンドリングが充実
+- CycloneDX 1.4準拠
+- 保守コストの削減
 
-### 実装計画
+### 実装
 
-1. **単一プラットフォームSBOM生成** (各ビルドごと)
-   - Windows x64ビルド後: `sbom-tool generate -b ./bin/Release/net9.0/win-x64/publish -pn wt -pv <version>`
-   - Linux x64ビルド後: 同様にSBOM生成
-   - Mac ARM64ビルド後: 同様にSBOM生成
+```yaml
+- name: Generate SBOM
+  uses: anchore/sbom-action@61119d458adab75f756bc0b9e4bde25725f86a7a # v0.17.2
+  with:
+    path: ./wt.cli
+    format: cyclonedx-json
+    output-file: release-assets/wt-${{ needs.calculate-version.outputs.version }}-sbom.json
+```
 
-2. **集約SBOM生成** (オプション)
-   - CycloneDX CLIを使用して、各プラットフォームのSBOMをマージ
-   - または、依存関係が共通の場合は単一のSBOM生成で代替
+**セキュリティ**: コミットID指定（`61119d45...`）でサプライチェーン攻撃を防止
 
-3. **SBOM アップロード**
-   - 集約SBOM (JSON形式) をGitHub Releaseにアップロード
-   - ファイル名: `wt-v<version>-sbom.json`
+**メリット**: 50行のカスタムスクリプトが4行のAction設定に簡素化
 
 ### 参考資料
 
@@ -261,33 +262,32 @@ Conventional Commitsメッセージを解析し、バージョンインクリメ
 
 ### 決定
 
-Option 1: カスタムBashスクリプト を採用
+**Option 4: paulhatch/semantic-version (GitHub Action)** を採用 ← 実装時に変更
 
 理由:
 
-- 追加依存がなく、GitHub Actions標準環境で動作
-- シンプルなユースケース (feat, fix, BREAKING CHANGE のみ) に最適
-- デバッグとカスタマイズが容易
-- プロジェクトの他の部分 (ビルドスクリプト) もBashを使用しており、一貫性がある
+- コミュニティメンテナンス（7.3k+ stars）による保守性向上
+- 信頼性が高く、広く使われている実績
+- カスタムスクリプトの保守コストを削減
+- エラーハンドリングが充実
+- Conventional Commits完全対応
 
-スコープや複雑なパースが必要な場合は、将来的にsemantic-releaseへの移行を検討。
+### 実装
 
-### 実装計画
+```yaml
+- name: Calculate next version
+  id: version
+  uses: paulhatch/semantic-version@a8f8f59fd7f0625188492e945240f12d7ad2dca3 # v5.4.0
+  with:
+    tag_prefix: "v"
+    major_pattern: "(BREAKING CHANGE:|BREAKING:)"
+    minor_pattern: "feat:"
+    version_format: "v${major}.${minor}.${patch}"
+    bump_each_commit: false
+    search_commit_body: true
+```
 
-1. **バージョン計算スクリプト** (`.github/scripts/calculate-version.sh`)
-   - 最新タグ取得
-   - コミットメッセージ解析
-   - バージョンインクリメント決定
-   - 新しいバージョン番号を出力
-
-2. **GitHub Actions統合**
-   - `release.yml` workflowでスクリプトを実行
-   - 出力されたバージョン番号を環境変数に設定
-   - タグ作成とリリース公開に使用
-
-3. **テスト**
-   - 手動テスト: 各commit typeでスクリプトを実行し、正しいバージョンが計算されることを確認
-   - E2Eテスト: 実際のPRマージでリリースが正しく作成されることを確認
+**セキュリティ**: コミットID指定（`a8f8f59f...`）でサプライチェーン攻撃を防止
 
 ### 参考資料
 
@@ -499,8 +499,8 @@ dotnet publish -c Release -r osx-arm64 --self-contained
 
 ### .NETランタイム識別子 (RID)
 
-| プラットフォーム | RID         | ランナー         | ビルド可否          |
-| ---------------- | ----------- | ---------------- | ------------------- |
+| プラットフォーム | RID         | ランナー         | ビルド可否         |
+| ---------------- | ----------- | ---------------- | ------------------ |
 | Windows x64      | `win-x64`   | `windows-latest` | ✅ ネイティブ       |
 | Linux x64        | `linux-x64` | `ubuntu-latest`  | ✅ ネイティブ       |
 | Linux ARM        | `linux-arm` | `ubuntu-latest`  | ✅ クロスコンパイル |
@@ -590,7 +590,7 @@ SBOM と SHA256SUMS ファイルにデジタル署名を付与し、改ざん検
 
 ### 決定
 
-**Option 1: GPG を採用**
+Option 1: GPG を採用
 
 理由:
 
@@ -654,18 +654,34 @@ SBOM と SHA256SUMS ファイルにデジタル署名を付与し、改ざん検
 
 ## まとめ
 
-| 技術決定項目                 | 選択ツール/手法                    | 理由                                      |
-| ---------------------------- | ---------------------------------- | ----------------------------------------- |
-| セマンティックバージョニング | カスタムBashスクリプト             | 追加依存なし、シンプル、カスタマイズ容易  |
-| CycloneDX統合                | dotnet-sbom (Microsoft)            | .NET最適化、公式ツール、CycloneDX 1.4準拠 |
-| Conventional Commitsパーサー | カスタムBashスクリプト             | 追加依存なし、単純なユースケースに最適    |
-| 並行ビルド                   | GitHub Actionsマトリックス (4並行) | Freeプラン制限内、効率的                  |
-| カバレッジ報告               | Codacy Coverage Reporter           | 既存Codacy統合活用、PR品質ゲート          |
-| デジタル署名                 | GPG 2.x                            | 業界標準、プリインストール、広く普及      |
+| 技術決定項目                 | 選択ツール/手法                                  | 理由                                              |
+| ---------------------------- | ------------------------------------------------ | ------------------------------------------------- |
+| セマンティックバージョニング | **paulhatch/semantic-version** (Action)          | コミュニティメンテ、保守コスト削減、7.3k+ stars   |
+| CycloneDX統合                | **anchore/sbom-action** (Action)                 | セットアップ簡単、1.5k+ stars、保守コスト削減     |
+| Conventional Commitsパーサー | paulhatch/semantic-version内蔵                   | Action統合済み、追加実装不要                      |
+| 並行ビルド                   | GitHub Actionsマトリックス (**max-parallel: 4**) | **全4プラットフォーム並列実行保証、70-75%高速化** |
+| カバレッジ報告               | Codacy Coverage Reporter (コミットID指定)        | 既存Codacy統合活用、PR品質ゲート                  |
+| デジタル署名                 | GPG 2.x                                          | 業界標準、プリインストール、広く普及              |
+| **セキュリティ強化**         | **全サードパーティActionコミットID指定**         | **サプライチェーン攻撃防止、不変参照**            |
+| **認証**                     | **GITHUB_TOKEN (自動提供)**                      | **Personal Access Token不要、安全**               |
 
-全ての技術調査が完了しました。Phase 1の実装に進みます。
+### 実装時の主要変更点
+
+1. **バージョン計算**: カスタムスクリプト削除 → `paulhatch/semantic-version@a8f8f59f` 採用
+2. **SBOM生成**: カスタムスクリプト削除 → `anchore/sbom-action@61119d45` 採用
+3. **セキュリティ**: 全サードパーティActions（5つ）をコミットID指定に変更
+   - paulhatch/semantic-version@a8f8f59f (v5.4.0)
+   - anchore/sbom-action@61119d45 (v0.17.2)
+   - codacy/codacy-coverage-reporter-action@a3881847
+   - dorny/test-reporter@bdab7eb6 (v2)
+   - softprops/action-gh-release@a06a81a0 (v2)
+4. **並列化**: build.ymlに`max-parallel: 4`追加で全プラットフォーム同時ビルド保証
+5. **認証**: GH_RELEASE_TOKEN削除、GITHUB_TOKEN（自動提供）使用
+6. **ドキュメント**: CONVENTIONAL_COMMITS.mdを`.github/`から`docs/ja/`に移動
+
+全ての技術調査と実装が完了しました。
 
 ---
 
-**最終更新**: 2026-01-04  
+**最終更新**: 2026-01-05  
 **担当者**: Release Pipeline Team
