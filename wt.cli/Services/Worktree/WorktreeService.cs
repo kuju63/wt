@@ -168,8 +168,10 @@ public class WorktreeService : IWorktreeService
         var worktreeInfo = new WorktreeInfo(
             normalizedPath,
             options.BranchName,
-            baseBranch,
-            DateTime.UtcNow);
+            false, // IsDetached - newly created worktrees are never detached
+            string.Empty, // CommitHash - not needed for create command
+            DateTime.UtcNow,
+            true); // Exists - just created, so it exists
 
         return await LaunchEditorIfSpecifiedAsync(options, worktreeInfo, cancellationToken);
     }
@@ -272,5 +274,44 @@ public class WorktreeService : IWorktreeService
         }
 
         return CommandResult<WorktreeInfo>.Success(worktreeInfo);
+    }
+
+    /// <summary>
+    /// Lists all worktrees in the repository. This overload does not accept a cancellation token.
+    /// </summary>
+    /// <returns>A <see cref="CommandResult{T}"/> containing a list of worktree information, sorted by creation date (newest first).</returns>
+    public Task<CommandResult<List<WorktreeInfo>>> ListWorktreesAsync()
+        => ListWorktreesAsync(CancellationToken.None);
+
+    /// <summary>
+    /// Lists all worktrees in the repository asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <returns>A <see cref="CommandResult{T}"/> containing a list of worktree information, sorted by creation date (newest first).</returns>
+    public async Task<CommandResult<List<WorktreeInfo>>> ListWorktreesAsync(CancellationToken cancellationToken)
+    {
+        // Check if in Git repository
+        var isGitRepoResult = await _gitService.IsGitRepositoryAsync(cancellationToken);
+        if (!isGitRepoResult.IsSuccess || !isGitRepoResult.Data)
+        {
+            return CommandResult<List<WorktreeInfo>>.Failure(
+                ErrorCodes.NotGitRepository,
+                "Not in a Git repository",
+                ErrorCodes.GetSolution(ErrorCodes.NotGitRepository));
+        }
+
+        // Get worktree list from Git
+        var listResult = await _gitService.ListWorktreesAsync(cancellationToken);
+        if (!listResult.IsSuccess)
+        {
+            return listResult;
+        }
+
+        // Sort by creation date (newest first)
+        var sortedWorktrees = listResult.Data!
+            .OrderByDescending(w => w.CreatedAt)
+            .ToList();
+
+        return CommandResult<List<WorktreeInfo>>.Success(sortedWorktrees);
     }
 }

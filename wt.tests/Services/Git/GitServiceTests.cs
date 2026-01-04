@@ -180,4 +180,140 @@ public class GitServiceTests
         result.IsSuccess.ShouldBeFalse();
         result.ErrorCode.ShouldBe(ErrorCodes.WorktreeAlreadyExists);
     }
+
+    [Fact]
+    public async Task ListWorktreesAsync_WithValidWorktrees_ReturnsWorktreeList()
+    {
+        // Arrange
+        var porcelainOutput = @"worktree /path/to/main
+HEAD abc123def456
+branch refs/heads/main
+
+worktree /path/to/feature-a
+HEAD def456789012
+branch refs/heads/feature-a
+
+";
+        _mockProcessRunner
+            .Setup(x => x.RunAsync("git", "worktree list --porcelain", null, default))
+            .ReturnsAsync(new ProcessResult(0, porcelainOutput, ""));
+
+        // Act
+        var result = await _gitService.ListWorktreesAsync();
+
+        // Assert
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldNotBeNull();
+        result.Data!.Count.ShouldBe(2);
+        result.Data[0].Path.ShouldBe("/path/to/main");
+        result.Data[0].Branch.ShouldBe("main");
+        result.Data[1].Path.ShouldBe("/path/to/feature-a");
+        result.Data[1].Branch.ShouldBe("feature-a");
+    }
+
+    [Fact]
+    public async Task ListWorktreesAsync_WithInvalidWorktreeLine_IgnoresMalformedEntry()
+    {
+        // Arrange - Line with "worktree " prefix but too short
+        var porcelainOutput = @"worktree
+HEAD abc123def456
+branch refs/heads/main
+
+worktree /path/to/valid
+HEAD def456789012
+branch refs/heads/feature
+
+";
+        _mockProcessRunner
+            .Setup(x => x.RunAsync("git", "worktree list --porcelain", null, default))
+            .ReturnsAsync(new ProcessResult(0, porcelainOutput, ""));
+
+        // Act
+        var result = await _gitService.ListWorktreesAsync();
+
+        // Assert
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldNotBeNull();
+        result.Data!.Count.ShouldBe(1);
+        result.Data[0].Path.ShouldBe("/path/to/valid");
+    }
+
+    [Fact]
+    public async Task ListWorktreesAsync_WithInvalidHeadLine_IgnoresInvalidHead()
+    {
+        // Arrange - Line with "HEAD " prefix but too short
+        var porcelainOutput = @"worktree /path/to/test
+HEAD
+branch refs/heads/main
+
+worktree /path/to/valid
+HEAD def456789012
+branch refs/heads/feature
+
+";
+        _mockProcessRunner
+            .Setup(x => x.RunAsync("git", "worktree list --porcelain", null, default))
+            .ReturnsAsync(new ProcessResult(0, porcelainOutput, ""));
+
+        // Act
+        var result = await _gitService.ListWorktreesAsync();
+
+        // Assert
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldNotBeNull();
+        result.Data!.Count.ShouldBe(1);
+        result.Data[0].Path.ShouldBe("/path/to/valid");
+    }
+
+    [Fact]
+    public async Task ListWorktreesAsync_WithInvalidBranchLine_IgnoresInvalidBranch()
+    {
+        // Arrange - Line with "branch " prefix but too short
+        var porcelainOutput = @"worktree /path/to/test
+HEAD abc123def456
+branch
+
+worktree /path/to/valid
+HEAD def456789012
+branch refs/heads/feature
+
+";
+        _mockProcessRunner
+            .Setup(x => x.RunAsync("git", "worktree list --porcelain", null, default))
+            .ReturnsAsync(new ProcessResult(0, porcelainOutput, ""));
+
+        // Act
+        var result = await _gitService.ListWorktreesAsync();
+
+        // Assert
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldNotBeNull();
+        result.Data!.Count.ShouldBe(2);
+        // First worktree should use HEAD as branch since branch line was invalid
+        result.Data[0].Branch.ShouldBe("abc123def456");
+        result.Data[1].Branch.ShouldBe("feature");
+    }
+
+    [Fact]
+    public async Task ListWorktreesAsync_WithDetachedHead_ReturnsDetachedWorktree()
+    {
+        // Arrange
+        var porcelainOutput = @"worktree /path/to/detached
+HEAD abc123def456
+detached
+
+";
+        _mockProcessRunner
+            .Setup(x => x.RunAsync("git", "worktree list --porcelain", null, default))
+            .ReturnsAsync(new ProcessResult(0, porcelainOutput, ""));
+
+        // Act
+        var result = await _gitService.ListWorktreesAsync();
+
+        // Assert
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldNotBeNull();
+        result.Data!.Count.ShouldBe(1);
+        result.Data[0].IsDetached.ShouldBeTrue();
+    }
 }

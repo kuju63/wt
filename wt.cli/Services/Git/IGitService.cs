@@ -111,4 +111,17 @@ public interface IGitService
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>A <see cref="CommandResult{bool}"/> containing <see langword="true"/> if the worktree was added successfully; otherwise, <see langword="false"/>.</returns>
     Task<CommandResult<bool>> AddWorktreeAsync(string path, string branchName, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Lists all worktrees in the repository asynchronously.
+    /// </summary>
+    /// <returns>A <see cref="CommandResult{T}"/> containing a list of worktree information.</returns>
+    Task<CommandResult<List<WorktreeInfo>>> ListWorktreesAsync();
+
+    /// <summary>
+    /// Lists all worktrees in the repository asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <returns>A <see cref="CommandResult{T}"/> containing a list of worktree information.</returns>
+    Task<CommandResult<List<WorktreeInfo>>> ListWorktreesAsync(CancellationToken cancellationToken);
 }

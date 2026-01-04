@@ -176,4 +176,146 @@ public class GitService : IGitService
 
         return CommandResult<bool>.Success(true);
     }
+
+    /// <summary>
+    /// Lists all worktrees in the repository asynchronously. This overload does not accept a cancellation token.
+    /// </summary>
+    /// <returns>A <see cref="CommandResult{T}"/> containing a list of worktree information.</returns>
+    public Task<CommandResult<List<WorktreeInfo>>> ListWorktreesAsync()
+        => ListWorktreesAsync(CancellationToken.None);
+
+    /// <summary>
+    /// Lists all worktrees in the repository asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <returns>A <see cref="CommandResult{T}"/> containing a list of worktree information.</returns>
+    public async Task<CommandResult<List<WorktreeInfo>>> ListWorktreesAsync(CancellationToken cancellationToken)
+    {
+        var result = await _processRunner.RunAsync("git", "worktree list --porcelain", null, cancellationToken);
+
+        if (result.ExitCode != 0)
+        {
+            return CommandResult<List<WorktreeInfo>>.Failure(
+                ErrorCodes.GitCommandFailed,
+                "Failed to list worktrees",
+                result.StandardError);
+        }
+
+        var worktrees = ParseWorktreesFromPorcelain(result.StandardOutput);
+        return CommandResult<List<WorktreeInfo>>.Success(worktrees);
+    }
+
+    private List<WorktreeInfo> ParseWorktreesFromPorcelain(string porcelainOutput)
+    {
+        var worktrees = new List<WorktreeInfo>();
+        var lines = porcelainOutput.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+
+        var currentWorktree = new WorktreeData();
+
+        foreach (var line in lines)
+        {
+            if (line.StartsWith("worktree "))
+            {
+                AddWorktreeIfValid(worktrees, currentWorktree);
+                currentWorktree = ParseWorktreeLine(line);
+            }
+            else
+            {
+                ParseWorktreeAttribute(line, ref currentWorktree);
+            }
+        }
+
+        AddWorktreeIfValid(worktrees, currentWorktree);
+        return worktrees;
+    }
+
+    private WorktreeData ParseWorktreeLine(string line)
+    {
+        if (string.IsNullOrEmpty(line) || line.Length <= 9)
+        {
+            return new WorktreeData();
+        }
+
+        return new WorktreeData
+        {
+            Path = line.Substring(9)
+        };
+    }
+
+    private void ParseWorktreeAttribute(string line, ref WorktreeData worktree)
+    {
+        if (line.StartsWith("HEAD "))
+        {
+            if (line.Length >= 5)
+            {
+                worktree.Head = line.Substring(5);
+            }
+        }
+        else if (line.StartsWith("branch "))
+        {
+            if (line.Length >= 7)
+            {
+                worktree.Branch = NormalizeBranchName(line.Substring(7));
+            }
+        }
+        else if (line.Trim() == "detached")
+        {
+            worktree.IsDetached = true;
+        }
+    }
+
+    private string NormalizeBranchName(string branch)
+    {
+        return branch.StartsWith("refs/heads/") ? branch.Substring(11) : branch;
+    }
+
+    private void AddWorktreeIfValid(List<WorktreeInfo> worktrees, WorktreeData data)
+    {
+        if (data.Path != null && data.Head != null)
+        {
+            worktrees.Add(CreateWorktreeInfo(
+                data.Path,
+                data.Branch ?? data.Head,
+                data.IsDetached,
+                data.Head));
+        }
+    }
+
+    private class WorktreeData
+    {
+        public string? Path { get; set; }
+        public string? Head { get; set; }
+        public string? Branch { get; set; }
+        public bool IsDetached { get; set; }
+    }
+
+    private WorktreeInfo CreateWorktreeInfo(string path, string branch, bool isDetached, string commitHash)
+    {
+        // Get creation time from .git/worktrees/<name>/gitdir file
+        var createdAt = DateTime.Now; // Default value
+        var exists = Directory.Exists(path);
+
+        try
+        {
+            // Get worktree name from path
+            var worktreeName = Path.GetFileName(path);
+            var gitWorktreePath = Path.Combine(".git", "worktrees", worktreeName, "gitdir");
+
+            if (File.Exists(gitWorktreePath))
+            {
+                createdAt = File.GetCreationTime(gitWorktreePath);
+            }
+        }
+        catch (System.IO.IOException ex)
+        {
+            System.Console.Error.WriteLine($"[GitService] Error reading creation time for worktree at '{path}': {ex.Message}");
+        }
+        catch (System.UnauthorizedAccessException ex)
+        {
+            System.Console.Error.WriteLine($"[GitService] Access denied when reading creation time for worktree at '{path}': {ex.Message}");
+        }
+
+        return new WorktreeInfo(path, branch, isDetached, commitHash, createdAt, exists);
+    }
 }
+

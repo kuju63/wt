@@ -68,7 +68,6 @@ public class WorktreeServiceTests
         result.IsSuccess.ShouldBeTrue();
         result.Data.ShouldNotBeNull();
         result.Data!.Branch.ShouldBe("feature-x");
-        result.Data.BaseBranch.ShouldBe("main");
         result.Data.Path.ShouldBe("/Users/dev/wt-feature-x");
     }
 
@@ -208,5 +207,124 @@ public class WorktreeServiceTests
         result.IsSuccess.ShouldBeTrue();
         result.Data.ShouldNotBeNull();
         result.Data!.Path.ShouldBe("/custom/path/feature-x");
+    }
+
+    [Fact]
+    public async Task ListWorktreesAsync_WithValidWorktrees_ReturnsSortedList()
+    {
+        // Arrange
+        var worktrees = new List<WorktreeInfo>
+        {
+            new WorktreeInfo("/path/worktree1", "feature-1", false, string.Empty, new DateTime(2026, 1, 1), true),
+            new WorktreeInfo("/path/worktree2", "feature-2", false, string.Empty, new DateTime(2026, 1, 3), true),
+            new WorktreeInfo("/path/worktree3", "feature-3", false, string.Empty, new DateTime(2026, 1, 2), true)
+        };
+
+        _mockGitService
+            .Setup(x => x.IsGitRepositoryAsync(default))
+            .ReturnsAsync(CommandResult<bool>.Success(true));
+
+        _mockGitService
+            .Setup(x => x.ListWorktreesAsync(default))
+            .ReturnsAsync(CommandResult<List<WorktreeInfo>>.Success(worktrees));
+
+        // Act
+        var result = await _worktreeService.ListWorktreesAsync();
+
+        // Assert
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldNotBeNull();
+        result.Data!.Count.ShouldBe(3);
+        // Should be sorted by creation date (newest first)
+        result.Data[0].Branch.ShouldBe("feature-2"); // 2026-01-03
+        result.Data[1].Branch.ShouldBe("feature-3"); // 2026-01-02
+        result.Data[2].Branch.ShouldBe("feature-1"); // 2026-01-01
+    }
+
+    [Fact]
+    public async Task ListWorktreesAsync_WhenNotInGitRepo_ReturnsError()
+    {
+        // Arrange
+        _mockGitService
+            .Setup(x => x.IsGitRepositoryAsync(default))
+            .ReturnsAsync(CommandResult<bool>.Success(false));
+
+        // Act
+        var result = await _worktreeService.ListWorktreesAsync();
+
+        // Assert
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe(ErrorCodes.NotGitRepository);
+    }
+
+    [Fact]
+    public async Task ListWorktreesAsync_WhenGitServiceFails_ReturnsError()
+    {
+        // Arrange
+        _mockGitService
+            .Setup(x => x.IsGitRepositoryAsync(default))
+            .ReturnsAsync(CommandResult<bool>.Success(true));
+
+        _mockGitService
+            .Setup(x => x.ListWorktreesAsync(default))
+            .ReturnsAsync(CommandResult<List<WorktreeInfo>>.Failure(
+                ErrorCodes.GitCommandFailed,
+                "Git command failed",
+                "Check your Git installation"));
+
+        // Act
+        var result = await _worktreeService.ListWorktreesAsync();
+
+        // Assert
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe(ErrorCodes.GitCommandFailed);
+    }
+
+    [Fact]
+    public async Task ListWorktreesAsync_WithNoWorktrees_ReturnsEmptyList()
+    {
+        // Arrange
+        _mockGitService
+            .Setup(x => x.IsGitRepositoryAsync(default))
+            .ReturnsAsync(CommandResult<bool>.Success(true));
+
+        _mockGitService
+            .Setup(x => x.ListWorktreesAsync(default))
+            .ReturnsAsync(CommandResult<List<WorktreeInfo>>.Success(new List<WorktreeInfo>()));
+
+        // Act
+        var result = await _worktreeService.ListWorktreesAsync();
+
+        // Assert
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldNotBeNull();
+        result.Data!.Count.ShouldBe(0);
+    }
+
+    [Fact]
+    public async Task ListWorktreesAsync_WithCancellationToken_PassesTokenToGitService()
+    {
+        // Arrange
+        var cancellationToken = new CancellationToken();
+        var worktrees = new List<WorktreeInfo>
+        {
+            new WorktreeInfo("/path/worktree", "main", false, string.Empty, DateTime.UtcNow, true)
+        };
+
+        _mockGitService
+            .Setup(x => x.IsGitRepositoryAsync(cancellationToken))
+            .ReturnsAsync(CommandResult<bool>.Success(true));
+
+        _mockGitService
+            .Setup(x => x.ListWorktreesAsync(cancellationToken))
+            .ReturnsAsync(CommandResult<List<WorktreeInfo>>.Success(worktrees));
+
+        // Act
+        var result = await _worktreeService.ListWorktreesAsync(cancellationToken);
+
+        // Assert
+        result.IsSuccess.ShouldBeTrue();
+        _mockGitService.Verify(x => x.IsGitRepositoryAsync(cancellationToken), Times.Once);
+        _mockGitService.Verify(x => x.ListWorktreesAsync(cancellationToken), Times.Once);
     }
 }

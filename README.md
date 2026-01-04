@@ -5,9 +5,11 @@ A modern CLI tool to simplify Git worktree management. Create worktrees with a s
 ## Features
 
 - ✨ **Simple worktree creation**: `wt create feature-branch`
+- 📋 **List all worktrees**: `wt list` - Display all worktrees with their branches
 - 🎯 **Smart defaults**: Automatically creates worktrees in `../wt-<branch>` directory
 - 🚀 **Editor integration**: Auto-launch VS Code, Vim, Emacs, or IntelliJ IDEA
 - 🛠️ **Custom paths**: Specify where to create worktrees
+- 📊 **Table format**: Human-readable table output with Unicode box-drawing characters
 - 📋 **Multiple output formats**: Human-readable or JSON for automation
 - ✅ **Cross-platform**: Works on macOS, Linux, and Windows
 
@@ -99,6 +101,31 @@ wt create feature-login --verbose
 ```
 
 ## Command Reference
+
+### `wt list`
+
+List all worktrees with their branch information.
+
+Display all Git worktrees in the repository with their paths, checked-out branches, and status in a table format. Missing worktrees (registered but not existing on disk) are highlighted with warnings.
+
+**Output:**
+
+```shell
+┌─────────────────────────────────┬──────────────────┬─────────┐
+│ Path                            │ Branch           │ Status  │
+├─────────────────────────────────┼──────────────────┼─────────┤
+│ /Users/dev/project/wt           │ main             │ active  │
+│ /Users/dev/project/wt-feature   │ feature-branch   │ active  │
+└─────────────────────────────────┴──────────────────┴─────────┘
+```
+
+**Exit Codes:**
+
+- `0` - Success
+- `1` - Git not found
+- `2` - Not a Git repository
+- `10` - Git command failed
+- `99` - Unexpected error
 
 ### `wt create <branch> [options]`
 
