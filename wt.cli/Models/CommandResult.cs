@@ -21,7 +21,7 @@ public class CommandResult<T>
     /// <param name="data">The data to include in the result.</param>
     /// <param name="warnings">Optional list of warning messages.</param>
     /// <returns>A successful <see cref="CommandResult{T}"/> containing the data.</returns>
-    public static CommandResult<T> Success(T data, List<string>? warnings = null)
+    public static CommandResult<T> Success(T data, List<string>? warnings)
     {
         return new CommandResult<T>
         {
@@ -47,7 +47,7 @@ public class CommandResult<T>
     /// <param name="errorMessage">A descriptive error message.</param>
     /// <param name="solution">An optional solution or suggestion to resolve the error.</param>
     /// <returns>A failed <see cref="CommandResult{T}"/> containing error details.</returns>
-    public static CommandResult<T> Failure(string errorCode, string errorMessage, string? solution = null)
+    public static CommandResult<T> Failure(string errorCode, string errorMessage, string? solution)
     {
         return new CommandResult<T>
         {

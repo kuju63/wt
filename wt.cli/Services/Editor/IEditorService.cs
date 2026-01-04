@@ -30,7 +30,7 @@ public interface IEditorService
     /// <param name="editorType">The type of editor to launch.</param>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>A <see cref="CommandResult{T}"/> containing the result of the launch operation.</returns>
-    Task<CommandResult<string>> LaunchEditorAsync(string path, EditorType editorType, CancellationToken cancellationToken = default);
+    Task<CommandResult<string>> LaunchEditorAsync(string path, EditorType editorType, CancellationToken cancellationToken);
 
     /// <summary>
     /// Resolves the editor command configuration for the specified editor type.

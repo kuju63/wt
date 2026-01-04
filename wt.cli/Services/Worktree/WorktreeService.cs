@@ -14,7 +14,7 @@ public class WorktreeService : IWorktreeService
     private readonly IPathHelper _pathHelper;
     private readonly IEditorService? _editorService;
 
-    public WorktreeService(IGitService gitService, IPathHelper pathHelper, IEditorService? editorService = null)
+    public WorktreeService(IGitService gitService, IPathHelper pathHelper, IEditorService? editorService)
     {
         _gitService = gitService;
         _pathHelper = pathHelper;
@@ -45,7 +45,7 @@ public class WorktreeService : IWorktreeService
     /// <param name="options">The options for creating the worktree.</param>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>A <see cref="CommandResult{WorktreeInfo}"/> representing the result.</returns>
-    public async Task<CommandResult<WorktreeInfo>> CreateWorktreeAsync(CreateWorktreeOptions options, CancellationToken cancellationToken = default)
+    public async Task<CommandResult<WorktreeInfo>> CreateWorktreeAsync(CreateWorktreeOptions options, CancellationToken cancellationToken)
     {
         // Validate options
         var validationResult = options.Validate();

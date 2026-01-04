@@ -27,5 +27,5 @@ public interface IProcessRunner
     /// <param name="workingDirectory">The working directory for the process.</param>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>A <see cref="ProcessResult"/> containing the process exit code and output.</returns>
-    Task<ProcessResult> RunAsync(string fileName, string arguments, string? workingDirectory = null, CancellationToken cancellationToken = default);
+    Task<ProcessResult> RunAsync(string fileName, string arguments, string? workingDirectory, CancellationToken cancellationToken);
 }

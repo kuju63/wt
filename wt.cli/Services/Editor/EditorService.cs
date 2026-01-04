@@ -23,7 +23,7 @@ public class EditorService : IEditorService
     public async Task<CommandResult<string>> LaunchEditorAsync(
         string path,
         EditorType editorType,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         var config = ResolveEditorCommand(editorType);
 

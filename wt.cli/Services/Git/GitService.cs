@@ -28,7 +28,7 @@ public class GitService : IGitService
     /// </summary>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>A <see cref="CommandResult{bool}"/> containing <see langword="true"/> if in a Git repository; otherwise, <see langword="false"/>.</returns>
-    public async Task<CommandResult<bool>> IsGitRepositoryAsync(CancellationToken cancellationToken = default)
+    public async Task<CommandResult<bool>> IsGitRepositoryAsync(CancellationToken cancellationToken)
     {
         var result = await _processRunner.RunAsync("git", "rev-parse --git-dir", null, cancellationToken);
         return CommandResult<bool>.Success(result.ExitCode == 0);
@@ -46,7 +46,7 @@ public class GitService : IGitService
     /// </summary>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>A <see cref="CommandResult{string}"/> containing the current branch name.</returns>
-    public async Task<CommandResult<string>> GetCurrentBranchAsync(CancellationToken cancellationToken = default)
+    public async Task<CommandResult<string>> GetCurrentBranchAsync(CancellationToken cancellationToken)
     {
         var result = await _processRunner.RunAsync("git", "branch --show-current", null, cancellationToken);
 
@@ -84,7 +84,7 @@ public class GitService : IGitService
     /// <param name="branchName">The name of the branch to check.</param>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>A <see cref="CommandResult{bool}"/> containing <see langword="true"/> if the branch exists; otherwise, <see langword="false"/>.</returns>
-    public async Task<CommandResult<bool>> BranchExistsAsync(string branchName, CancellationToken cancellationToken = default)
+    public async Task<CommandResult<bool>> BranchExistsAsync(string branchName, CancellationToken cancellationToken)
     {
         var result = await _processRunner.RunAsync("git", $"rev-parse --verify {branchName}", null, cancellationToken);
         return CommandResult<bool>.Success(result.ExitCode == 0);
@@ -106,7 +106,7 @@ public class GitService : IGitService
     /// <param name="baseBranch">The base branch to branch from.</param>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>A <see cref="CommandResult{BranchInfo}"/> containing information about the created branch.</returns>
-    public async Task<CommandResult<BranchInfo>> CreateBranchAsync(string branchName, string baseBranch, CancellationToken cancellationToken = default)
+    public async Task<CommandResult<BranchInfo>> CreateBranchAsync(string branchName, string baseBranch, CancellationToken cancellationToken)
     {
         var result = await _processRunner.RunAsync("git", $"branch {branchName} {baseBranch}", null, cancellationToken);
 
@@ -146,7 +146,7 @@ public class GitService : IGitService
     /// <param name="branchName">The branch to checkout in the new worktree.</param>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>A <see cref="CommandResult{bool}"/> containing <see langword="true"/> if the worktree was added successfully; otherwise, <see langword="false"/>.</returns>
-    public async Task<CommandResult<bool>> AddWorktreeAsync(string path, string branchName, CancellationToken cancellationToken = default)
+    public async Task<CommandResult<bool>> AddWorktreeAsync(string path, string branchName, CancellationToken cancellationToken)
     {
         var result = await _processRunner.RunAsync("git", $"worktree add \"{path}\" {branchName}", null, cancellationToken);
 

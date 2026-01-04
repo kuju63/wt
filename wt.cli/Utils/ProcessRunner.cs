@@ -47,8 +47,8 @@ public class ProcessRunner : IProcessRunner
     public async Task<ProcessResult> RunAsync(
         string command,
         string arguments,
-        string? workingDirectory = null,
-        CancellationToken cancellationToken = default)
+        string? workingDirectory,
+        CancellationToken cancellationToken)
     {
         var startInfo = new ProcessStartInfo
         {

@@ -46,7 +46,7 @@ public class ProcessRunnerTests
         try
         {
             // Act
-            var result = await runner.RunAsync("pwd", "", tempDir);
+            var result = await runner.RunAsync("pwd", "", tempDir, CancellationToken.None);
 
             // Assert
             result.ShouldNotBeNull();
@@ -74,7 +74,7 @@ public class ProcessRunnerTests
         // Act & Assert
         await Assert.ThrowsAsync<TaskCanceledException>(async () =>
         {
-            await runner.RunAsync("sleep", "10", cancellationToken: cts.Token);
+            await runner.RunAsync("sleep", "10", null, cancellationToken: cts.Token);
         });
     }
 }
