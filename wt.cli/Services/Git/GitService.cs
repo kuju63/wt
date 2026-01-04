@@ -236,9 +236,13 @@ public class GitService : IGitService
             return new WorktreeData();
         }
 
+        var rawPath = line.Substring(9);
+        // Normalize the path to resolve symlinks (e.g., /var -> /private/var on macOS)
+        var normalizedPath = Path.GetFullPath(rawPath);
+
         return new WorktreeData
         {
-            Path = line.Substring(9)
+            Path = normalizedPath
         };
     }
 

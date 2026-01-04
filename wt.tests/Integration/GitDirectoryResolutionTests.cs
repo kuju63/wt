@@ -1,6 +1,7 @@
 using Kuju63.WorkTree.CommandLine.Services.Git;
 using Kuju63.WorkTree.CommandLine.Utils;
 using Shouldly;
+using System.Runtime.InteropServices;
 
 namespace Kuju63.WorkTree.Tests.Integration;
 
@@ -16,17 +17,55 @@ public class GitDirectoryResolutionTests : IDisposable
     private readonly string _worktreePath;
     private readonly string _originalDirectory;
 
+    // P/Invoke for realpath on Unix-like systems
+    [DllImport("libc", SetLastError = true)]
+    private static extern IntPtr realpath(string path, IntPtr resolvedPath);
+
+    /// <summary>
+    /// Resolves a path to its real absolute path, resolving all symlinks.
+    /// Works cross-platform: uses realpath on Unix/macOS, Path.GetFullPath on Windows.
+    /// </summary>
+    private static string GetRealPath(string path)
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            // On Windows, no symlink resolution needed for temp paths
+            return Path.GetFullPath(path);
+        }
+
+        // On Unix/macOS, use realpath to resolve symlinks
+        var ptr = realpath(path, IntPtr.Zero);
+        if (ptr == IntPtr.Zero)
+        {
+            // If realpath fails, fall back to GetFullPath
+            return Path.GetFullPath(path);
+        }
+
+        try
+        {
+            return Marshal.PtrToStringAnsi(ptr) ?? Path.GetFullPath(path);
+        }
+        finally
+        {
+            // Free the memory allocated by realpath
+            Marshal.FreeHGlobal(ptr);
+        }
+    }
+
     public GitDirectoryResolutionTests()
     {
         SafeSetCurrentDirectory();
         _originalDirectory = Environment.CurrentDirectory;
 
-        // Create main repository
-        _testRepoPath = Path.Combine(Path.GetTempPath(), $"wt-git-dir-test-main-{Guid.NewGuid()}");
-        Directory.CreateDirectory(_testRepoPath);
+        // Use Path.GetTempPath() for cross-platform compatibility
+        // GetRealPath resolves symlinks (e.g., /var -> /private/var on macOS)
+        var testRepoPath = Path.Combine(Path.GetTempPath(), $"wt-git-dir-test-main-{Guid.NewGuid()}");
+        Directory.CreateDirectory(testRepoPath);
+        _testRepoPath = GetRealPath(testRepoPath);
 
-        // Create worktree path
-        _worktreePath = Path.Combine(Path.GetTempPath(), $"wt-git-dir-test-worktree-{Guid.NewGuid()}");
+        // Store worktree path template - will be normalized later
+        var worktreeTempPath = Path.Combine(Path.GetTempPath(), $"wt-git-dir-test-worktree-{Guid.NewGuid()}");
+        _worktreePath = worktreeTempPath;
 
         InitializeGitRepository();
     }
@@ -51,7 +90,7 @@ public class GitDirectoryResolutionTests : IDisposable
     private void InitializeGitRepository()
     {
         Environment.CurrentDirectory = _testRepoPath;
-        
+
         RunGitCommand("init");
         RunGitCommand("config user.email \"test@example.com\"");
         RunGitCommand("config user.name \"Test User\"");
@@ -78,7 +117,7 @@ public class GitDirectoryResolutionTests : IDisposable
 
         using var process = System.Diagnostics.Process.Start(startInfo);
         process?.WaitForExit();
-        
+
         if (process?.ExitCode != 0)
         {
             var error = process?.StandardError.ReadToEnd();
@@ -140,7 +179,7 @@ public class GitDirectoryResolutionTests : IDisposable
 
                 result?.WaitForExit();
                 var output = result?.StandardOutput.ReadToEnd() ?? "";
-                
+
                 foreach (var line in output.Split('\n'))
                 {
                     if (line.StartsWith("worktree "))
@@ -222,11 +261,14 @@ public class GitDirectoryResolutionTests : IDisposable
         result.IsSuccess.ShouldBeTrue();
         result.Data.ShouldNotBeNull();
         result.Data!.Count.ShouldBeGreaterThanOrEqualTo(2); // Main repo + our worktree
-        
+
         // Verify both worktrees are listed
-        var mainWorktree = result.Data.FirstOrDefault(w => w.Path == _testRepoPath);
-        var featureWorktree = result.Data.FirstOrDefault(w => w.Path == _worktreePath);
-        
+        // Use GetRealPath for comparison to handle symlinks across platforms
+        var normalizedTestRepoPath = GetRealPath(_testRepoPath);
+        var normalizedWorktreePath = GetRealPath(_worktreePath);
+        var mainWorktree = result.Data.FirstOrDefault(w => GetRealPath(w.Path) == normalizedTestRepoPath);
+        var featureWorktree = result.Data.FirstOrDefault(w => GetRealPath(w.Path) == normalizedWorktreePath);
+
         mainWorktree.ShouldNotBeNull();
         featureWorktree.ShouldNotBeNull();
         featureWorktree!.Branch.ShouldBe("feature-test");
@@ -253,9 +295,11 @@ public class GitDirectoryResolutionTests : IDisposable
         result.Data!.Count.ShouldBeGreaterThanOrEqualTo(2);
 
         // Verify worktree has a creation timestamp
-        var featureWorktree = result.Data.FirstOrDefault(w => w.Path == _worktreePath);
+        // Use GetRealPath for comparison to handle symlinks across platforms
+        var normalizedWorktreePath = GetRealPath(_worktreePath);
+        var featureWorktree = result.Data.FirstOrDefault(w => GetRealPath(w.Path) == normalizedWorktreePath);
         featureWorktree.ShouldNotBeNull();
-        
+
         // The timestamp should be recent (within last minute)
         var timeDiff = DateTime.Now - featureWorktree!.CreatedAt;
         timeDiff.TotalMinutes.ShouldBeLessThan(1);
@@ -278,13 +322,13 @@ public class GitDirectoryResolutionTests : IDisposable
         // Assert
         lines.Length.ShouldBeGreaterThan(0);
         lines[0].ShouldStartWith("gitdir:");
-        
+
         var gitDirPath = lines[0].Substring(7).Trim();
         gitDirPath.ShouldNotBeEmpty();
-        
+
         // The path should point to .git/worktrees/<name> directory
         gitDirPath.ShouldContain("worktrees");
-        
+
         // Verify the referenced directory exists
         if (Path.IsPathRooted(gitDirPath))
         {
@@ -297,7 +341,8 @@ public class GitDirectoryResolutionTests : IDisposable
     {
         // Arrange - Create multiple worktrees
         Environment.CurrentDirectory = _testRepoPath;
-        
+
+        // Create path templates - Git will create actual directories
         var worktree2Path = Path.Combine(Path.GetTempPath(), $"wt-git-dir-test-worktree2-{Guid.NewGuid()}");
         var worktree3Path = Path.Combine(Path.GetTempPath(), $"wt-git-dir-test-worktree3-{Guid.NewGuid()}");
 
@@ -320,11 +365,17 @@ public class GitDirectoryResolutionTests : IDisposable
             result.Data.ShouldNotBeNull();
             result.Data!.Count.ShouldBe(4); // Main + 3 worktrees
 
-            var worktreePaths = result.Data.Select(w => w.Path).ToList();
-            worktreePaths.ShouldContain(_testRepoPath);
-            worktreePaths.ShouldContain(_worktreePath);
-            worktreePaths.ShouldContain(worktree2Path);
-            worktreePaths.ShouldContain(worktree3Path);
+            // Use GetRealPath for all path comparisons to handle symlinks across platforms
+            var normalizedWorktreePaths = result.Data.Select(w => GetRealPath(w.Path)).ToList();
+            var normalizedTestRepoPath = GetRealPath(_testRepoPath);
+            var normalizedWorktreePath = GetRealPath(_worktreePath);
+            var normalizedWorktree2Path = GetRealPath(worktree2Path);
+            var normalizedWorktree3Path = GetRealPath(worktree3Path);
+
+            normalizedWorktreePaths.ShouldContain(normalizedTestRepoPath);
+            normalizedWorktreePaths.ShouldContain(normalizedWorktreePath);
+            normalizedWorktreePaths.ShouldContain(normalizedWorktree2Path);
+            normalizedWorktreePaths.ShouldContain(normalizedWorktree3Path);
         }
         finally
         {
