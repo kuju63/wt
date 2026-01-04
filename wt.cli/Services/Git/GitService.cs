@@ -286,9 +286,34 @@ public class GitService : IGitService
 
         try
         {
+            // Resolve the actual git directory, handling the case where .git is a file pointing elsewhere
+            var gitDir = ".git";
+            if (File.Exists(gitDir) && !Directory.Exists(gitDir))
+            {
+                var lines = File.ReadAllLines(gitDir);
+                if (lines.Length > 0)
+                {
+                    var firstLine = lines[0];
+                    const string prefix = "gitdir:";
+                    if (firstLine.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                    {
+                        var gitDirPath = firstLine.Substring(prefix.Length).Trim();
+                        if (!string.IsNullOrWhiteSpace(gitDirPath))
+                        {
+                            if (!Path.IsPathRooted(gitDirPath))
+                            {
+                                gitDirPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), gitDirPath));
+                            }
+
+                            gitDir = gitDirPath;
+                        }
+                    }
+                }
+            }
+
             // Get worktree name from path
             var worktreeName = Path.GetFileName(path);
-            var gitWorktreePath = Path.Combine(".git", "worktrees", worktreeName, "gitdir");
+            var gitWorktreePath = Path.Combine(gitDir, "worktrees", worktreeName, "gitdir");
 
             if (File.Exists(gitWorktreePath))
             {
