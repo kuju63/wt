@@ -126,19 +126,27 @@ public class WorktreeService : IWorktreeService
     {
         var baseBranchResult = await GetBaseBranchAsync(options, cancellationToken);
         if (!baseBranchResult.IsSuccess)
+        {
             return ToWorktreeFailure(baseBranchResult);
+        }
 
         var branchResult = await EnsureBranchExistsAsync(options.BranchName, baseBranchResult.Data!, cancellationToken);
         if (!branchResult.IsSuccess)
+        {
             return ToWorktreeFailure(branchResult);
+        }
 
         var pathResult = PrepareWorktreePath(options);
         if (!pathResult.IsValid)
+        {
             return CommandResult<WorktreeInfo>.Failure(ErrorCodes.InvalidPath, "Invalid worktree path", pathResult.ErrorMessage);
+        }
 
         var addWorktreeResult = await _gitService.AddWorktreeAsync(pathResult.Path, options.BranchName, cancellationToken);
         if (!addWorktreeResult.IsSuccess)
+        {
             return CommandResult<WorktreeInfo>.Failure(addWorktreeResult.ErrorCode!, addWorktreeResult.ErrorMessage!, addWorktreeResult.Solution);
+        }
 
         return await CreateAndLaunchWorktreeAsync(options, pathResult.Path, baseBranchResult.Data!, cancellationToken);
     }
