@@ -81,7 +81,16 @@ public class WorktreeE2ETests : IDisposable
 
     public void Dispose()
     {
-        // Restore original directory first
+        RestoreOriginalDirectory();
+        CleanupWorktrees();
+        CleanupBranches();
+        DeleteOrphanWorktreeDirectories();
+        DeleteTestRepository();
+        GC.SuppressFinalize(this);
+    }
+
+    private void RestoreOriginalDirectory()
+    {
         try
         {
             if (Directory.Exists(_originalDirectory))
@@ -94,8 +103,10 @@ public class WorktreeE2ETests : IDisposable
             // If original directory no longer exists, change to temp
             Environment.CurrentDirectory = Path.GetTempPath();
         }
+    }
 
-        // Cleanup: Remove all worktrees first
+    private void CleanupWorktrees()
+    {
         try
         {
             Environment.CurrentDirectory = _testRepoPath;
@@ -108,61 +119,7 @@ public class WorktreeE2ETests : IDisposable
                     var path = line.Substring("worktree ".Length).Trim();
                     if (path != _testRepoPath && Directory.Exists(path))
                     {
-                        try
-                        {
-                            RunGitCommand($"worktree remove \"{path}\" --force");
-                        }
-                        catch (InvalidOperationException ex)
-                        {
-                            Console.Error.WriteLine($"Ignored invalid operation removing worktree '{path}': {ex.Message}");
-                        }
-                        catch (System.ComponentModel.Win32Exception ex)
-                        {
-                            Console.Error.WriteLine($"Ignored process error removing worktree '{path}': {ex.Message}");
-                        }
-                        catch (IOException ex)
-                        {
-                            Console.Error.WriteLine($"Ignored IO error removing worktree '{path}': {ex.Message}");
-                        }
-                        catch (UnauthorizedAccessException ex)
-                        {
-                            Console.Error.WriteLine($"Ignored permission error removing worktree '{path}': {ex.Message}");
-                        }
-                        catch (Exception ex)
-                        {
-                            // Fallback: log unexpected error during worktree removal.
-                            Console.Error.WriteLine($"Ignored error removing worktree '{path}': {ex.Message}");
-                        }
-                    }
-                }
-            }
-
-            // Delete branches
-            var branchesOutput = RunGitCommand("branch --format=\"%(refname:short)\"");
-            var branches = branchesOutput.Split('\n', StringSplitOptions.RemoveEmptyEntries);
-            foreach (var branch in branches)
-            {
-                if (branch.Trim() != "main" && branch.Trim() != "master")
-                {
-                    try
-                    {
-                        RunGitCommand($"branch -D \"{branch.Trim()}\"");
-                    }
-                    catch (InvalidOperationException ex)
-                    {
-                        Console.Error.WriteLine($"Ignored invalid operation deleting branch '{branch.Trim()}': {ex.Message}");
-                    }
-                    catch (IOException ex)
-                    {
-                        Console.Error.WriteLine($"Ignored IO error deleting branch '{branch.Trim()}': {ex.Message}");
-                    }
-                    catch (UnauthorizedAccessException ex)
-                    {
-                        Console.Error.WriteLine($"Ignored permission error deleting branch '{branch.Trim()}': {ex.Message}");
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.Error.WriteLine($"Ignored error deleting branch '{branch.Trim()}': {ex.Message}");
+                        RemoveWorktreeSafely(path);
                     }
                 }
             }
@@ -179,8 +136,90 @@ public class WorktreeE2ETests : IDisposable
         {
             Console.Error.WriteLine($"Ignored error during worktree cleanup: {ex.Message}");
         }
+    }
 
-        // Delete worktree directories that may not have been removed
+    private void RemoveWorktreeSafely(string path)
+    {
+        try
+        {
+            RunGitCommand($"worktree remove \"{path}\" --force");
+        }
+        catch (InvalidOperationException ex)
+        {
+            Console.Error.WriteLine($"Ignored invalid operation removing worktree '{path}': {ex.Message}");
+        }
+        catch (System.ComponentModel.Win32Exception ex)
+        {
+            Console.Error.WriteLine($"Ignored process error removing worktree '{path}': {ex.Message}");
+        }
+        catch (IOException ex)
+        {
+            Console.Error.WriteLine($"Ignored IO error removing worktree '{path}': {ex.Message}");
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            Console.Error.WriteLine($"Ignored permission error removing worktree '{path}': {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Ignored error removing worktree '{path}': {ex.Message}");
+        }
+    }
+
+    private void CleanupBranches()
+    {
+        try
+        {
+            var branchesOutput = RunGitCommand("branch --format=\"%(refname:short)\"");
+            var branches = branchesOutput.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+            foreach (var branch in branches)
+            {
+                if (branch.Trim() != "main" && branch.Trim() != "master")
+                {
+                    DeleteBranchSafely(branch.Trim());
+                }
+            }
+        }
+        catch (IOException ex)
+        {
+            Console.Error.WriteLine($"Ignored IO error during branch cleanup: {ex.Message}");
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            Console.Error.WriteLine($"Ignored permission error during branch cleanup: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Ignored error during branch cleanup: {ex.Message}");
+        }
+    }
+
+    private void DeleteBranchSafely(string branch)
+    {
+        try
+        {
+            RunGitCommand($"branch -D \"{branch}\"");
+        }
+        catch (InvalidOperationException ex)
+        {
+            Console.Error.WriteLine($"Ignored invalid operation deleting branch '{branch}': {ex.Message}");
+        }
+        catch (IOException ex)
+        {
+            Console.Error.WriteLine($"Ignored IO error deleting branch '{branch}': {ex.Message}");
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            Console.Error.WriteLine($"Ignored permission error deleting branch '{branch}': {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Ignored error deleting branch '{branch}': {ex.Message}");
+        }
+    }
+
+    private void DeleteOrphanWorktreeDirectories()
+    {
         try
         {
             var parentDir = Path.GetDirectoryName(_testRepoPath);
@@ -189,39 +228,46 @@ public class WorktreeE2ETests : IDisposable
                 var worktreeDirs = Directory.GetDirectories(parentDir, "wt-*");
                 foreach (var dir in worktreeDirs)
                 {
-                    try
-                    {
-                        Directory.Delete(dir, true);
-                    }
-                    catch (IOException ex)
-                    {
-                        Console.Error.WriteLine($"Ignored IO error deleting directory '{dir}': {ex.Message}");
-                    }
-                    catch (UnauthorizedAccessException ex)
-                    {
-                        Console.Error.WriteLine($"Ignored permission error deleting directory '{dir}': {ex.Message}");
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.Error.WriteLine($"Ignored error deleting directory '{dir}': {ex.Message}");
-                    }
+                    DeleteDirectorySafely(dir);
                 }
             }
         }
         catch (IOException ex)
         {
-            Console.Error.WriteLine($"Ignored IO error during final cleanup: {ex.Message}");
+            Console.Error.WriteLine($"Ignored IO error during orphan cleanup: {ex.Message}");
         }
         catch (UnauthorizedAccessException ex)
         {
-            Console.Error.WriteLine($"Ignored permission error during final cleanup: {ex.Message}");
+            Console.Error.WriteLine($"Ignored permission error during orphan cleanup: {ex.Message}");
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Ignored error during final cleanup: {ex.Message}");
+            Console.Error.WriteLine($"Ignored error during orphan cleanup: {ex.Message}");
         }
+    }
 
-        // Delete test repository
+    private void DeleteDirectorySafely(string path)
+    {
+        try
+        {
+            Directory.Delete(path, true);
+        }
+        catch (IOException ex)
+        {
+            Console.Error.WriteLine($"Ignored IO error deleting directory '{path}': {ex.Message}");
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            Console.Error.WriteLine($"Ignored permission error deleting directory '{path}': {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Ignored error deleting directory '{path}': {ex.Message}");
+        }
+    }
+
+    private void DeleteTestRepository()
+    {
         try
         {
             if (Directory.Exists(_testRepoPath))
@@ -233,7 +279,6 @@ public class WorktreeE2ETests : IDisposable
         {
             // Ignore cleanup errors
         }
-        GC.SuppressFinalize(this);
     }
 
     [Fact]

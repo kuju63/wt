@@ -12,6 +12,47 @@ public class CreateCommand : Command
     public CreateCommand(IWorktreeService worktreeService)
         : base("create", "Create a new worktree with a new branch")
     {
+        var (branchArgument, baseOption, pathOption, editorOption, outputOption, verboseOption) =
+            AddArgumentsAndOptions();
+
+        // Set action using System.CommandLine 2.0 API
+        this.SetAction(async (parseResult, cancellationToken) =>
+        {
+            var branch = parseResult.GetValue(branchArgument);
+            if (string.IsNullOrEmpty(branch))
+            {
+                parseResult.InvocationConfiguration.Error.WriteLine("Error: branch argument is required");
+                return 1;
+            }
+
+            var options = new CreateWorktreeOptions
+            {
+                BranchName = branch,
+                BaseBranch = parseResult.GetValue(baseOption),
+                WorktreePath = parseResult.GetValue(pathOption),
+                EditorType = parseResult.GetValue(editorOption),
+                OutputFormat = parseResult.GetValue(outputOption),
+                Verbose = parseResult.GetValue(verboseOption)
+            };
+
+            var result = await worktreeService.CreateWorktreeAsync(options, cancellationToken);
+
+            if (result.IsSuccess)
+            {
+                DisplaySuccess(result.Data!, options.OutputFormat, parseResult.InvocationConfiguration.Output);
+                return 0;
+            }
+            else
+            {
+                DisplayError(result, options.Verbose, parseResult.InvocationConfiguration.Error);
+                return 1;
+            }
+        });
+    }
+
+    private (Argument<string>, Option<string?>, Option<string?>, Option<EditorType?>, Option<OutputFormat>, Option<bool>)
+        AddArgumentsAndOptions()
+    {
         // Arguments
         var branchArgument = new Argument<string>("branch")
         {
@@ -50,39 +91,7 @@ public class CreateCommand : Command
         this.Options.Add(outputOption);
         this.Options.Add(verboseOption);
 
-        // Set action using System.CommandLine 2.0 API
-        this.SetAction(async (parseResult, cancellationToken) =>
-        {
-            var branch = parseResult.GetValue(branchArgument);
-            if (string.IsNullOrEmpty(branch))
-            {
-                parseResult.InvocationConfiguration.Error.WriteLine("Error: branch argument is required");
-                return 1;
-            }
-
-            var options = new CreateWorktreeOptions
-            {
-                BranchName = branch,
-                BaseBranch = parseResult.GetValue(baseOption),
-                WorktreePath = parseResult.GetValue(pathOption),
-                EditorType = parseResult.GetValue(editorOption),
-                OutputFormat = parseResult.GetValue(outputOption),
-                Verbose = parseResult.GetValue(verboseOption)
-            };
-
-            var result = await worktreeService.CreateWorktreeAsync(options, cancellationToken);
-
-            if (result.IsSuccess)
-            {
-                DisplaySuccess(result.Data!, options.OutputFormat, parseResult.InvocationConfiguration.Output);
-                return 0;
-            }
-            else
-            {
-                DisplayError(result, options.Verbose, parseResult.InvocationConfiguration.Error);
-                return 1;
-            }
-        });
+        return (branchArgument, baseOption, pathOption, editorOption, outputOption, verboseOption);
     }
 
     private static void DisplaySuccess(WorktreeInfo worktreeInfo, OutputFormat format, TextWriter output)

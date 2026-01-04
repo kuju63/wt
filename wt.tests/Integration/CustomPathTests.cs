@@ -72,7 +72,15 @@ public class CustomPathTests : IDisposable
 
     public void Dispose()
     {
-        // Restore original directory first
+        RestoreOriginalDirectory();
+        DeleteDirectorySafely(_testRepoPath);
+        DeleteDirectorySafely(_customWorktreePath);
+        DeleteDirectorySafely(_relativeWorktreePath);
+        GC.SuppressFinalize(this);
+    }
+
+    private void RestoreOriginalDirectory()
+    {
         try
         {
             if (Directory.Exists(_originalDirectory))
@@ -85,130 +93,51 @@ public class CustomPathTests : IDisposable
             // If original directory no longer exists, change to temp
             Environment.CurrentDirectory = Path.GetTempPath();
         }
+    }
 
-        // Now safe to delete test directories
+    private void DeleteDirectorySafely(string path)
+    {
         try
         {
-            if (Directory.Exists(_testRepoPath))
+            if (Directory.Exists(path))
             {
-                Directory.Delete(_testRepoPath, true);
+                Directory.Delete(path, true);
             }
         }
         catch (IOException ex)
         {
-            Console.Error.WriteLine($"Ignored IO error deleting test repo '{_testRepoPath}': {ex.Message}");
+            Console.Error.WriteLine($"Ignored IO error deleting directory '{path}': {ex.Message}");
         }
         catch (UnauthorizedAccessException ex)
         {
-            Console.Error.WriteLine($"Ignored permission error deleting test repo '{_testRepoPath}': {ex.Message}");
+            Console.Error.WriteLine($"Ignored permission error deleting directory '{path}': {ex.Message}");
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Ignored error deleting test repo '{_testRepoPath}': {ex.Message}");
+            Console.Error.WriteLine($"Ignored error deleting directory '{path}': {ex.Message}");
         }
-
-        try
-        {
-            if (Directory.Exists(_customWorktreePath))
-            {
-                Directory.Delete(_customWorktreePath, true);
-            }
-        }
-        catch (IOException ex)
-        {
-            Console.Error.WriteLine($"Ignored IO error deleting custom worktree '{_customWorktreePath}': {ex.Message}");
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            Console.Error.WriteLine($"Ignored permission error deleting custom worktree '{_customWorktreePath}': {ex.Message}");
-        }
-        catch (Exception ex)
-        {
-            Console.Error.WriteLine($"Ignored error deleting custom worktree '{_customWorktreePath}': {ex.Message}");
-        }
-
-        try
-        {
-            if (Directory.Exists(_relativeWorktreePath))
-            {
-                Directory.Delete(_relativeWorktreePath, true);
-            }
-        }
-        catch (IOException ex)
-        {
-            Console.Error.WriteLine($"Ignored IO error deleting relative worktree '{_relativeWorktreePath}': {ex.Message}");
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            Console.Error.WriteLine($"Ignored permission error deleting relative worktree '{_relativeWorktreePath}': {ex.Message}");
-        }
-        catch (Exception ex)
-        {
-            Console.Error.WriteLine($"Ignored error deleting relative worktree '{_relativeWorktreePath}': {ex.Message}");
-        }
-        GC.SuppressFinalize(this);
     }
 
     [Fact]
     public async Task CreateWorktree_WithAbsolutePath_ShouldCreateWorktreeAtSpecifiedPath()
     {
         // Arrange
-        var processRunner = new ProcessRunner();
-        var fileSystem = new FileSystem();
-        var pathHelper = new PathHelper(fileSystem);
-        var gitService = new GitService(processRunner);
-        var worktreeService = new WorktreeService(gitService, pathHelper);
-
+        var worktreeService = CreateWorktreeService();
         var options = new CreateWorktreeOptions
         {
             BranchName = "feature-absolute",
             WorktreePath = _customWorktreePath
         };
 
-        // Change to test repo directory
-        var originalDir = Environment.CurrentDirectory;
-        Environment.CurrentDirectory = _testRepoPath;
-
-        try
+        // Act and Assert
+        await TestWorktreeCreationAsync(_testRepoPath, async () =>
         {
-            // Act
             var result = await worktreeService.CreateWorktreeAsync(options);
-
-            // Assert
             result.IsSuccess.ShouldBeTrue();
             result.Data.ShouldNotBeNull();
             result.Data!.Path.ShouldBe(_customWorktreePath);
             Directory.Exists(_customWorktreePath).ShouldBeTrue();
-        }
-        finally
-        {
-            try
-            {
-                if (Directory.Exists(originalDir))
-                {
-                    Environment.CurrentDirectory = originalDir;
-                }
-                else
-                {
-                    Environment.CurrentDirectory = Path.GetTempPath();
-                }
-            }
-            catch (IOException ex)
-            {
-                Console.Error.WriteLine($"Ignored IO error restoring current directory: {ex.Message}");
-                Environment.CurrentDirectory = Path.GetTempPath();
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                Console.Error.WriteLine($"Ignored permission error restoring current directory: {ex.Message}");
-                Environment.CurrentDirectory = Path.GetTempPath();
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine($"Ignored error restoring current directory: {ex.Message}");
-                Environment.CurrentDirectory = Path.GetTempPath();
-            }
-        }
+        });
     }
 
     [Fact]
@@ -387,12 +316,7 @@ public class CustomPathTests : IDisposable
     public async Task CreateWorktree_WithPathContainingSpaces_ShouldCreateSuccessfully()
     {
         // Arrange
-        var processRunner = new ProcessRunner();
-        var fileSystem = new FileSystem();
-        var pathHelper = new PathHelper(fileSystem);
-        var gitService = new GitService(processRunner);
-        var worktreeService = new WorktreeService(gitService, pathHelper);
-
+        var worktreeService = CreateWorktreeService();
         var pathWithSpaces = Path.Combine(Path.GetTempPath(), $"path with spaces-{Guid.NewGuid()}");
         var options = new CreateWorktreeOptions
         {
@@ -400,16 +324,10 @@ public class CustomPathTests : IDisposable
             WorktreePath = pathWithSpaces
         };
 
-        // Change to test repo directory
-        var originalDir = Environment.CurrentDirectory;
-        Environment.CurrentDirectory = _testRepoPath;
-
-        try
+        // Act and Assert
+        await TestWorktreeCreationAsync(_testRepoPath, async () =>
         {
-            // Act
             var result = await worktreeService.CreateWorktreeAsync(options);
-
-            // Assert
             result.IsSuccess.ShouldBeTrue($"Expected success but got error: {result.ErrorMessage}");
             result.Data.ShouldNotBeNull();
             result.Data!.Path.ShouldBe(pathWithSpaces);
@@ -420,38 +338,49 @@ public class CustomPathTests : IDisposable
             {
                 Directory.Delete(pathWithSpaces, true);
             }
+        });
+    }
+
+    private WorktreeService CreateWorktreeService()
+    {
+        var processRunner = new ProcessRunner();
+        var fileSystem = new FileSystem();
+        var pathHelper = new PathHelper(fileSystem);
+        var gitService = new GitService(processRunner);
+        return new WorktreeService(gitService, pathHelper);
+    }
+
+    private async Task TestWorktreeCreationAsync(string testRepoPath, Func<Task> testAction)
+    {
+        var originalDir = Environment.CurrentDirectory;
+        Environment.CurrentDirectory = testRepoPath;
+
+        try
+        {
+            await testAction();
         }
         finally
         {
-            try
+            SafeRestoreDirectory(originalDir);
+        }
+    }
+
+    private void SafeRestoreDirectory(string originalDir)
+    {
+        try
+        {
+            if (Directory.Exists(originalDir))
             {
-                if (Directory.Exists(originalDir))
-                {
-                    try
-                    {
-                        if (Directory.Exists(originalDir))
-                        {
-                            Environment.CurrentDirectory = originalDir;
-                        }
-                        else
-                        {
-                            Environment.CurrentDirectory = Path.GetTempPath();
-                        }
-                    }
-                    catch
-                    {
-                        Environment.CurrentDirectory = Path.GetTempPath();
-                    }
-                }
-                else
-                {
-                    Environment.CurrentDirectory = Path.GetTempPath();
-                }
+                Environment.CurrentDirectory = originalDir;
             }
-            catch
+            else
             {
                 Environment.CurrentDirectory = Path.GetTempPath();
             }
+        }
+        catch
+        {
+            Environment.CurrentDirectory = Path.GetTempPath();
         }
     }
 }

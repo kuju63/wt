@@ -6,6 +6,58 @@ using Kuju63.WorkTree.CommandLine.Utils;
 namespace Kuju63.WorkTree.CommandLine.Services.Worktree;
 
 /// <summary>
+/// Represents a unit type (void) for generic command results.
+/// </summary>
+internal sealed class Unit
+{
+    /// <summary>
+    /// Gets the singleton instance of Unit.
+    /// </summary>
+    public static Unit Value => new();
+
+    private Unit()
+    {
+    }
+}
+
+/// <summary>
+/// Represents the result of path preparation.
+/// </summary>
+internal sealed class PathPrepareResult
+{
+    /// <summary>
+    /// Gets a value indicating whether the path is valid.
+    /// </summary>
+    public bool IsValid { get; private set; }
+
+    /// <summary>
+    /// Gets the error message if the path is invalid.
+    /// </summary>
+    public string? ErrorMessage { get; private set; }
+
+    /// <summary>
+    /// Gets the prepared path if valid.
+    /// </summary>
+    public string Path { get; private set; } = string.Empty;
+
+    /// <summary>
+    /// Creates an invalid result with an error message.
+    /// </summary>
+    /// <param name="errorMessage">The error message.</param>
+    /// <returns>An invalid PathPrepareResult.</returns>
+    public static PathPrepareResult Invalid(string errorMessage)
+        => new() { IsValid = false, ErrorMessage = errorMessage };
+
+    /// <summary>
+    /// Creates a valid result with a path.
+    /// </summary>
+    /// <param name="path">The prepared path.</param>
+    /// <returns>A valid PathPrepareResult.</returns>
+    public static PathPrepareResult Valid(string path)
+        => new() { IsValid = true, Path = path };
+}
+
+/// <summary>
 /// Provides functionality for creating and managing Git worktrees.
 /// </summary>
 public class WorktreeService : IWorktreeService
@@ -67,76 +119,39 @@ public class WorktreeService : IWorktreeService
                 ErrorCodes.GetSolution(ErrorCodes.NotGitRepository));
         }
 
-        // Get base branch (use current branch if not specified)
-        var baseBranch = options.BaseBranch;
-        if (string.IsNullOrEmpty(baseBranch))
-        {
-            var currentBranchResult = await _gitService.GetCurrentBranchAsync(cancellationToken);
-            if (!currentBranchResult.IsSuccess)
-            {
-                return CommandResult<WorktreeInfo>.Failure(
-                    currentBranchResult.ErrorCode!,
-                    currentBranchResult.ErrorMessage!,
-                    currentBranchResult.Solution);
-            }
-            baseBranch = currentBranchResult.Data;
-        }
-
-        // Check if branch already exists
-        var branchExistsResult = await _gitService.BranchExistsAsync(options.BranchName, cancellationToken);
-        if (!branchExistsResult.IsSuccess)
+        // Get and validate base branch
+        var baseBranchResult = await GetBaseBranchAsync(options, cancellationToken);
+        if (!baseBranchResult.IsSuccess)
         {
             return CommandResult<WorktreeInfo>.Failure(
-                branchExistsResult.ErrorCode!,
-                branchExistsResult.ErrorMessage!,
-                branchExistsResult.Solution);
+                baseBranchResult.ErrorCode ?? ErrorCodes.GitCommandFailed,
+                baseBranchResult.ErrorMessage ?? "Failed to get base branch",
+                baseBranchResult.Solution);
         }
 
-        if (branchExistsResult.Data)
+        var baseBranch = baseBranchResult.Data;
+
+        // Check and create branch
+        var branchResult = await EnsureBranchExistsAsync(options.BranchName, baseBranch!, cancellationToken);
+        if (!branchResult.IsSuccess)
         {
             return CommandResult<WorktreeInfo>.Failure(
-                ErrorCodes.BranchAlreadyExists,
-                $"Branch '{options.BranchName}' already exists",
-                ErrorCodes.GetSolution(ErrorCodes.BranchAlreadyExists));
+                branchResult.ErrorCode ?? ErrorCodes.GitCommandFailed,
+                branchResult.ErrorMessage ?? "Failed to ensure branch exists",
+                branchResult.Solution);
         }
 
-        // Create branch
-        var createBranchResult = await _gitService.CreateBranchAsync(options.BranchName, baseBranch!, cancellationToken);
-        if (!createBranchResult.IsSuccess)
-        {
-            return CommandResult<WorktreeInfo>.Failure(
-                createBranchResult.ErrorCode!,
-                createBranchResult.ErrorMessage!,
-                createBranchResult.Solution);
-        }
-
-        // Determine worktree path
-        var worktreePath = options.WorktreePath ?? $"../wt-{options.BranchName}";
-        var resolvedPath = _pathHelper.ResolvePath(worktreePath, Environment.CurrentDirectory);
-        var normalizedPath = _pathHelper.NormalizePath(resolvedPath);
-
-        // Validate path
-        var pathValidation = _pathHelper.ValidatePath(normalizedPath);
-        if (!pathValidation.IsValid)
+        // Prepare and validate worktree path
+        var pathResult = PrepareWorktreePath(options);
+        if (!pathResult.IsValid)
         {
             return CommandResult<WorktreeInfo>.Failure(
                 ErrorCodes.InvalidPath,
                 "Invalid worktree path",
-                pathValidation.ErrorMessage);
+                pathResult.ErrorMessage);
         }
 
-        // Ensure parent directory exists (git worktree add requires parent to exist)
-        try
-        {
-            _pathHelper.EnsureParentDirectoryExists(normalizedPath);
-        }
-        catch (Exception ex)
-        {
-            return CommandResult<WorktreeInfo>.Failure(
-                ErrorCodes.InvalidPath,
-                "Failed to create parent directory",
-                ex.Message);
-        }
+        var normalizedPath = pathResult.Path;
 
         // Add worktree
         var addWorktreeResult = await _gitService.AddWorktreeAsync(normalizedPath, options.BranchName, cancellationToken);
@@ -147,7 +162,6 @@ public class WorktreeService : IWorktreeService
                 addWorktreeResult.ErrorMessage!,
                 addWorktreeResult.Solution);
         }
-
         // Create WorktreeInfo
         var worktreeInfo = new WorktreeInfo(
             normalizedPath,
@@ -156,21 +170,104 @@ public class WorktreeService : IWorktreeService
             DateTime.UtcNow);
 
         // Launch editor if specified
-        if (options.EditorType.HasValue && _editorService != null)
-        {
-            var editorResult = await _editorService.LaunchEditorAsync(
-                normalizedPath,
-                options.EditorType.Value,
-                cancellationToken);
+        return await LaunchEditorIfSpecifiedAsync(options, worktreeInfo, cancellationToken);
+    }
 
-            // Editor launch failure is a warning, not an error
-            // The worktree was created successfully
-            if (!editorResult.IsSuccess)
-            {
-                return CommandResult<WorktreeInfo>.Success(
-                    worktreeInfo,
-                    new List<string> { $"Warning: {editorResult.ErrorMessage ?? "Failed to launch editor"}" });
-            }
+    private async Task<CommandResult<string>> GetBaseBranchAsync(CreateWorktreeOptions options, CancellationToken cancellationToken)
+    {
+        var baseBranch = options.BaseBranch;
+        if (!string.IsNullOrEmpty(baseBranch))
+        {
+            return CommandResult<string>.Success(baseBranch);
+        }
+
+        var currentBranchResult = await _gitService.GetCurrentBranchAsync(cancellationToken);
+        if (!currentBranchResult.IsSuccess)
+        {
+            return CommandResult<string>.Failure(
+                currentBranchResult.ErrorCode!,
+                currentBranchResult.ErrorMessage!,
+                currentBranchResult.Solution);
+        }
+
+        return CommandResult<string>.Success(currentBranchResult.Data ?? string.Empty);
+    }
+
+    private async Task<CommandResult<Unit>> EnsureBranchExistsAsync(string branchName, string baseBranch, CancellationToken cancellationToken)
+    {
+        var branchExistsResult = await _gitService.BranchExistsAsync(branchName, cancellationToken);
+        if (!branchExistsResult.IsSuccess)
+        {
+            return CommandResult<Unit>.Failure(
+                branchExistsResult.ErrorCode!,
+                branchExistsResult.ErrorMessage!,
+                branchExistsResult.Solution);
+        }
+
+        if (branchExistsResult.Data)
+        {
+            return CommandResult<Unit>.Failure(
+                ErrorCodes.BranchAlreadyExists,
+                $"Branch '{branchName}' already exists",
+                ErrorCodes.GetSolution(ErrorCodes.BranchAlreadyExists));
+        }
+
+        var createBranchResult = await _gitService.CreateBranchAsync(branchName, baseBranch, cancellationToken);
+        if (!createBranchResult.IsSuccess)
+        {
+            return CommandResult<Unit>.Failure(
+                createBranchResult.ErrorCode!,
+                createBranchResult.ErrorMessage!,
+                createBranchResult.Solution);
+        }
+
+        return CommandResult<Unit>.Success(Unit.Value);
+    }
+
+    private PathPrepareResult PrepareWorktreePath(CreateWorktreeOptions options)
+    {
+        var worktreePath = options.WorktreePath ?? $"../wt-{options.BranchName}";
+        var resolvedPath = _pathHelper.ResolvePath(worktreePath, Environment.CurrentDirectory);
+        var normalizedPath = _pathHelper.NormalizePath(resolvedPath);
+
+        var pathValidation = _pathHelper.ValidatePath(normalizedPath);
+        if (!pathValidation.IsValid)
+        {
+            return PathPrepareResult.Invalid(pathValidation.ErrorMessage ?? "Invalid path");
+        }
+
+        try
+        {
+            _pathHelper.EnsureParentDirectoryExists(normalizedPath);
+        }
+        catch (Exception ex)
+        {
+            return PathPrepareResult.Invalid(ex.Message ?? "Failed to create parent directory");
+        }
+
+        return PathPrepareResult.Valid(normalizedPath);
+    }
+
+    private async Task<CommandResult<WorktreeInfo>> LaunchEditorIfSpecifiedAsync(
+        CreateWorktreeOptions options,
+        WorktreeInfo worktreeInfo,
+        CancellationToken cancellationToken)
+    {
+        if (!options.EditorType.HasValue || _editorService == null)
+        {
+            return CommandResult<WorktreeInfo>.Success(worktreeInfo);
+        }
+
+        var editorResult = await _editorService.LaunchEditorAsync(
+            worktreeInfo.Path,
+            options.EditorType.Value,
+            cancellationToken);
+
+        if (!editorResult.IsSuccess)
+        {
+            return CommandResult<WorktreeInfo>.Success(
+                worktreeInfo,
+                new List<string> { $"Warning: {editorResult.ErrorMessage ?? "Failed to launch editor"}" });
         }
 
         return CommandResult<WorktreeInfo>.Success(worktreeInfo);
