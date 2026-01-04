@@ -288,7 +288,7 @@ public class GitService : IGitService
         {
             // Resolve the actual git directory, handling the case where .git is a file pointing elsewhere
             var gitDir = ".git";
-            if (File.Exists(gitDir) && !Directory.Exists(gitDir))
+            if (File.Exists(gitDir))
             {
                 var lines = File.ReadAllLines(gitDir);
                 if (lines.Length > 0)
