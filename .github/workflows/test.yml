@@ -1,0 +1,96 @@
+name: Test and Coverage
+
+on:
+  push:
+    branches:
+      - main
+      - 'feature/**'
+      - 'fix/**'
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore wt.sln
+
+      - name: Build solution
+        run: dotnet build wt.sln --configuration Release --no-restore
+
+      - name: Run tests with coverage
+        run: |
+          dotnet test wt.sln \
+            --configuration Release \
+            --no-build \
+            --verbosity normal \
+            --collect:"XPlat Code Coverage" \
+            --results-directory ./coverage \
+            --logger "trx;LogFileName=test-results.trx"
+
+      - name: Find coverage file
+        id: coverage
+        run: |
+          COVERAGE_FILE=$(find ./coverage -name "coverage.cobertura.xml" | head -n 1)
+          echo "coverage-file=$COVERAGE_FILE" >> $GITHUB_OUTPUT
+
+          if [ -z "$COVERAGE_FILE" ]; then
+            echo "::warning::Coverage file not found"
+          else
+            echo "Coverage file: $COVERAGE_FILE"
+          fi
+
+      - name: Generate coverage report
+        if: steps.coverage.outputs.coverage-file != ''
+        run: |
+          dotnet tool install --global dotnet-reportgenerator-globaltool
+          reportgenerator \
+            -reports:"${{ steps.coverage.outputs.coverage-file }}" \
+            -targetdir:"./coverage/report" \
+            -reporttypes:"Html;TextSummary"
+
+          echo "### 📊 Coverage Summary" >> $GITHUB_STEP_SUMMARY
+          cat ./coverage/report/Summary.txt >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload coverage to Codacy
+        if: steps.coverage.outputs.coverage-file != ''
+        uses: codacy/codacy-coverage-reporter-action@a38818475bb21847788496e9f0fddaa4e84955ba
+        with:
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          coverage-reports: ${{ steps.coverage.outputs.coverage-file }}
+        continue-on-error: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            coverage/
+            **/TestResults/**/*.trx
+          retention-days: 7
+
+      - name: Publish test results
+        if: always()
+        uses: dorny/test-reporter@bdab7eb6dfb6be17ac3d72352f67e559a72c8db1 # v2
+        with:
+          name: Test Results
+          path: '**/TestResults/*.trx'
+          reporter: dotnet-trx
+          fail-on-error: true

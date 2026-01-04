@@ -23,19 +23,19 @@ Phase 0 establishes the base infrastructure needed by all user stories.
 
 ### Setup & Configuration
 
-- [ ] T001 Create GitHub Actions workflow directory structure in `.github/workflows/`
-- [ ] T002 Create shell script directory in `.github/scripts/`
-- [ ] T003 Create GitHub repository secrets configuration document (list required secrets: GH_RELEASE_TOKEN, CODACY_TOKEN, etc.)
-- [ ] T004 Document Conventional Commits naming convention in `.github/` (for team reference)
-- [ ] T005 Create semantic versioning decision log in `specs/001-automated-release-pipeline/research.md`
+- [X] T001 Create GitHub Actions workflow directory structure in `.github/workflows/`
+- [X] T002 Create shell script directory in `.github/scripts/`
+- [X] T003 Create GitHub repository secrets configuration document (list required secrets: GH_RELEASE_TOKEN, CODACY_TOKEN, etc.)
+- [X] T004 Document Conventional Commits naming convention in `.github/` (for team reference)
+- [X] T005 Create semantic versioning decision log in `specs/001-automated-release-pipeline/research.md`
 
 ### Dependency & Tool Verification
 
-- [ ] T006 Research and document CycloneDX integration options for .NET projects (dotnet-sbom, etc.)
-- [ ] T007 Research and document Conventional Commits parser options (semantic-release, commitlint, custom)
-- [ ] T008 Verify GitHub Actions concurrency limits for parallel platform builds
-- [ ] T009 Verify Codacy integration status and required workflow configuration
-- [ ] T010 Document platform-specific compiler availability in GitHub-hosted runners
+- [X] T006 Research and document CycloneDX integration options for .NET projects (dotnet-sbom, etc.)
+- [X] T007 Research and document Conventional Commits parser options (semantic-release, commitlint, custom)
+- [X] T008 Verify GitHub Actions concurrency limits for parallel platform builds
+- [X] T009 Verify Codacy integration status and required workflow configuration
+- [X] T010 Document platform-specific compiler availability in GitHub-hosted runners
 
 ---
 
@@ -53,19 +53,19 @@ This story delivers the ability to download pre-built binaries for each platform
 
 **Platform Matrix**: Mandatory (Windows x64, Linux x64, Mac ARM64) - build failure blocks release. Optional (Linux ARM) - build failure logged but does not block release (see T078 for error handling).
 
-- [ ] T011 [P] Implement cross-platform build matrix in `.github/workflows/build.yml` (Windows x64, Linux x64, Linux ARM, Mac ARM64) with platform status tracking
-- [ ] T012 [P] Create `.github/scripts/build-windows.sh` to build Windows x64 binary (MANDATORY)
-- [ ] T013 [P] Create `.github/scripts/build-linux-x64.sh` to build Linux x64 binary (MANDATORY)
-- [ ] T014 [P] Create `.github/scripts/build-linux-arm.sh` to build Linux ARM binary (OPTIONAL - failure allowed)
-- [ ] T015 [P] Create `.github/scripts/build-macos-arm64.sh` to build Mac ARM64 binary (MANDATORY)
-- [ ] T016 [P] Update `wt.cli.csproj` to support multi-platform publishing (RID-specific builds)
+- [X] T011 [P] Implement cross-platform build matrix in `.github/workflows/build.yml` (Windows x64, Linux x64, Linux ARM, Mac ARM64) with platform status tracking
+- [X] T012 [P] Create `.github/scripts/build-windows.sh` to build Windows x64 binary (MANDATORY)
+- [X] T013 [P] Create `.github/scripts/build-linux-x64.sh` to build Linux x64 binary (MANDATORY)
+- [X] T014 [P] Create `.github/scripts/build-linux-arm.sh` to build Linux ARM binary (OPTIONAL - failure allowed)
+- [X] T015 [P] Create `.github/scripts/build-macos-arm64.sh` to build Mac ARM64 binary (MANDATORY)
+- [X] T016 [P] Update `wt.cli.csproj` to support multi-platform publishing (RID-specific builds)
 - [ ] T017 Test local builds for all 4 platform combinations manually before workflow automation
 
 #### Binary Release to GitHub Releases
 
-- [ ] T018 Implement `.github/workflows/release.yml` to trigger on main branch push
-- [ ] T019 Add release workflow step to upload all platform binaries as GitHub Release assets
-- [ ] T020 Verify binary naming convention: `wt-<version>-<platform>-<arch>.<ext>` (e.g., `wt-v1.0.0-windows-x64.exe`)
+- [X] T018 Implement `.github/workflows/release.yml` to trigger on main branch push
+- [X] T019 Add release workflow step to upload all platform binaries as GitHub Release assets
+- [X] T020 Verify binary naming convention: `wt-<version>-<platform>-<arch>.<ext>` (e.g., `wt-v1.0.0-windows-x64.exe`)
 - [ ] T021 Test release workflow: merge a PR to main and verify binaries appear on GitHub Releases
 - [ ] T022 Document release manual download process in `specs/001-automated-release-pipeline/quickstart.md`
 
@@ -81,35 +81,35 @@ This story delivers file hashes and SBOM for binary integrity and dependency ver
 
 #### Hash Generation
 
-- [ ] T023 Create `.github/scripts/generate-checksums.sh` to compute SHA256 hashes for all binaries
-- [ ] T024 Add workflow step in `build.yml` to generate SHA256SUMS file after all builds complete
-- [ ] T025 Upload SHA256SUMS file to GitHub Release as asset
+- [X] T023 Create `.github/scripts/generate-checksums.sh` to compute SHA256 hashes for all binaries
+- [X] T024 Add workflow step in `build.yml` to generate SHA256SUMS file after all builds complete
+- [X] T025 Upload SHA256SUMS file to GitHub Release as asset
 - [ ] T026 Test hash generation: verify downloaded binary hash matches SHA256SUMS entry
 
 #### SBOM Generation
 
-- [ ] T027 Integrate CycloneDX tool into build workflow (research result from Phase 0 used here)
-- [ ] T028 Create `.github/scripts/generate-sbom.sh` to generate CycloneDX SBOM for binary
-- [ ] T029 Add workflow step in `build.yml` to generate SBOM for each platform build
-- [ ] T030 Generate single aggregated SBOM listing all dependencies across platforms
-- [ ] T031 Upload aggregated SBOM (JSON format) to GitHub Release as asset
+- [X] T027 Integrate CycloneDX tool into build workflow (research result from Phase 0 used here)
+- [X] T028 Create `.github/scripts/generate-sbom.sh` to generate CycloneDX SBOM for binary
+- [X] T029 Add workflow step in `build.yml` to generate SBOM for each platform build
+- [X] T030 Generate single aggregated SBOM listing all dependencies across platforms
+- [X] T031 Upload aggregated SBOM (JSON format) to GitHub Release as asset
 - [ ] T032 Test SBOM: download and verify SBOM contains expected dependency list
 
 #### Digital Signature Generation
 
-- [ ] T032a Research and select signature tool (GPG, cosign, or GitHub Actions built-in) during Phase 0
-- [ ] T032b Create `.github/scripts/sign-artifacts.sh` to generate signatures for SBOM and SHA256SUMS files
-- [ ] T032c Add workflow step in `build.yml` to sign SBOM.json and SHA256SUMS files after generation
-- [ ] T032d Upload signature files (SBOM.json.sig, SHA256SUMS.sig) to GitHub Release as assets
+- [X] T032a Research and select signature tool (GPG, cosign, or GitHub Actions built-in) during Phase 0
+- [X] T032b Create `.github/scripts/sign-artifacts.sh` to generate signatures for SBOM and SHA256SUMS files
+- [X] T032c Add workflow step in `build.yml` to sign SBOM.json and SHA256SUMS files after generation
+- [X] T032d Upload signature files (SBOM.json.sig, SHA256SUMS.sig) to GitHub Release as assets
 - [ ] T032e Test signature generation: verify signature files are present and properly formatted
 - [ ] T032f Document signature verification process in `quickstart.md` (public key distribution, verification command)
 
 #### Supply Chain Documentation
 
-- [ ] T033 Add file hash verification instructions to `quickstart.md`
-- [ ] T034 Add SBOM interpretation guide to `quickstart.md`
+- [X] T033 Add file hash verification instructions to `quickstart.md`
+- [X] T034 Add SBOM interpretation guide to `quickstart.md`
 - [ ] T035 Create ADR (Architecture Decision Record) explaining SBOM format choice (CycloneDX JSON/XML) and signature tool selection
-- [ ] T035a Add signature verification guide to `quickstart.md` (download .sig files, verify with public key)
+- [X] T035a Add signature verification guide to `quickstart.md` (download .sig files, verify with public key)
 
 ---
 
@@ -125,31 +125,31 @@ This story delivers automatic version management and release notes.
 
 #### Version Management
 
-- [ ] T036 Implement version number parsing from latest Git tag
-- [ ] T037 Create `.github/scripts/calculate-version.sh` to determine next version based on Conventional Commits
-- [ ] T038 Implement logic: feat: → minor, fix: → patch, BREAKING CHANGE: → major
-- [ ] T039 Add workflow step to create Git tag for new version
+- [X] T036 Implement version number parsing from latest Git tag
+- [X] T037 Create `.github/scripts/calculate-version.sh` to determine next version based on Conventional Commits
+- [X] T038 Implement logic: feat: → minor, fix: → patch, BREAKING CHANGE: → major
+- [X] T039 Add workflow step to create Git tag for new version
 - [ ] T040 Test version calculation: commit feat/fix/BREAKING CHANGE and verify version increments correctly
 
 #### Release Notes Generation
 
-- [ ] T041 Create `.github/scripts/generate-release-notes.sh` to extract Conventional Commits since last tag
-- [ ] T042 Implement categorization: features (feat:), fixes (fix:), breaking changes (BREAKING CHANGE:)
-- [ ] T043 Add workflow step to generate release notes and include in GitHub Release body
+- [X] T041 Create `.github/scripts/generate-release-notes.sh` to extract Conventional Commits since last tag
+- [X] T042 Implement categorization: features (feat:), fixes (fix:), breaking changes (BREAKING CHANGE:)
+- [X] T043 Add workflow step to generate release notes and include in GitHub Release body
 - [ ] T044 Test release notes: verify notes accurately reflect commits since last release
 
 #### Release Workflow Automation
 
-- [ ] T045 Update `release.yml` workflow to automatically trigger on main push (not manual)
-- [ ] T046 Add version calculation and git tag creation to release workflow
-- [ ] T047 Add release notes generation to release workflow
+- [X] T045 Update `release.yml` workflow to automatically trigger on main push (not manual)
+- [X] T046 Add version calculation and git tag creation to release workflow
+- [X] T047 Add release notes generation to release workflow
 - [ ] T048 Verify release appears on GitHub Releases within 30 minutes of main merge
 - [ ] T049 Test release end-to-end: merge PR to main, monitor workflow, verify release created
 
 #### Release Documentation
 
 - [ ] T050 Document versioning strategy in ADR (Conventional Commits → SemVer)
-- [ ] T051 Add release notification setup guide to `quickstart.md`
+- [X] T051 Add release notification setup guide to `quickstart.md`
 
 ---
 
@@ -163,18 +163,18 @@ This story delivers automated testing, coverage reporting, and quality gates.
 
 #### Test Automation on All Branches
 
-- [ ] T052 Create `.github/workflows/test.yml` to run all tests on every push/PR
-- [ ] T053 Add test execution step to run `dotnet test` with code coverage collection
-- [ ] T054 Configure test failure reporting (exit code check)
+- [X] T052 Create `.github/workflows/test.yml` to run all tests on every push/PR
+- [X] T053 Add test execution step to run `dotnet test` with code coverage collection
+- [X] T054 Configure test failure reporting (exit code check)
 - [ ] T055 Add branch protection rule: require passing tests before main merge
 - [ ] T056 Test: push failing test to feature branch, verify CI fails and merge is blocked
 
 #### Coverage Reporting to Codacy
 
 - [ ] T057 Add Codacy token secret configuration in GitHub repository settings
-- [ ] T058 Integrate Codacy coverage upload in `test.yml` workflow
+- [X] T058 Integrate Codacy coverage upload in `test.yml` workflow
 - [ ] T059 Configure coverage threshold: 80% project-wide goal (from spec)
-- [ ] T060 Add coverage report comment on pull requests
+- [X] T060 Add coverage report comment on pull requests
 - [ ] T061 Test: push change with coverage drop, verify Codacy warning appears on PR
 
 #### Quality Gates
@@ -193,7 +193,7 @@ This story delivers automated testing, coverage reporting, and quality gates.
 
 #### Release Performance SLA Configuration
 
-- [ ] T048a Configure GitHub Actions job timeout in `release.yml` to 25 minutes (buffer before 30-minute SLA from SC-003)
+- [X] T048a Configure GitHub Actions job timeout in `release.yml` to 25 minutes (buffer before 30-minute SLA from SC-003)
 - [ ] T048b Document timeout rationale in ADR (5-minute buffer for cleanup, upload finalization)
 - [ ] T048c Test: verify workflow kills gracefully at timeout and logs clear error message
 

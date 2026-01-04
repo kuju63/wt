@@ -1,0 +1,180 @@
+name: Release to GitHub
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      force-version:
+        description: 'Force specific version (e.g., v1.0.0)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  calculate-version:
+    name: Calculate Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      previous-version: ${{ steps.version.outputs.previous-version }}
+      should-release: ${{ steps.check.outputs.should-release }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for version calculation
+
+      - name: Calculate next version
+        id: version
+        if: github.event.inputs.force-version == ''
+        shell: bash
+        run: |
+          chmod +x .github/scripts/calculate-version.sh
+          .github/scripts/calculate-version.sh
+
+      - name: Use forced version
+        id: forced-version
+        if: github.event.inputs.force-version != ''
+        run: |
+          echo "version=${{ github.event.inputs.force-version }}" >> $GITHUB_OUTPUT
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "previous-version=${LAST_TAG}" >> $GITHUB_OUTPUT
+
+      - name: Check if release is needed
+        id: check
+        run: |
+          VERSION="${{ steps.version.outputs.version || steps.forced-version.outputs.version }}"
+          PREVIOUS="${{ steps.version.outputs.previous-version || steps.forced-version.outputs.previous-version }}"
+
+          if [ "$VERSION" == "$PREVIOUS" ]; then
+            echo "should-release=false" >> $GITHUB_OUTPUT
+            echo "::notice::No version change detected, skipping release"
+          else
+            echo "should-release=true" >> $GITHUB_OUTPUT
+            echo "::notice::Version change detected: $PREVIOUS → $VERSION"
+          fi
+
+  build:
+    name: Build Binaries
+    needs: calculate-version
+    if: needs.calculate-version.outputs.should-release == 'true'
+    uses: ./.github/workflows/build.yml
+    with:
+      version: ${{ needs.calculate-version.outputs.version }}
+
+  create-release:
+    name: Create GitHub Release
+    needs: [calculate-version, build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 25  # SLA: 30 minutes total, 5-minute buffer
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+
+      - name: Organize binaries
+        run: |
+          mkdir -p release-assets
+          find artifacts/ -type f \( -name "wt.exe" -o -name "wt" \) -exec cp {} release-assets/ \;
+
+          # Rename binaries to standard format
+          cd release-assets
+          VERSION="${{ needs.calculate-version.outputs.version }}"
+
+          # Windows
+          if [ -f "wt.exe" ]; then
+            mv wt.exe "wt-${VERSION}-windows-x64.exe"
+          fi
+
+          # Linux x64
+          if [ -d "../artifacts/binary-linux-x64" ]; then
+            cp ../artifacts/binary-linux-x64/wt "wt-${VERSION}-linux-x64"
+          fi
+
+          # Linux ARM
+          if [ -d "../artifacts/binary-linux-arm" ]; then
+            cp ../artifacts/binary-linux-arm/wt "wt-${VERSION}-linux-arm"
+          fi
+
+          # macOS ARM64
+          if [ -d "../artifacts/binary-macos-arm64" ]; then
+            cp ../artifacts/binary-macos-arm64/wt "wt-${VERSION}-macos-arm64"
+          fi
+
+          ls -lh
+
+      - name: Generate checksums
+        run: |
+          chmod +x .github/scripts/generate-checksums.sh
+          .github/scripts/generate-checksums.sh release-assets/
+
+      - name: Generate SBOM
+        run: |
+          chmod +x .github/scripts/generate-sbom.sh
+          .github/scripts/generate-sbom.sh "${{ needs.calculate-version.outputs.version }}" .
+          mv wt-*.sbom.json release-assets/
+
+      - name: Sign artifacts
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          cd release-assets
+          chmod +x ../.github/scripts/sign-artifacts.sh
+          ../.github/scripts/sign-artifacts.sh
+
+      - name: Generate release notes
+        run: |
+          chmod +x .github/scripts/generate-release-notes.sh
+          .github/scripts/generate-release-notes.sh \
+            "${{ needs.calculate-version.outputs.previous-version }}" \
+            "${{ needs.calculate-version.outputs.version }}"
+
+      - name: Create Git tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "${{ needs.calculate-version.outputs.version }}" -m "Release ${{ needs.calculate-version.outputs.version }}"
+          git push origin "${{ needs.calculate-version.outputs.version }}"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2
+        with:
+          tag_name: ${{ needs.calculate-version.outputs.version }}
+          name: ${{ needs.calculate-version.outputs.version }}
+          body_path: release-notes.md
+          draft: false
+          prerelease: false
+          files: |
+            release-assets/wt-*-windows-*.exe
+            release-assets/wt-*-linux-*
+            release-assets/wt-*-macos-*
+            release-assets/wt-*-sbom.json
+            release-assets/wt-*-sbom.json.asc
+            release-assets/SHA256SUMS
+            release-assets/SHA256SUMS.asc
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Release summary
+        run: |
+          echo "### 🚀 Release ${{ needs.calculate-version.outputs.version }} Published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Previous version**: ${{ needs.calculate-version.outputs.previous-version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **New version**: ${{ needs.calculate-version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Release URL**: https://github.com/${{ github.repository }}/releases/tag/${{ needs.calculate-version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "#### 📦 Assets" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          ls -lh release-assets/ >> $GITHUB_STEP_SUMMARY
