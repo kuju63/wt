@@ -210,52 +210,72 @@ public class GitService : IGitService
         var worktrees = new List<WorktreeInfo>();
         var lines = porcelainOutput.Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
-        string? path = null;
-        string? head = null;
-        string? branch = null;
-        bool isDetached = false;
+        var currentWorktree = new WorktreeData();
 
         foreach (var line in lines)
         {
             if (line.StartsWith("worktree "))
             {
-                // Save previous worktree if exists
-                if (path != null && head != null)
-                {
-                    worktrees.Add(CreateWorktreeInfo(path, branch ?? head, isDetached, head));
-                }
-
-                // Start new worktree
-                path = line.Substring(9);
-                head = null;
-                branch = null;
-                isDetached = false;
+                AddWorktreeIfValid(worktrees, currentWorktree);
+                currentWorktree = ParseWorktreeLine(line);
             }
-            else if (line.StartsWith("HEAD "))
+            else
             {
-                head = line.Substring(5);
-            }
-            else if (line.StartsWith("branch "))
-            {
-                branch = line.Substring(7);
-                if (branch.StartsWith("refs/heads/"))
-                {
-                    branch = branch.Substring(11);
-                }
-            }
-            else if (line.Trim() == "detached")
-            {
-                isDetached = true;
+                ParseWorktreeAttribute(line, ref currentWorktree);
             }
         }
 
-        // Add last worktree
-        if (path != null && head != null)
-        {
-            worktrees.Add(CreateWorktreeInfo(path, branch ?? head, isDetached, head));
-        }
-
+        AddWorktreeIfValid(worktrees, currentWorktree);
         return worktrees;
+    }
+
+    private WorktreeData ParseWorktreeLine(string line)
+    {
+        return new WorktreeData
+        {
+            Path = line.Substring(9)
+        };
+    }
+
+    private void ParseWorktreeAttribute(string line, ref WorktreeData worktree)
+    {
+        if (line.StartsWith("HEAD "))
+        {
+            worktree.Head = line.Substring(5);
+        }
+        else if (line.StartsWith("branch "))
+        {
+            worktree.Branch = NormalizeBranchName(line.Substring(7));
+        }
+        else if (line.Trim() == "detached")
+        {
+            worktree.IsDetached = true;
+        }
+    }
+
+    private string NormalizeBranchName(string branch)
+    {
+        return branch.StartsWith("refs/heads/") ? branch.Substring(11) : branch;
+    }
+
+    private void AddWorktreeIfValid(List<WorktreeInfo> worktrees, WorktreeData data)
+    {
+        if (data.Path != null && data.Head != null)
+        {
+            worktrees.Add(CreateWorktreeInfo(
+                data.Path,
+                data.Branch ?? data.Head,
+                data.IsDetached,
+                data.Head));
+        }
+    }
+
+    private class WorktreeData
+    {
+        public string? Path { get; set; }
+        public string? Head { get; set; }
+        public string? Branch { get; set; }
+        public bool IsDetached { get; set; }
     }
 
     private WorktreeInfo CreateWorktreeInfo(string path, string branch, bool isDetached, string commitHash)
