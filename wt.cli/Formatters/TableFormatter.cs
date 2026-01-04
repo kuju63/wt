@@ -8,6 +8,54 @@ namespace Kuju63.WorkTree.CommandLine.Formatters;
 /// </summary>
 public class TableFormatter : IOutputFormatter
 {
+    private static class BoxDrawing
+    {
+        public const char TopLeft = '┌';
+        public const char TopRight = '┐';
+        public const char BottomLeft = '└';
+        public const char BottomRight = '┘';
+        public const char Horizontal = '─';
+        public const char Vertical = '│';
+        public const char TopJunction = '┬';
+        public const char BottomJunction = '┴';
+        public const char MiddleJunction = '┼';
+        public const char LeftJunction = '├';
+        public const char RightJunction = '┤';
+    }
+
+    private readonly TableColumn[] _columns;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TableFormatter"/> class with default columns.
+    /// </summary>
+    public TableFormatter()
+        : this(GetDefaultColumns())
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TableFormatter"/> class with custom columns.
+    /// </summary>
+    /// <param name="columns">The columns to display in the table.</param>
+    public TableFormatter(params TableColumn[] columns)
+    {
+        _columns = columns ?? throw new ArgumentNullException(nameof(columns));
+        if (_columns.Length == 0)
+        {
+            throw new ArgumentException("At least one column is required.", nameof(columns));
+        }
+    }
+
+    private static TableColumn[] GetDefaultColumns()
+    {
+        return new[]
+        {
+            new TableColumn("Path", w => w.Path),
+            new TableColumn("Branch", w => w.GetDisplayBranch()),
+            new TableColumn("Status", w => w.GetDisplayStatus())
+        };
+    }
+
     /// <summary>
     /// Formats a collection of worktree information into a table string.
     /// </summary>
@@ -21,66 +69,73 @@ public class TableFormatter : IOutputFormatter
             return string.Empty;
         }
 
-        // Column headers
-        const string headerPath = "Path";
-        const string headerBranch = "Branch";
-        const string headerStatus = "Status";
+        // Pre-calculate all cell values in a single pass to avoid redundant calls
+        var rows = worktreeList.Select(w =>
+            _columns.Select(col => col.ValueSelector(w)).ToArray()
+        ).ToList();
 
-        // Calculate column widths based on content
-        var pathWidth = Math.Max(headerPath.Length, worktreeList.Max(w => w.Path.Length));
-        var branchWidth = Math.Max(headerBranch.Length, worktreeList.Max(w => w.GetDisplayBranch().Length));
-        var statusWidth = Math.Max(headerStatus.Length, worktreeList.Max(w => w.GetDisplayStatus().Length));
+        // Calculate column widths
+        var columnWidths = new int[_columns.Length];
+        for (int i = 0; i < _columns.Length; i++)
+        {
+            columnWidths[i] = Math.Max(
+                _columns[i].Header.Length,
+                rows.Max(row => row[i].Length)
+            );
+        }
 
         var sb = new StringBuilder();
 
         // Top border: ┌─┬─┬─┐
-        sb.Append('┌');
-        sb.Append('─', pathWidth + 2);
-        sb.Append('┬');
-        sb.Append('─', branchWidth + 2);
-        sb.Append('┬');
-        sb.Append('─', statusWidth + 2);
-        sb.AppendLine("┐");
+        AppendHorizontalBorder(sb, BoxDrawing.TopLeft, BoxDrawing.TopJunction, BoxDrawing.TopRight, columnWidths);
 
         // Header row: │ Path │ Branch │ Status │
-        sb.Append("│ ");
-        sb.Append(headerPath.PadRight(pathWidth));
-        sb.Append(" │ ");
-        sb.Append(headerBranch.PadRight(branchWidth));
-        sb.Append(" │ ");
-        sb.Append(headerStatus.PadRight(statusWidth));
-        sb.AppendLine(" │");
+        AppendRow(sb, _columns.Select(c => c.Header).ToArray(), columnWidths);
 
         // Separator line: ├─┼─┼─┤
-        sb.Append('├');
-        sb.Append('─', pathWidth + 2);
-        sb.Append('┼');
-        sb.Append('─', branchWidth + 2);
-        sb.Append('┼');
-        sb.Append('─', statusWidth + 2);
-        sb.AppendLine("┤");
+        AppendHorizontalBorder(sb, BoxDrawing.LeftJunction, BoxDrawing.MiddleJunction, BoxDrawing.RightJunction, columnWidths);
 
         // Data rows
-        foreach (var worktree in worktreeList)
+        foreach (var row in rows)
         {
-            sb.Append("│ ");
-            sb.Append(worktree.Path.PadRight(pathWidth));
-            sb.Append(" │ ");
-            sb.Append(worktree.GetDisplayBranch().PadRight(branchWidth));
-            sb.Append(" │ ");
-            sb.Append(worktree.GetDisplayStatus().PadRight(statusWidth));
-            sb.AppendLine(" │");
+            AppendRow(sb, row, columnWidths);
         }
 
         // Bottom border: └─┴─┴─┘
-        sb.Append('└');
-        sb.Append('─', pathWidth + 2);
-        sb.Append('┴');
-        sb.Append('─', branchWidth + 2);
-        sb.Append('┴');
-        sb.Append('─', statusWidth + 2);
-        sb.Append("┘");
+        AppendHorizontalBorder(sb, BoxDrawing.BottomLeft, BoxDrawing.BottomJunction, BoxDrawing.BottomRight, columnWidths);
 
         return sb.ToString();
+    }
+
+    private void AppendHorizontalBorder(StringBuilder sb, char left, char junction, char right, int[] columnWidths)
+    {
+        sb.Append(left);
+        for (int i = 0; i < columnWidths.Length; i++)
+        {
+            sb.Append(BoxDrawing.Horizontal, columnWidths[i] + 2);
+            if (i < columnWidths.Length - 1)
+            {
+                sb.Append(junction);
+            }
+        }
+        sb.Append(right);
+        sb.AppendLine();
+    }
+
+    private void AppendRow(StringBuilder sb, string[] values, int[] columnWidths)
+    {
+        sb.Append(BoxDrawing.Vertical);
+        sb.Append(' ');
+        for (int i = 0; i < values.Length; i++)
+        {
+            sb.Append(values[i].PadRight(columnWidths[i]));
+            sb.Append(' ');
+            sb.Append(BoxDrawing.Vertical);
+            if (i < values.Length - 1)
+            {
+                sb.Append(' ');
+            }
+        }
+        sb.AppendLine();
     }
 }
