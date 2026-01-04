@@ -201,8 +201,14 @@ public class GitService : IGitService
                 result.StandardError);
         }
 
+        var worktrees = ParseWorktreesFromPorcelain(result.StandardOutput);
+        return CommandResult<List<WorktreeInfo>>.Success(worktrees);
+    }
+
+    private List<WorktreeInfo> ParseWorktreesFromPorcelain(string porcelainOutput)
+    {
         var worktrees = new List<WorktreeInfo>();
-        var lines = result.StandardOutput.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        var lines = porcelainOutput.Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
         string? path = null;
         string? head = null;
@@ -249,7 +255,7 @@ public class GitService : IGitService
             worktrees.Add(CreateWorktreeInfo(path, branch ?? head, isDetached, head));
         }
 
-        return CommandResult<List<WorktreeInfo>>.Success(worktrees);
+        return worktrees;
     }
 
     private WorktreeInfo CreateWorktreeInfo(string path, string branch, bool isDetached, string commitHash)
