@@ -46,6 +46,14 @@ duplication:
     - "wt.tests/**"
     - "**/*.Tests/**"
 
+# Complexity configuration
+complexity:
+  enabled: true
+  # Exclude test files from complexity checks
+  exclude_paths:
+    - "wt.tests/**"
+    - "**/*.Tests/**"
+
 metric:
   exclude_paths:
     - "wt.tests/**"
