@@ -237,7 +237,12 @@ public class GitService : IGitService
         }
 
         var rawPath = line.Substring(9);
-        // Normalize the path to resolve symlinks (e.g., /var -> /private/var on macOS)
+        // Normalize the path for consistent comparisons.
+        // Note: Path.GetFullPath resolves relative segments, and on Windows it also
+        // resolves certain symlinks/junctions. On Unix-like systems it does not fully
+        // resolve symlinks (e.g., it may leave /var instead of /private/var on macOS).
+        // Tests or callers that use GetRealPath will typically see more fully resolved
+        // paths than this method returns, so any comparisons should account for this.
         var normalizedPath = Path.GetFullPath(rawPath);
 
         return new WorktreeData
