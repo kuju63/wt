@@ -236,9 +236,18 @@ public class GitService : IGitService
             return new WorktreeData();
         }
 
+        var rawPath = line.Substring(9);
+        // Normalize the path for consistent comparisons.
+        // Note: Path.GetFullPath resolves relative segments, and on Windows it also
+        // resolves certain symlinks/junctions. On Unix-like systems it does not fully
+        // resolve symlinks (e.g., it may leave /var instead of /private/var on macOS).
+        // Tests or callers that use GetRealPath will typically see more fully resolved
+        // paths than this method returns, so any comparisons should account for this.
+        var normalizedPath = Path.GetFullPath(rawPath);
+
         return new WorktreeData
         {
-            Path = line.Substring(9)
+            Path = normalizedPath
         };
     }
 
@@ -297,9 +306,59 @@ public class GitService : IGitService
 
         try
         {
+            // Resolve the actual git directory, handling the case where .git is a file pointing elsewhere
+            var gitDir = ".git";
+            if (File.Exists(gitDir))
+            {
+                try
+                {
+                    var lines = File.ReadAllLines(gitDir);
+                    if (lines.Length > 0)
+                    {
+                        var firstLine = lines[0];
+                        const string prefix = "gitdir:";
+                        if (firstLine.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                        {
+                            var gitDirPath = firstLine.Substring(prefix.Length).Trim();
+                            if (!string.IsNullOrWhiteSpace(gitDirPath))
+                            {
+                                // Resolve to absolute path
+                                if (!Path.IsPathRooted(gitDirPath))
+                                {
+                                    gitDirPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), gitDirPath));
+                                }
+                                else
+                                {
+                                    gitDirPath = Path.GetFullPath(gitDirPath);
+                                }
+
+                                // Security: Validate that the resolved path points to a valid git directory
+                                // This helps prevent path traversal attacks from malicious .git files
+                                if (Directory.Exists(gitDirPath) && 
+                                    (Directory.Exists(Path.Combine(gitDirPath, "worktrees")) || 
+                                     File.Exists(Path.Combine(gitDirPath, "config"))))
+                                {
+                                    gitDir = gitDirPath;
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (IOException ex)
+                {
+                    System.Console.Error.WriteLine($"[GitService] Error reading .git file: {ex.Message}");
+                    // Continue with default ".git" value
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    System.Console.Error.WriteLine($"[GitService] Access denied reading .git file: {ex.Message}");
+                    // Continue with default ".git" value
+                }
+            }
+
             // Get worktree name from path
             var worktreeName = Path.GetFileName(path);
-            var gitWorktreePath = Path.Combine(".git", "worktrees", worktreeName, "gitdir");
+            var gitWorktreePath = Path.Combine(gitDir, "worktrees", worktreeName, "gitdir");
 
             if (File.Exists(gitWorktreePath))
             {
