@@ -20,16 +20,16 @@
 
 ## Coverage by Component
 
-| Component | Line Coverage | Change |
-|-----------|---------------|--------|
-| ListCommand | 100% | - |
-| CreateCommand | 79.4% | - |
-| TableFormatter | 100% | - |
-| **GitService** | **80.6%** | **⬆️ +10%** |
-| EditorService | 97.3% | - |
-| WorktreeService | 77% | - |
-| ProcessRunner | 100% | - |
-| Validators | 100% | - |
+| Component       | Line Coverage | Change      |
+| --------------- | ------------- | ----------- |
+| ListCommand     | 100%          | -           |
+| CreateCommand   | 79.4%         | -           |
+| TableFormatter  | 100%          | -           |
+| **GitService**  | **80.6%**     | **⬆️ +10%** |
+| EditorService   | 97.3%         | -           |
+| WorktreeService | 77%           | -           |
+| ProcessRunner   | 100%          | -           |
+| Validators      | 100%          | -           |
 
 ## GitService Coverage Analysis
 
@@ -61,6 +61,7 @@ Four new integration tests were added in `GitDirectoryResolutionTests.cs`:
 The new `.git` file parsing logic (lines 302-323) is now **mostly covered**:
 
 ✅ **Covered:**
+
 - Checking if `.git` is a file (line 302)
 - Reading the `.git` file contents (line 304)
 - Parsing the `gitdir:` prefix (lines 307-309)
@@ -70,16 +71,19 @@ The new `.git` file parsing logic (lines 302-323) is now **mostly covered**:
 - File creation time reading (lines 329-332)
 
 ⚠️ **Not Covered:**
+
 - Relative path resolution (lines 315-317) - Edge case, most worktrees use absolute paths
 - Exception handling blocks (lines 334+) - Would require fault injection
 
 ### Improvement Summary
 
 **Before Tests:**
+
 - Line Coverage: 28.57% for CreateWorktreeInfo method
 - Branch Coverage: 16.66%
 
 **After Tests:**
+
 - Line Coverage: ~80%+ for CreateWorktreeInfo method
 - Branch Coverage: ~67%+
 - All critical paths are now tested with real worktree scenarios
@@ -87,6 +91,7 @@ The new `.git` file parsing logic (lines 302-323) is now **mostly covered**:
 ## Coverage Report Files
 
 Full coverage reports are available in:
+
 - HTML Report: `TestResults/CoverageReport/index.html`
 - Cobertura XML: `TestResults/**/coverage.cobertura.xml`
 - Text Summary: `TestResults/CoverageReport/Summary.txt`
