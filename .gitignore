@@ -130,3 +130,5 @@ Thumbs.db
 # DocFX output
 /_site
 /api/
+
+.codacy/

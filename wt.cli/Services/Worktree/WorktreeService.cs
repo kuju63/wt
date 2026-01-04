@@ -119,57 +119,50 @@ public class WorktreeService : IWorktreeService
                 ErrorCodes.GetSolution(ErrorCodes.NotGitRepository));
         }
 
-        // Get and validate base branch
+        return await CreateWorktreeInternalAsync(options, cancellationToken);
+    }
+
+    private async Task<CommandResult<WorktreeInfo>> CreateWorktreeInternalAsync(CreateWorktreeOptions options, CancellationToken cancellationToken)
+    {
         var baseBranchResult = await GetBaseBranchAsync(options, cancellationToken);
         if (!baseBranchResult.IsSuccess)
-        {
-            return CommandResult<WorktreeInfo>.Failure(
-                baseBranchResult.ErrorCode ?? ErrorCodes.GitCommandFailed,
-                baseBranchResult.ErrorMessage ?? "Failed to get base branch",
-                baseBranchResult.Solution);
-        }
+            return ToWorktreeFailure(baseBranchResult);
 
-        var baseBranch = baseBranchResult.Data;
-
-        // Check and create branch
-        var branchResult = await EnsureBranchExistsAsync(options.BranchName, baseBranch!, cancellationToken);
+        var branchResult = await EnsureBranchExistsAsync(options.BranchName, baseBranchResult.Data!, cancellationToken);
         if (!branchResult.IsSuccess)
-        {
-            return CommandResult<WorktreeInfo>.Failure(
-                branchResult.ErrorCode ?? ErrorCodes.GitCommandFailed,
-                branchResult.ErrorMessage ?? "Failed to ensure branch exists",
-                branchResult.Solution);
-        }
+            return ToWorktreeFailure(branchResult);
 
-        // Prepare and validate worktree path
         var pathResult = PrepareWorktreePath(options);
         if (!pathResult.IsValid)
-        {
-            return CommandResult<WorktreeInfo>.Failure(
-                ErrorCodes.InvalidPath,
-                "Invalid worktree path",
-                pathResult.ErrorMessage);
-        }
+            return CommandResult<WorktreeInfo>.Failure(ErrorCodes.InvalidPath, "Invalid worktree path", pathResult.ErrorMessage);
 
-        var normalizedPath = pathResult.Path;
-
-        // Add worktree
-        var addWorktreeResult = await _gitService.AddWorktreeAsync(normalizedPath, options.BranchName, cancellationToken);
+        var addWorktreeResult = await _gitService.AddWorktreeAsync(pathResult.Path, options.BranchName, cancellationToken);
         if (!addWorktreeResult.IsSuccess)
-        {
-            return CommandResult<WorktreeInfo>.Failure(
-                addWorktreeResult.ErrorCode!,
-                addWorktreeResult.ErrorMessage!,
-                addWorktreeResult.Solution);
-        }
-        // Create WorktreeInfo
+            return CommandResult<WorktreeInfo>.Failure(addWorktreeResult.ErrorCode!, addWorktreeResult.ErrorMessage!, addWorktreeResult.Solution);
+
+        return await CreateAndLaunchWorktreeAsync(options, pathResult.Path, baseBranchResult.Data!, cancellationToken);
+    }
+
+    private CommandResult<WorktreeInfo> ToWorktreeFailure<T>(CommandResult<T> result)
+    {
+        return CommandResult<WorktreeInfo>.Failure(
+            result.ErrorCode ?? ErrorCodes.GitCommandFailed,
+            result.ErrorMessage ?? "Operation failed",
+            result.Solution);
+    }
+
+    private async Task<CommandResult<WorktreeInfo>> CreateAndLaunchWorktreeAsync(
+        CreateWorktreeOptions options,
+        string normalizedPath,
+        string baseBranch,
+        CancellationToken cancellationToken)
+    {
         var worktreeInfo = new WorktreeInfo(
             normalizedPath,
             options.BranchName,
-            baseBranch!,
+            baseBranch,
             DateTime.UtcNow);
 
-        // Launch editor if specified
         return await LaunchEditorIfSpecifiedAsync(options, worktreeInfo, cancellationToken);
     }
 

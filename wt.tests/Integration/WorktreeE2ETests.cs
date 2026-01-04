@@ -15,7 +15,17 @@ public class WorktreeE2ETests : IDisposable
 
     public WorktreeE2ETests()
     {
-        // Ensure we start from a valid directory
+        SafeSetCurrentDirectory();
+        _originalDirectory = Environment.CurrentDirectory;
+
+        _testRepoPath = Path.Combine(Path.GetTempPath(), $"wt-test-{Guid.NewGuid()}");
+        Directory.CreateDirectory(_testRepoPath);
+
+        InitializeGitRepository();
+    }
+
+    private void SafeSetCurrentDirectory()
+    {
         try
         {
             var currentDir = Environment.CurrentDirectory;
@@ -26,19 +36,16 @@ public class WorktreeE2ETests : IDisposable
         }
         catch (IOException ex)
         {
-            // IO error when checking/setting current directory: fallback to temp and log.
             Console.Error.WriteLine($"Ignored IO error setting current directory in test ctor: {ex.Message}");
             Environment.CurrentDirectory = Path.GetTempPath();
         }
         catch (UnauthorizedAccessException ex)
         {
-            // Permission denied: fallback to temp and log.
             Console.Error.WriteLine($"Ignored permission error setting current directory in test ctor: {ex.Message}");
             Environment.CurrentDirectory = Path.GetTempPath();
         }
         catch (ArgumentException ex)
         {
-            // Invalid path argument: fallback to temp and log.
             Console.Error.WriteLine($"Ignored argument error setting current directory in test ctor: {ex.Message}");
             Environment.CurrentDirectory = Path.GetTempPath();
         }
@@ -54,25 +61,18 @@ public class WorktreeE2ETests : IDisposable
         }
         catch (Exception ex)
         {
-            // Fallback for unexpected exceptions: log and use temp directory.
             Console.Error.WriteLine($"Ignored unexpected error setting current directory in test ctor: {ex.Message}");
             Environment.CurrentDirectory = Path.GetTempPath();
         }
+    }
 
-        // Save original directory
-        _originalDirectory = Environment.CurrentDirectory;
-
-        // Create temporary test repository
-        _testRepoPath = Path.Combine(Path.GetTempPath(), $"wt-test-{Guid.NewGuid()}");
-        Directory.CreateDirectory(_testRepoPath);
-
-        // Initialize git repository
+    private void InitializeGitRepository()
+    {
         RunGitCommand("init");
         RunGitCommand("config user.email \"test@example.com\"");
         RunGitCommand("config user.name \"Test User\"");
-        RunGitCommand("checkout -b main"); // Ensure we're on main branch
+        RunGitCommand("checkout -b main");
 
-        // Create initial commit
         var readmePath = Path.Combine(_testRepoPath, "README.md");
         File.WriteAllText(readmePath, "# Test Repository\n");
         RunGitCommand("add README.md");
