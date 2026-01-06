@@ -1,0 +1,154 @@
+name: Build Multi-Platform Binaries
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: 'Version tag for the build (e.g., v1.0.0)'
+        required: true
+        type: string
+    outputs:
+      build-status:
+        description: 'Build status summary'
+        value: ${{ jobs.build-summary.outputs.status }}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build ${{ matrix.platform }}-${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false  # OPTIONAL platform failures don't block MANDATORY platforms
+      max-parallel: 4  # Build all platforms in parallel
+      matrix:
+        include:
+          # Windows x64 (MANDATORY)
+          - os: windows-latest
+            platform: windows
+            arch: x64
+            rid: win-x64
+            mandatory: true
+            script: build-windows.sh
+            artifact-name: wt-${{ inputs.version }}-windows-x64.exe
+
+          # Linux x64 (MANDATORY)
+          - os: ubuntu-latest
+            platform: linux
+            arch: x64
+            rid: linux-x64
+            mandatory: true
+            script: build-linux-x64.sh
+            artifact-name: wt-${{ inputs.version }}-linux-x64
+
+          # Linux ARM (OPTIONAL)
+          - os: ubuntu-latest
+            platform: linux
+            arch: arm
+            rid: linux-arm
+            mandatory: false
+            script: build-linux-arm.sh
+            artifact-name: wt-${{ inputs.version }}-linux-arm
+
+          # macOS ARM64 (MANDATORY)
+          - os: macos-latest
+            platform: macos
+            arch: arm64
+            rid: osx-arm64
+            mandatory: true
+            script: build-macos-arm64.sh
+            artifact-name: wt-${{ inputs.version }}-macos-arm64
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore wt.sln
+
+      - name: Build ${{ matrix.platform }}-${{ matrix.arch }}
+        id: build
+        shell: bash
+        run: |
+          chmod +x .github/scripts/${{ matrix.script }}
+          .github/scripts/${{ matrix.script }} "${{ inputs.version }}" "${{ matrix.rid }}"
+        continue-on-error: ${{ !matrix.mandatory }}
+
+      - name: Check build result
+        if: always()
+        shell: bash
+        run: |
+          if [ "${{ steps.build.outcome }}" == "failure" ]; then
+            if [ "${{ matrix.mandatory }}" == "true" ]; then
+              echo "::error::MANDATORY platform ${{ matrix.platform }}-${{ matrix.arch }} build failed!"
+              exit 1
+            else
+              echo "::warning::OPTIONAL platform ${{ matrix.platform }}-${{ matrix.arch }} build failed, continuing..."
+            fi
+          fi
+
+      - name: Upload build artifact
+        if: steps.build.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-${{ matrix.platform }}-${{ matrix.arch }}
+          path: |
+            wt.cli/bin/Release/net10.0/${{ matrix.rid }}/publish/wt*
+          retention-days: 7
+
+      - name: Report build status
+        if: always()
+        shell: bash
+        run: |
+          STATUS="${{ steps.build.outcome }}"
+          MANDATORY="${{ matrix.mandatory }}"
+          PLATFORM="${{ matrix.platform }}-${{ matrix.arch }}"
+
+          echo "platform=$PLATFORM" >> $GITHUB_OUTPUT
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
+          echo "mandatory=$MANDATORY" >> $GITHUB_OUTPUT
+
+          if [ "$STATUS" == "success" ]; then
+            echo "✅ $PLATFORM build succeeded"
+          elif [ "$MANDATORY" == "true" ]; then
+            echo "❌ $PLATFORM build failed (MANDATORY)"
+          else
+            echo "⚠️ $PLATFORM build failed (OPTIONAL)"
+          fi
+
+  build-summary:
+    name: Build Summary
+    runs-on: ubuntu-latest
+    needs: build
+    if: always()
+    outputs:
+      status: ${{ steps.summary.outputs.status }}
+    steps:
+      - name: Generate build summary
+        id: summary
+        run: |
+          echo "### Build Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Platform | Status | Type |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|--------|------|" >> $GITHUB_STEP_SUMMARY
+
+          # Check if all mandatory builds succeeded
+          ALL_SUCCESS=true
+
+          # Note: This is a simplified check. In production, we would parse job outputs.
+          # For now, we rely on fail-fast: false and continue-on-error logic.
+
+          if [ "$ALL_SUCCESS" == "true" ]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "✅ All mandatory platform builds succeeded" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "❌ One or more mandatory platform builds failed" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi

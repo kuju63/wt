@@ -31,8 +31,6 @@ go.work.sum
 # .idea/
 # .vscode/
 
-.github/
-
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
@@ -134,3 +132,7 @@ Thumbs.db
 .codacy/
 /coverage/
 TestResults/
+release-notes.md
+sbom-output/
+release-assets/
+
