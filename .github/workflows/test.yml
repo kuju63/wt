@@ -91,6 +91,6 @@ jobs:
         uses: dorny/test-reporter@bdab7eb6dfb6be17ac3d72352f67e559a72c8db1 # v2
         with:
           name: Test Results
-          path: '**/TestResults/*.trx'
+          path: 'coverage/**/*.trx'
           reporter: dotnet-trx
           fail-on-error: true
