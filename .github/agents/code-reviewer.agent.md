@@ -36,7 +36,7 @@ tools: ['execute/runTests', 'execute/testFailure', 'read/readFile', 'search/chan
 
 参照基準:
 
-- Googleのレビューチェックリスト (https://google.github.io/eng-practices/review/reviewer/looking-for.html) を基に、セキュリティ、可読性、設計・保守性、テストカバレッジ、パフォーマンス、依存関係を重点的に確認する。
+- Googleのレビューチェックリスト (<https://google.github.io/eng-practices/review/reviewer/looking-for.html>) を基に、セキュリティ、可読性、設計・保守性、テストカバレッジ、パフォーマンス、依存関係を重点的に確認する。
 
 利用する可能性のあるツール:
 
