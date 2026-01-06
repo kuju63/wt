@@ -186,8 +186,8 @@ This story delivers automated testing, coverage reporting, and quality gates.
 
 #### Release Trigger on Quality Gate Pass
 
-- [ ] T066 Update `release.yml` to run only if test workflow succeeds
-- [ ] T067 Add check: all required status checks passed before release
+- [X] T066 Update `release.yml` to run only if test workflow succeeds
+- [X] T067 Add check: all required status checks passed before release
 - [ ] T068 Test: merge PR to main with failing tests, verify release is NOT triggered
 - [ ] T069 Test: merge PR to main with passing tests, verify release IS triggered
 
@@ -216,9 +216,9 @@ This story delivers automated testing, coverage reporting, and quality gates.
 
 ### Error Handling & Robustness
 
-- [ ] T077 Add retry logic to Codacy upload (transient failure handling)
-- [ ] T078 Add graceful failure if optional platform build fails (log warning, skip asset)
-- [ ] T079 Add graceful failure if SBOM generation fails (fail release - security critical)
+- [X] T077 Add retry logic to Codacy upload (transient failure handling)
+- [X] T078 Add graceful failure if optional platform build fails (log warning, skip asset)
+- [X] T079 Add graceful failure if SBOM generation fails (fail release - security critical)
 - [ ] T080 Test error scenarios: simulate Codacy outage, simulate single platform failure
 
 ### Documentation & Handoff
