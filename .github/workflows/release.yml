@@ -192,6 +192,9 @@ jobs:
           VERSION="${{ needs.calculate-version.outputs.version }}"
           SBOM_OUTPUT_DIR="${{ github.workspace }}/_manifest"
 
+          # Create output directory
+          mkdir -p "$SBOM_OUTPUT_DIR"
+
           sbom-tool generate \
             -b "$SBOM_OUTPUT_DIR" \
             -bc "${{ github.workspace }}" \
