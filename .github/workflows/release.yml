@@ -200,6 +200,7 @@ jobs:
             -bc "${{ github.workspace }}" \
             -pn "${{ github.repository }}" \
             -pv "$VERSION" \
+            -ps "Organization: kuju63" \
             -nsb "https://github.com/${{ github.repository }}/sbom/$VERSION-$(date +%Y%m%d%H%M%S)" \
             -v Information || {
             echo "::error::SBOM generation failed"

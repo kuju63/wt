@@ -76,6 +76,7 @@ jobs:
             -bc "${{ github.workspace }}" \
             -pn "${{ github.repository }}" \
             -pv "pr-${{ github.event.pull_request.number }}" \
+            -ps "Organization: kuju63" \
             -nsb "https://github.com/${{ github.repository }}/sbom/pr-${{ github.event.pull_request.number }}-$(date +%Y%m%d%H%M%S)" \
             -v Information || {
             echo "::error::SBOM generation failed"
