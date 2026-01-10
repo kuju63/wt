@@ -37,6 +37,7 @@ exclude_paths:
 
   # Spec kit files
   - .specify/scripts/**
+  - specs/**/*.md
 
 # Duplication configuration
 duplication:
