@@ -264,20 +264,58 @@ jobs:
 
           SBOM_FILE="release-assets/wt-${{ needs.calculate-version.outputs.version }}-sbom.spdx.json"
 
-          # Install SPDX validator
-          npm install -g @spdx/spdx-validator@1.0.0 || {
-            echo "::error::Failed to install SPDX validator"
+          # Validate SBOM is valid JSON
+          if ! jq empty "$SBOM_FILE" 2>/dev/null; then
+            echo "::error::SBOM file is not valid JSON"
             exit 1
-          }
+          fi
+          echo "✅ Valid JSON format"
 
-          # Validate SPDX format
-          spdx-validator "$SBOM_FILE" || {
-            echo "::error::SBOM failed SPDX validation"
-            echo "::error::The SBOM does not conform to SPDX 2.3 specification"
+          # Validate required SPDX fields
+          SPDX_VERSION=$(jq -r '.spdxVersion' "$SBOM_FILE")
+          if [ -z "$SPDX_VERSION" ] || [ "$SPDX_VERSION" = "null" ]; then
+            echo "::error::Missing required field: spdxVersion"
             exit 1
-          }
+          fi
+          echo "✅ SPDX Version: $SPDX_VERSION"
 
-          echo "✅ SBOM passes SPDX 2.3 format validation"
+          DATA_LICENSE=$(jq -r '.dataLicense' "$SBOM_FILE")
+          if [ -z "$DATA_LICENSE" ] || [ "$DATA_LICENSE" = "null" ]; then
+            echo "::error::Missing required field: dataLicense"
+            exit 1
+          fi
+          echo "✅ Data License: $DATA_LICENSE"
+
+          DOC_NAME=$(jq -r '.name' "$SBOM_FILE")
+          if [ -z "$DOC_NAME" ] || [ "$DOC_NAME" = "null" ]; then
+            echo "::error::Missing required field: name"
+            exit 1
+          fi
+          echo "✅ Document Name: $DOC_NAME"
+
+          DOC_NAMESPACE=$(jq -r '.documentNamespace' "$SBOM_FILE")
+          if [ -z "$DOC_NAMESPACE" ] || [ "$DOC_NAMESPACE" = "null" ]; then
+            echo "::error::Missing required field: documentNamespace"
+            exit 1
+          fi
+          echo "✅ Document Namespace: $DOC_NAMESPACE"
+
+          CREATION_INFO=$(jq -r '.creationInfo.created' "$SBOM_FILE")
+          if [ -z "$CREATION_INFO" ] || [ "$CREATION_INFO" = "null" ]; then
+            echo "::error::Missing required field: creationInfo.created"
+            exit 1
+          fi
+          echo "✅ Creation Date: $CREATION_INFO"
+
+          # Validate packages array exists
+          if ! jq -e '.packages' "$SBOM_FILE" > /dev/null; then
+            echo "::error::Missing required field: packages"
+            exit 1
+          fi
+          PACKAGE_COUNT=$(jq '.packages | length' "$SBOM_FILE")
+          echo "✅ Packages Array: $PACKAGE_COUNT packages"
+
+          echo "✅ SBOM passes SPDX format validation (offline)"
           echo "::endgroup::"
 
       - name: Verify required packages

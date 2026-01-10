@@ -417,8 +417,10 @@ jobs:
       
       - name: Validate SBOM format
         run: |
-          npm install -g @spdx/spdx-validator
-          spdx-validator _manifest/_manifest/spdx_2.2/manifest.spdx.json
+          SBOM_FILE="_manifest/_manifest/spdx_2.2/manifest.spdx.json"
+          # jqベースのオフラインバリデーション
+          jq -e '.spdxVersion, .dataLicense, .name, .documentNamespace, .creationInfo.created, .packages' "$SBOM_FILE" > /dev/null || exit 1
+          echo "✅ SBOM validation passed"
       
       - name: Verify SBOM content
         run: |

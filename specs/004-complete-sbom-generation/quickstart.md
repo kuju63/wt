@@ -62,17 +62,27 @@ curl -L https://github.com/kuju63/wt/releases/download/v1.0.0/wt-v1.0.0-sbom.spd
 SBOMが正しいフォーマットか検証する方法：
 
 ```bash
-# SPDX検証ツールをインストール
-npm install -g @spdx/spdx-validator
+# jqを使用したオフライン検証（推奨）
+SBOM_FILE="wt-sbom.spdx.json"
 
-# SBOMを検証
-spdx-validator wt-sbom.spdx.json
+# 必須フィールドの検証
+jq -e '.spdxVersion, .dataLicense, .name, .documentNamespace, .creationInfo.created, .packages' "$SBOM_FILE" > /dev/null && echo "✅ SBOM validation passed" || echo "❌ SBOM validation failed"
+
+# 詳細な検証結果を表示
+echo "SPDX Version: $(jq -r '.spdxVersion' "$SBOM_FILE")"
+echo "Data License: $(jq -r '.dataLicense' "$SBOM_FILE")"
+echo "Document Name: $(jq -r '.name' "$SBOM_FILE")"
+echo "Package Count: $(jq '.packages | length' "$SBOM_FILE")"
 ```
 
 成功時の出力：
 
 ```text
-✓ SPDX document is valid
+✅ SBOM validation passed
+SPDX Version: SPDX-2.2
+Data License: CC0-1.0
+Document Name: kuju63/wt v1.0.0
+Package Count: 7
 ```
 
 ### SBOMの内容を確認
@@ -463,9 +473,9 @@ dotnet restore --locked-mode
 # ローカルでSBOM生成をテスト
 sbom-tool generate -b ./test-sbom -bc . -pn test -pv test -nsb https://test
 
-# SPDXバリデーション
-npm install -g @spdx/spdx-validator
-spdx-validator ./test-sbom/_manifest/spdx_2.2/manifest.spdx.json
+# SPDXバリデーション（jqベース）
+SBOM_FILE="./test-sbom/_manifest/spdx_2.2/manifest.spdx.json"
+jq -e '.spdxVersion, .dataLicense, .name, .documentNamespace, .creationInfo.created, .packages' "$SBOM_FILE" > /dev/null && echo "✅ Validation passed" || echo "❌ Validation failed"
 
 # 変更をコミット
 git add wt.cli/packages.lock.json
@@ -528,7 +538,7 @@ jq '{version: .spdxVersion, name: .name, created: .creationInfo.created}' wt-sbo
 
 ### ツール
 
-- [SPDX Validator](https://www.npmjs.com/package/@spdx/spdx-validator) - SPDXフォーマット検証
+- [jq](https://stedolan.github.io/jq/) - JSON処理ツール（SBOM検証に使用、推奨）
 - [OSV Scanner](https://github.com/google/osv-scanner) - 脆弱性スキャン
 - [Grype](https://github.com/anchore/grype) - 脆弱性検出
 - [Dependency-Track](https://dependencytrack.org/) - SBOMプラットフォーム

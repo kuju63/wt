@@ -65,7 +65,7 @@
 
 ### Implementation for User Story 2
 
-- [X] T015 [US2] Add SPDX format validation step using @spdx/spdx-validator in .github/workflows/release.yml (FR-006)
+- [X] T015 [US2] Add SPDX format validation step using jq-based offline validation in .github/workflows/release.yml (FR-006)
 - [X] T016 [US2] Add required package verification step in .github/workflows/release.yml (FR-002)
 - [X] T017 [US2] Verify System.CommandLine and System.IO.Abstractions are present in SBOM in .github/workflows/release.yml (FR-002)
 - [X] T018 [US2] Add package count validation (minimum threshold check) in .github/workflows/release.yml (FR-003)
