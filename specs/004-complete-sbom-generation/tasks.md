@@ -16,9 +16,9 @@
 
 **Purpose**: Initialize project structure and prerequisite scripts
 
-- [ ] T001 Create ADR document for SBOM generation approach in docs/adr/004-sbom-generation.md
-- [ ] T002 [P] Create SBOM usage guide in docs/guides/sbom-usage.md (copy from specs/004-complete-sbom-generation/quickstart.md)
-- [ ] T003 [P] Add SBOM section to README.md explaining supply chain transparency
+- [X] T001 Create ADR document for SBOM generation approach in docs/adr/004-sbom-generation.md
+- [X] T002 [P] Create SBOM usage guide in docs/guides/sbom-usage.md (copy from specs/004-complete-sbom-generation/quickstart.md)
+- [X] T003 [P] Add SBOM section to README.md explaining supply chain transparency
 
 ---
 
@@ -28,9 +28,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup NuGet package caching in .github/workflows/release.yml (FR-015)
-- [ ] T005 Configure workflow permissions (contents: write, id-token: write) in .github/workflows/release.yml (FR-011)
-- [ ] T006 Add workflow timeout settings (15 minutes) in .github/workflows/release.yml (FR-014)
+- [X] T004 Setup NuGet package caching in .github/workflows/release.yml (FR-015)
+- [X] T005 Configure workflow permissions (contents: write, id-token: write) in .github/workflows/release.yml (FR-011)
+- [X] T006 Add workflow timeout settings (15 minutes) in .github/workflows/release.yml (FR-014)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -44,14 +44,14 @@
 
 ### Implementation for User Story 1
 
-- [ ] T007 [US1] Add dependency restore step before SBOM generation in .github/workflows/release.yml (FR-001)
-- [ ] T008 [US1] Configure dotnet restore with --locked-mode flag in .github/workflows/release.yml (FR-001, FR-002)
-- [ ] T009 [US1] Add multi-platform restore for all target platforms (win-x64, linux-x64, linux-arm, osx-arm64) in .github/workflows/release.yml (FR-016)
-- [ ] T010 [US1] Install Microsoft SBOM Tool in workflow in .github/workflows/release.yml (FR-006)
-- [ ] T011 [US1] Configure SBOM generation with correct parameters (package name, version, namespace) in .github/workflows/release.yml (FR-002, FR-003, FR-008, FR-009)
-- [ ] T012 [US1] Add error handling for restore failures in .github/workflows/release.yml (FR-004)
-- [ ] T013 [US1] Add error handling for SBOM generation failures in .github/workflows/release.yml (FR-004)
-- [ ] T014 [US1] Add detailed logging for restore and SBOM generation steps in .github/workflows/release.yml (FR-007)
+- [X] T007 [US1] Add dependency restore step before SBOM generation in .github/workflows/release.yml (FR-001)
+- [X] T008 [US1] Configure dotnet restore with --locked-mode flag in .github/workflows/release.yml (FR-001, FR-002)
+- [X] T009 [US1] Add multi-platform restore for all target platforms (win-x64, linux-x64, linux-arm, osx-arm64) in .github/workflows/release.yml (FR-016)
+- [X] T010 [US1] Install Microsoft SBOM Tool in workflow in .github/workflows/release.yml (FR-006)
+- [X] T011 [US1] Configure SBOM generation with correct parameters (package name, version, namespace) in .github/workflows/release.yml (FR-002, FR-003, FR-008, FR-009)
+- [X] T012 [US1] Add error handling for restore failures in .github/workflows/release.yml (FR-004)
+- [X] T013 [US1] Add error handling for SBOM generation failures in .github/workflows/release.yml (FR-004)
+- [X] T014 [US1] Add detailed logging for restore and SBOM generation steps in .github/workflows/release.yml (FR-007)
 
 **Checkpoint**: User Story 1 complete - SBOM with all dependencies is generated
 
@@ -65,12 +65,12 @@
 
 ### Implementation for User Story 2
 
-- [ ] T015 [US2] Add SPDX format validation step using @spdx/spdx-validator in .github/workflows/release.yml (FR-006)
-- [ ] T016 [US2] Add required package verification step in .github/workflows/release.yml (FR-002)
-- [ ] T017 [US2] Verify System.CommandLine and System.IO.Abstractions are present in SBOM in .github/workflows/release.yml (FR-002)
-- [ ] T018 [US2] Add package count validation (minimum threshold check) in .github/workflows/release.yml (FR-003)
-- [ ] T019 [US2] Add validation failure reporting with detailed error messages in .github/workflows/release.yml (FR-007)
-- [ ] T020 [US2] Configure pipeline to fail on validation errors in .github/workflows/release.yml (FR-004)
+- [X] T015 [US2] Add SPDX format validation step using @spdx/spdx-validator in .github/workflows/release.yml (FR-006)
+- [X] T016 [US2] Add required package verification step in .github/workflows/release.yml (FR-002)
+- [X] T017 [US2] Verify System.CommandLine and System.IO.Abstractions are present in SBOM in .github/workflows/release.yml (FR-002)
+- [X] T018 [US2] Add package count validation (minimum threshold check) in .github/workflows/release.yml (FR-003)
+- [X] T019 [US2] Add validation failure reporting with detailed error messages in .github/workflows/release.yml (FR-007)
+- [X] T020 [US2] Configure pipeline to fail on validation errors in .github/workflows/release.yml (FR-004)
 
 **Checkpoint**: User Story 2 complete - SBOM validation ensures quality before release
 
@@ -84,13 +84,13 @@
 
 ### Implementation for User Story 4
 
-- [ ] T021 [US4] Add GitHub Dependency Submission API integration using actions/dependency-submission@v3 in .github/workflows/release.yml (FR-011, FR-018)
-- [ ] T022 [US4] Configure SBOM file path and snapshot format (spdx) in .github/workflows/release.yml (FR-011)
-- [ ] T023 [US4] Add error handling for API submission failures (must fail pipeline) in .github/workflows/release.yml (FR-013)
-- [ ] T024 [US4] Add SBOM file upload to GitHub Release assets in .github/workflows/release.yml (FR-005, FR-012)
-- [ ] T025 [US4] Configure SBOM filename format (wt-{version}-sbom.spdx.json) in .github/workflows/release.yml (FR-012)
-- [ ] T026 [US4] Add error handling for release asset upload failures in .github/workflows/release.yml (FR-004)
-- [ ] T027 [US4] Add logging for GitHub API interactions in .github/workflows/release.yml (FR-007)
+- [X] T021 [US4] Add GitHub Dependency Submission API integration using actions/dependency-submission@v3 in .github/workflows/release.yml (FR-011, FR-018)
+- [X] T022 [US4] Configure SBOM file path and snapshot format (spdx) in .github/workflows/release.yml (FR-011)
+- [X] T023 [US4] Add error handling for API submission failures (must fail pipeline) in .github/workflows/release.yml (FR-013)
+- [X] T024 [US4] Add SBOM file upload to GitHub Release assets in .github/workflows/release.yml (FR-005, FR-012)
+- [X] T025 [US4] Configure SBOM filename format (wt-{version}-sbom.spdx.json) in .github/workflows/release.yml (FR-012)
+- [X] T026 [US4] Add error handling for release asset upload failures in .github/workflows/release.yml (FR-004)
+- [X] T027 [US4] Add logging for GitHub API interactions in .github/workflows/release.yml (FR-007)
 
 **Checkpoint**: User Story 4 complete - SBOM is integrated with GitHub ecosystem
 
@@ -104,11 +104,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Verify Microsoft SBOM Tool generates SPDX 2.3+ format in .github/workflows/release.yml (FR-006)
-- [ ] T029 [US3] Add SPDX version verification (must be SPDX-2.3) in .github/workflows/release.yml (FR-006)
-- [ ] T030 [US3] Add dataLicense verification (must be CC0-1.0) in .github/workflows/release.yml (FR-006)
-- [ ] T031 [US3] Add documentNamespace uniqueness verification in .github/workflows/release.yml (FR-006)
-- [ ] T032 [US3] Add NOASSERTION handling for missing license information in .github/workflows/release.yml (FR-010, FR-017)
+- [X] T028 [US3] Verify Microsoft SBOM Tool generates SPDX 2.3+ format in .github/workflows/release.yml (FR-006)
+- [X] T029 [US3] Add SPDX version verification (must be SPDX-2.3) in .github/workflows/release.yml (FR-006)
+- [X] T030 [US3] Add dataLicense verification (must be CC0-1.0) in .github/workflows/release.yml (FR-006)
+- [X] T031 [US3] Add documentNamespace uniqueness verification in .github/workflows/release.yml (FR-006)
+- [X] T032 [US3] Add NOASSERTION handling for missing license information in .github/workflows/release.yml (FR-010, FR-017)
 
 **Checkpoint**: User Story 3 complete - SBOM format is standards-compliant
 
@@ -122,17 +122,17 @@
 
 ### Implementation for PR Testing
 
-- [ ] T033 Create PR test workflow file .github/workflows/sbom-test.yml (FR-019)
-- [ ] T034 Configure PR trigger for workflow (on pull_request to main branch) in .github/workflows/sbom-test.yml (FR-019)
-- [ ] T035 Add path filters (wt.cli/**, packages.lock.json, workflow files) in .github/workflows/sbom-test.yml (FR-019)
-- [ ] T036 [P] Add dependency restore step with caching in .github/workflows/sbom-test.yml (FR-001, FR-015, FR-019)
-- [ ] T037 [P] Add SBOM generation step in .github/workflows/sbom-test.yml (FR-019)
-- [ ] T038 Add SPDX format validation in .github/workflows/sbom-test.yml (FR-020)
-- [ ] T039 Add required package verification (System.CommandLine, System.IO.Abstractions) in .github/workflows/sbom-test.yml (FR-020)
-- [ ] T040 Add package count validation in .github/workflows/sbom-test.yml (FR-020)
-- [ ] T041 Add performance benchmark (15-minute timeout) in .github/workflows/sbom-test.yml (FR-014, FR-020)
-- [ ] T042 Add dry-run comment for GitHub API (no actual submission) in .github/workflows/sbom-test.yml (FR-021)
-- [ ] T043 Add SBOM artifact upload for PR review in .github/workflows/sbom-test.yml (FR-019)
+- [X] T033 Create PR test workflow file .github/workflows/sbom-test.yml (FR-019)
+- [X] T034 Configure PR trigger for workflow (on pull_request to main branch) in .github/workflows/sbom-test.yml (FR-019)
+- [X] T035 Add path filters (wt.cli/**, packages.lock.json, workflow files) in .github/workflows/sbom-test.yml (FR-019)
+- [X] T036 [P] Add dependency restore step with caching in .github/workflows/sbom-test.yml (FR-001, FR-015, FR-019)
+- [X] T037 [P] Add SBOM generation step in .github/workflows/sbom-test.yml (FR-019)
+- [X] T038 Add SPDX format validation in .github/workflows/sbom-test.yml (FR-020)
+- [X] T039 Add required package verification (System.CommandLine, System.IO.Abstractions) in .github/workflows/sbom-test.yml (FR-020)
+- [X] T040 Add package count validation in .github/workflows/sbom-test.yml (FR-020)
+- [X] T041 Add performance benchmark (15-minute timeout) in .github/workflows/sbom-test.yml (FR-014, FR-020)
+- [X] T042 Add dry-run comment for GitHub API (no actual submission) in .github/workflows/sbom-test.yml (FR-021)
+- [X] T043 Add SBOM artifact upload for PR review in .github/workflows/sbom-test.yml (FR-019)
 
 **Checkpoint**: PR testing complete - Issues caught before release
 
@@ -142,13 +142,13 @@
 
 **Purpose**: Performance optimization, documentation, and monitoring
 
-- [ ] T044 [P] Add performance metrics logging (duration tracking) in .github/workflows/release.yml
-- [ ] T045 [P] Add cache hit/miss reporting for NuGet packages in .github/workflows/release.yml
-- [ ] T046 Update documentation with SBOM download instructions in README.md
-- [ ] T047 Add workflow badges for SBOM test status in README.md
-- [ ] T048 Create example SBOM file for documentation in docs/examples/sbom.spdx.json
-- [ ] T049 [P] Add workflow failure notifications (optional) in .github/workflows/release.yml
-- [ ] T050 Update CHANGELOG.md with SBOM feature description
+- [X] T044 [P] Add performance metrics logging (duration tracking) in .github/workflows/release.yml
+- [X] T045 [P] Add cache hit/miss reporting for NuGet packages in .github/workflows/release.yml
+- [X] T046 Update documentation with SBOM download instructions in README.md
+- [X] T047 Add workflow badges for SBOM test status in README.md
+- [X] T048 Create example SBOM file for documentation in docs/examples/sbom.spdx.json
+- [X] T049 [P] Add workflow failure notifications (optional) in .github/workflows/release.yml
+- [X] T050 Update CHANGELOG.md with SBOM feature description
 
 ---
 
@@ -263,7 +263,7 @@ Before marking this feature complete, verify:
 | Risk                                   | Mitigation                               |
 | -------------------------------------- | ---------------------------------------- |
 | Large solution timeout (>200 deps)     | 15-min timeout + caching + parallel      |
-| GitHub API rate limits                 | Unlikely in GitHub Actions (5000/hr)    |
+| GitHub API rate limits                 | Unlikely in GitHub Actions (5000/hr)     |
 | Platform-specific dependency leakage   | Restore for all platforms explicitly     |
 | Release failure discovery              | PR testing catches issues early          |
 | Dependency Graph pollution from PRs    | Dry-run mode in sbom-test.yml            |

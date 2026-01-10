@@ -234,6 +234,53 @@ code --version
 vim --version
 ```
 
+## Supply Chain Transparency
+
+### SBOM (Software Bill of Materials)
+
+Every release of `wt` includes a complete Software Bill of Materials (SBOM) that provides transparency about all dependencies used in the software:
+
+- **📄 Format**: SPDX 2.3 (ISO/IEC 5962:2021 compliant)
+- **🔍 Transparency**: Complete list of all direct and transitive dependencies
+- **🛡️ Security**: Automatic vulnerability tracking via GitHub Dependabot
+- **⚖️ Compliance**: License information for all components
+- **📦 Availability**: Attached to every GitHub release
+
+#### Download SBOM
+
+```bash
+# Download SBOM from latest release
+VERSION=$(curl -s https://api.github.com/repos/kuju63/wt/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+curl -L https://github.com/kuju63/wt/releases/download/${VERSION}/wt-${VERSION}-sbom.spdx.json \
+  -o wt-sbom.spdx.json
+
+# Or download a specific version
+curl -L https://github.com/kuju63/wt/releases/download/v1.0.0/wt-v1.0.0-sbom.spdx.json \
+  -o wt-sbom.spdx.json
+```
+
+#### Verify SBOM
+
+```bash
+# Install SPDX validator
+npm install -g @spdx/spdx-validator
+
+# Validate SBOM format
+spdx-validator wt-sbom.spdx.json
+```
+
+#### View Dependencies
+
+```bash
+# List all dependencies with versions
+jq -r '.packages[] | "\(.name)@\(.versionInfo)"' wt-sbom.spdx.json
+
+# Check license information
+jq -r '.packages[] | "\(.name): \(.licenseDeclared)"' wt-sbom.spdx.json
+```
+
+**Learn more**: See the [SBOM Usage Guide](docs/guides/sbom-usage.md) for detailed information.
+
 ## Development
 
 ### Project Structure

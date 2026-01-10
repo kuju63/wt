@@ -1,0 +1,89 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "wt CLI Tool",
+  "documentNamespace": "https://github.com/kuju63/wt/sbom/v1.0.0-20260110000000",
+  "creationInfo": {
+    "created": "2026-01-10T00:00:00Z",
+    "creators": [
+      "Tool: Microsoft.Sbom.Tool-2.2.0"
+    ],
+    "licenseListVersion": "3.21"
+  },
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-System.CommandLine-2.0.1",
+      "name": "System.CommandLine",
+      "versionInfo": "2.0.1",
+      "downloadLocation": "https://api.nuget.org/v3-flatcontainer/system.commandline/2.0.1/system.commandline.2.0.1.nupkg",
+      "filesAnalyzed": false,
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "copyrightText": "© Microsoft Corporation. All rights reserved.",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:nuget/System.CommandLine@2.0.1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-System.IO.Abstractions-22.1.0",
+      "name": "System.IO.Abstractions",
+      "versionInfo": "22.1.0",
+      "downloadLocation": "https://api.nuget.org/v3-flatcontainer/system.io.abstractions/22.1.0/system.io.abstractions.22.1.0.nupkg",
+      "filesAnalyzed": false,
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "copyrightText": "Copyright (c) Tatham Oddie & Contributors",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:nuget/System.IO.Abstractions@22.1.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-System.Memory-4.5.5",
+      "name": "System.Memory",
+      "versionInfo": "4.5.5",
+      "downloadLocation": "https://api.nuget.org/v3-flatcontainer/system.memory/4.5.5/system.memory.4.5.5.nupkg",
+      "filesAnalyzed": false,
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "copyrightText": "© Microsoft Corporation. All rights reserved.",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:nuget/System.Memory@4.5.5"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-System.CommandLine-2.0.1"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-System.IO.Abstractions-22.1.0"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-System.Memory-4.5.5"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-System.CommandLine-2.0.1",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-System.Memory-4.5.5"
+    }
+  ]
+}
