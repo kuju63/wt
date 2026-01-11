@@ -190,7 +190,7 @@ jobs:
           set -e
 
           VERSION="${{ needs.calculate-version.outputs.version }}"
-          SBOM_OUTPUT_DIR="${{ github.workspace }}/_manifest"
+          SBOM_OUTPUT_DIR="${{ github.workspace }}"
 
           # Create output directory
           mkdir -p "$SBOM_OUTPUT_DIR"
@@ -209,11 +209,14 @@ jobs:
           }
 
           # Copy SBOM to release assets with standard naming
-          SBOM_SOURCE="$SBOM_OUTPUT_DIR/_manifest/spdx_2.2/manifest.spdx.json"
+          SBOM_SOURCE="$SBOM_OUTPUT_DIR/_manifest/spdx_2.3/manifest.spdx.json"
           SBOM_TARGET="release-assets/wt-${VERSION}-sbom.spdx.json"
 
           if [ ! -f "$SBOM_SOURCE" ]; then
             echo "::error::SBOM file not found: $SBOM_SOURCE"
+            echo "::group::SBOM Output Directory Structure"
+            ls -R "$SBOM_OUTPUT_DIR/_manifest" || true
+            echo "::endgroup::"
             exit 1
           fi
 
