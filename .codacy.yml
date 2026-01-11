@@ -38,7 +38,9 @@ exclude_paths:
   # Spec kit files
   - .specify/scripts/**
   - specs/**/*.md
-  
+  - .github/agents/**
+  - .github/prompts/**
+
   # Documentation files (large guides)
   - docs/guides/**
   - docs/examples/**
