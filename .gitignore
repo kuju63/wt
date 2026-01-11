@@ -135,4 +135,6 @@ TestResults/
 release-notes.md
 sbom-output/
 release-assets/
+_manifest/
+sbom-test.spdx.json
 
