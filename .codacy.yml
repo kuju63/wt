@@ -38,6 +38,10 @@ exclude_paths:
   # Spec kit files
   - .specify/scripts/**
   - specs/**/*.md
+  
+  # Documentation files (large guides)
+  - docs/guides/**
+  - docs/examples/**
 
 # Duplication configuration
 duplication:
