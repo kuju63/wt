@@ -46,7 +46,7 @@ jobs:
       should-release: ${{ steps.check.outputs.should-release }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0  # Fetch all history for version calculation
 
@@ -100,7 +100,7 @@ jobs:
     timeout-minutes: 15  # SLA: 15 minutes for SBOM generation and release
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
