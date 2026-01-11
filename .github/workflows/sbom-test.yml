@@ -229,7 +229,7 @@ jobs:
           echo "::endgroup::"
 
       - name: Upload SBOM artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: sbom-pr-${{ github.event.pull_request.number }}
           path: sbom-test.spdx.json
