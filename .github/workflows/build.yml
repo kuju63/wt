@@ -95,7 +95,7 @@ jobs:
 
       - name: Upload build artifact
         if: steps.build.outcome == 'success'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: binary-${{ matrix.platform }}-${{ matrix.arch }}
           path: |
