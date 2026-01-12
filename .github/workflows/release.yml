@@ -177,156 +177,39 @@ jobs:
       - name: Install Microsoft SBOM Tool
         run: |
           echo "::group::Installing Microsoft SBOM Tool"
-          dotnet tool install --global Microsoft.Sbom.DotNetTool --version 2.2.0 || {
+          dotnet tool install --global Microsoft.Sbom.DotNetTool --version 4.1.5 || {
             echo "::error::Failed to install Microsoft SBOM Tool"
             exit 1
           }
           echo "✅ Microsoft SBOM Tool installed: $(sbom-tool version)"
           echo "::endgroup::"
 
-      - name: Generate SBOM with Microsoft SBOM Tool
+      - name: Generate and validate SBOM (sbom-tool)
+        id: sbom
         run: |
-          echo "::group::Generating SBOM (SPDX 2.3)"
-          set -e
+          .github/scripts/sbom.sh \
+            --drop-path "${{ github.workspace }}/release-assets" \
+            --component-path "${{ github.workspace }}" \
+            --package-name "${{ github.repository }}" \
+            --package-version "${{ needs.calculate-version.outputs.version }}" \
+            --package-supplier "Organization: kuju63" \
+            --namespace-base "https://github.com/${{ github.repository }}/sbom/${{ needs.calculate-version.outputs.version }}" \
+            --manifest-info "SPDX:2.2" \
+            --target-path "release-assets/wt-${{ needs.calculate-version.outputs.version }}-sbom.spdx.json" \
+            --validation-output "${{ github.workspace }}/sbom-validation.json"
 
-          VERSION="${{ needs.calculate-version.outputs.version }}"
-          SBOM_OUTPUT_DIR="${{ github.workspace }}"
-
-          # Create output directory
-          mkdir -p "$SBOM_OUTPUT_DIR"
-
-          sbom-tool generate \
-            -b "$SBOM_OUTPUT_DIR" \
-            -bc "${{ github.workspace }}" \
-            -pn "${{ github.repository }}" \
-            -pv "$VERSION" \
-            -ps "Organization: kuju63" \
-            -nsb "https://github.com/${{ github.repository }}/sbom/$VERSION-$(date +%Y%m%d%H%M%S)" \
-            -v Information || {
-            echo "::error::SBOM generation failed"
-            echo "::error::This is a security-critical failure. Release cannot proceed."
-            exit 1
-          }
-
-          # Copy SBOM to release assets with standard naming
-          SBOM_SOURCE="$SBOM_OUTPUT_DIR/_manifest/spdx_2.3/manifest.spdx.json"
-          SBOM_TARGET="release-assets/wt-${VERSION}-sbom.spdx.json"
-
-          if [ ! -f "$SBOM_SOURCE" ]; then
-            echo "::error::SBOM file not found: $SBOM_SOURCE"
-            echo "::group::SBOM Output Directory Structure"
-            ls -R "$SBOM_OUTPUT_DIR/_manifest" || true
-            echo "::endgroup::"
-            exit 1
-          fi
-
-          cp "$SBOM_SOURCE" "$SBOM_TARGET"
-          echo "✅ SBOM generated: $SBOM_TARGET"
-          echo "::endgroup::"
-
-          # Log SBOM metadata
+      - name: Log SBOM metadata
+        run: |
           echo "::group::SBOM Metadata"
-          jq '{version: .spdxVersion, name: .name, packages: (.packages | length), created: .creationInfo.created}' "$SBOM_TARGET"
-          echo "::endgroup::"
-
-      - name: Verify SBOM completeness
-        run: |
-          echo "::group::Verifying SBOM"
-          set -e
-
-          SBOM_FILE="release-assets/wt-${{ needs.calculate-version.outputs.version }}-sbom.spdx.json"
-
-          # Verify file exists
-          if [ ! -f "$SBOM_FILE" ]; then
-            echo "::error::SBOM generation failed - file not found: $SBOM_FILE"
-            echo "::error::This is a security-critical failure. Release cannot proceed."
-            exit 1
-          fi
-
-          # Verify SBOM is valid JSON
-          if ! jq empty "$SBOM_FILE" 2>/dev/null; then
-            echo "::error::SBOM file is not valid JSON: $SBOM_FILE"
-            exit 1
-          fi
-
-          # Verify SBOM has packages
-          PACKAGE_COUNT=$(jq '.packages | length' "$SBOM_FILE")
-          if [ "$PACKAGE_COUNT" -lt 1 ]; then
-            echo "::error::SBOM contains no packages. This indicates a generation failure."
-            exit 1
-          fi
-
-          echo "✅ SBOM validated: $PACKAGE_COUNT packages found"
-          echo "::endgroup::"
-
-      # Phase 4: US2 - SBOM Validation
-      - name: Validate SPDX format
-        run: |
-          echo "::group::Validating SPDX 2.3 format"
-          set -e
-
-          SBOM_FILE="release-assets/wt-${{ needs.calculate-version.outputs.version }}-sbom.spdx.json"
-
-          # Validate SBOM is valid JSON
-          if ! jq empty "$SBOM_FILE" 2>/dev/null; then
-            echo "::error::SBOM file is not valid JSON"
-            exit 1
-          fi
-          echo "✅ Valid JSON format"
-
-          # Validate required SPDX fields
-          SPDX_VERSION=$(jq -r '.spdxVersion' "$SBOM_FILE")
-          if [ -z "$SPDX_VERSION" ] || [ "$SPDX_VERSION" = "null" ]; then
-            echo "::error::Missing required field: spdxVersion"
-            exit 1
-          fi
-          echo "✅ SPDX Version: $SPDX_VERSION"
-
-          DATA_LICENSE=$(jq -r '.dataLicense' "$SBOM_FILE")
-          if [ -z "$DATA_LICENSE" ] || [ "$DATA_LICENSE" = "null" ]; then
-            echo "::error::Missing required field: dataLicense"
-            exit 1
-          fi
-          echo "✅ Data License: $DATA_LICENSE"
-
-          DOC_NAME=$(jq -r '.name' "$SBOM_FILE")
-          if [ -z "$DOC_NAME" ] || [ "$DOC_NAME" = "null" ]; then
-            echo "::error::Missing required field: name"
-            exit 1
-          fi
-          echo "✅ Document Name: $DOC_NAME"
-
-          DOC_NAMESPACE=$(jq -r '.documentNamespace' "$SBOM_FILE")
-          if [ -z "$DOC_NAMESPACE" ] || [ "$DOC_NAMESPACE" = "null" ]; then
-            echo "::error::Missing required field: documentNamespace"
-            exit 1
-          fi
-          echo "✅ Document Namespace: $DOC_NAMESPACE"
-
-          CREATION_INFO=$(jq -r '.creationInfo.created' "$SBOM_FILE")
-          if [ -z "$CREATION_INFO" ] || [ "$CREATION_INFO" = "null" ]; then
-            echo "::error::Missing required field: creationInfo.created"
-            exit 1
-          fi
-          echo "✅ Creation Date: $CREATION_INFO"
-
-          # Validate packages array exists
-          if ! jq -e '.packages' "$SBOM_FILE" > /dev/null; then
-            echo "::error::Missing required field: packages"
-            exit 1
-          fi
-          PACKAGE_COUNT=$(jq '.packages | length' "$SBOM_FILE")
-          echo "✅ Packages Array: $PACKAGE_COUNT packages"
-
-          echo "✅ SBOM passes SPDX format validation (offline)"
+          jq '{version: .spdxVersion, name: .name, packages: (.packages | length), created: .creationInfo.created}' "${{ steps.sbom.outputs.sbom_file }}"
           echo "::endgroup::"
 
       - name: Verify required packages
+        env:
+          SBOM_FILE: ${{ steps.sbom.outputs.sbom_file }}
         run: |
           echo "::group::Verifying required packages"
           set -e
-
-          SBOM_FILE="release-assets/wt-${{ needs.calculate-version.outputs.version }}-sbom.spdx.json"
 
           # Required packages for wt CLI
           REQUIRED_PACKAGES=(
@@ -357,11 +240,12 @@ jobs:
           echo "::endgroup::"
 
       - name: Validate package count threshold
+        env:
+          SBOM_FILE: ${{ steps.sbom.outputs.sbom_file }}
         run: |
           echo "::group::Validating package count"
           set -e
 
-          SBOM_FILE="release-assets/wt-${{ needs.calculate-version.outputs.version }}-sbom.spdx.json"
           PACKAGE_COUNT=$(jq '.packages | length' "$SBOM_FILE")
           MIN_PACKAGES=2  # At minimum, System.CommandLine and System.IO.Abstractions
 
@@ -384,7 +268,7 @@ jobs:
           # This is a placeholder for when the feature becomes available
           # For now, we log the intent and skip submission
 
-          echo "ℹ️  SBOM file: release-assets/wt-${{ needs.calculate-version.outputs.version }}-sbom.spdx.json"
+          echo "ℹ️  SBOM file: ${{ steps.sbom.outputs.sbom_file }}"
           echo "ℹ️  GitHub Dependency Graph submission will be available when:"
           echo "   - GitHub releases native SPDX support for Dependency Submission API"
           echo "   - OR we implement manual SPDX → Dependency Graph format conversion"
@@ -412,17 +296,17 @@ jobs:
           echo "::endgroup::"
 
       # Phase 6: US3 - SPDX Compliance Verification
-      - name: Verify SPDX 2.3+ compliance
+      - name: Verify SPDX 2.2+ compliance
+        env:
+          SBOM_FILE: ${{ steps.sbom.outputs.sbom_file }}
         run: |
-          echo "::group::Verifying SPDX 2.3+ compliance"
+          echo "::group::Verifying SPDX 2.2+ compliance"
           set -e
 
-          SBOM_FILE="release-assets/wt-${{ needs.calculate-version.outputs.version }}-sbom.spdx.json"
-
-          # Verify SPDX version is 2.3 or higher
+          # Verify SPDX version is 2.2 or higher
           SPDX_VERSION=$(jq -r '.spdxVersion' "$SBOM_FILE")
-          if [[ ! "$SPDX_VERSION" =~ ^SPDX-2\.[3-9]$ ]] && [[ ! "$SPDX_VERSION" =~ ^SPDX-[3-9]\. ]]; then
-            echo "::error::Invalid SPDX version: $SPDX_VERSION (expected SPDX-2.3 or higher)"
+          if [[ ! "$SPDX_VERSION" =~ ^SPDX-2\.[2-9]$ ]] && [[ ! "$SPDX_VERSION" =~ ^SPDX-[3-9]\. ]]; then
+            echo "::error::Invalid SPDX version: $SPDX_VERSION (expected SPDX-2.2 or higher)"
             exit 1
           fi
           echo "✅ SPDX version: $SPDX_VERSION"
@@ -450,7 +334,7 @@ jobs:
             jq -r '.packages[] | select(.licenseConcluded == "NOASSERTION" or .licenseDeclared == "NOASSERTION") | "  - \(.name)@\(.versionInfo)"' "$SBOM_FILE"
           fi
 
-          echo "✅ SPDX 2.3+ compliance verified"
+          echo "✅ SPDX 2.2+ compliance verified"
           echo "::endgroup::"
 
       # Phase 8: Performance Metrics
