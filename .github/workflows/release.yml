@@ -359,6 +359,7 @@ jobs:
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          SBOM_FILE: ${{ steps.sbom.outputs.sbom_file }}
         run: |
           cd release-assets
           ../.github/scripts/sign-artifacts.sh
