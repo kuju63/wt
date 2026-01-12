@@ -28,8 +28,7 @@ KEY_ID=$(gpg --list-secret-keys --keyid-format LONG | grep sec | awk '{print $2}
 echo "Using GPG key: $KEY_ID"
 
 # Sign SBOM file
-if [ -f "wt-*-sbom.spdx.json" ]; then
-  SBOM_FILE=$(ls "wt-*-sbom.spdx.json" | head -n 1)
+if [ -f "$SBOM_FILE" ]; then
   echo "Signing $SBOM_FILE..."
   echo "$GPG_PASSPHRASE" | gpg \
     --batch \
