@@ -61,105 +61,25 @@ jobs:
           echo "✅ Microsoft SBOM Tool installed: $(sbom-tool version)"
           echo "::endgroup::"
 
-      - name: Generate SBOM (Test)
+      - name: Generate and validate SBOM (sbom-tool)
+        id: sbom
         run: |
-          echo "::group::Generating test SBOM (SPDX 2.3)"
-          set -e
+          chmod +x .github/scripts/sbom.sh
+          .github/scripts/sbom.sh \
+            --drop-path "${{ github.workspace }}/sbom-output" \
+            --component-path "${{ github.workspace }}" \
+            --package-name "${{ github.repository }}" \
+            --package-version "pr-${{ github.event.pull_request.number }}" \
+            --package-supplier "Organization: kuju63" \
+            --namespace-base "https://github.com/${{ github.repository }}/sbom/pr-${{ github.event.pull_request.number }}" \
+            --manifest-info "SPDX:2.2" \
+            --target-path "${{ github.workspace }}/sbom-test.spdx.json" \
+            --validation-output "${{ github.workspace }}/sbom-validation.json"
 
-          SBOM_OUTPUT_DIR="${{ github.workspace }}/_manifest"
-
-          # Create output directory
-          mkdir -p "$SBOM_OUTPUT_DIR"
-
-          sbom-tool generate \
-            -b "$SBOM_OUTPUT_DIR" \
-            -bc "${{ github.workspace }}" \
-            -pn "${{ github.repository }}" \
-            -pv "pr-${{ github.event.pull_request.number }}" \
-            -ps "Organization: kuju63" \
-            -nsb "https://github.com/${{ github.repository }}/sbom/pr-${{ github.event.pull_request.number }}-$(date +%Y%m%d%H%M%S)" \
-            -v Information || {
-            echo "::error::SBOM generation failed"
-            exit 1
-          }
-
-          # Copy SBOM for testing
-          SBOM_SOURCE="$SBOM_OUTPUT_DIR/_manifest/spdx_2.2/manifest.spdx.json"
-          SBOM_TARGET="${{ github.workspace }}/sbom-test.spdx.json"
-
-          if [ ! -f "$SBOM_SOURCE" ]; then
-            echo "::error::SBOM file not found: $SBOM_SOURCE"
-            exit 1
-          fi
-
-          cp "$SBOM_SOURCE" "$SBOM_TARGET"
-          echo "✅ SBOM generated: $SBOM_TARGET"
-          echo "::endgroup::"
-
-          # Log SBOM metadata
+      - name: Log SBOM metadata
+        run: |
           echo "::group::SBOM Metadata"
-          jq '{version: .spdxVersion, name: .name, packages: (.packages | length), created: .creationInfo.created}' "$SBOM_TARGET"
-          echo "::endgroup::"
-
-      - name: Validate SPDX format
-        run: |
-          echo "::group::Validating SPDX 2.3 format"
-          set -e
-
-          SBOM_FILE="${{ github.workspace }}/sbom-test.spdx.json"
-
-          # Validate SBOM is valid JSON
-          if ! jq empty "$SBOM_FILE" 2>/dev/null; then
-            echo "::error::SBOM file is not valid JSON"
-            exit 1
-          fi
-          echo "✅ Valid JSON format"
-
-          # Validate required SPDX fields
-          SPDX_VERSION=$(jq -r '.spdxVersion' "$SBOM_FILE")
-          if [ -z "$SPDX_VERSION" ] || [ "$SPDX_VERSION" = "null" ]; then
-            echo "::error::Missing required field: spdxVersion"
-            exit 1
-          fi
-          echo "✅ SPDX Version: $SPDX_VERSION"
-
-          DATA_LICENSE=$(jq -r '.dataLicense' "$SBOM_FILE")
-          if [ -z "$DATA_LICENSE" ] || [ "$DATA_LICENSE" = "null" ]; then
-            echo "::error::Missing required field: dataLicense"
-            exit 1
-          fi
-          echo "✅ Data License: $DATA_LICENSE"
-
-          DOC_NAME=$(jq -r '.name' "$SBOM_FILE")
-          if [ -z "$DOC_NAME" ] || [ "$DOC_NAME" = "null" ]; then
-            echo "::error::Missing required field: name"
-            exit 1
-          fi
-          echo "✅ Document Name: $DOC_NAME"
-
-          DOC_NAMESPACE=$(jq -r '.documentNamespace' "$SBOM_FILE")
-          if [ -z "$DOC_NAMESPACE" ] || [ "$DOC_NAMESPACE" = "null" ]; then
-            echo "::error::Missing required field: documentNamespace"
-            exit 1
-          fi
-          echo "✅ Document Namespace: $DOC_NAMESPACE"
-
-          CREATION_INFO=$(jq -r '.creationInfo.created' "$SBOM_FILE")
-          if [ -z "$CREATION_INFO" ] || [ "$CREATION_INFO" = "null" ]; then
-            echo "::error::Missing required field: creationInfo.created"
-            exit 1
-          fi
-          echo "✅ Creation Date: $CREATION_INFO"
-
-          # Validate packages array exists
-          if ! jq -e '.packages' "$SBOM_FILE" > /dev/null; then
-            echo "::error::Missing required field: packages"
-            exit 1
-          fi
-          PACKAGE_COUNT=$(jq '.packages | length' "$SBOM_FILE")
-          echo "✅ Packages Array: $PACKAGE_COUNT packages"
-
-          echo "✅ SBOM passes SPDX format validation (offline)"
+          jq '{version: .spdxVersion, name: .name, packages: (.packages | length), created: .creationInfo.created}' "${{ steps.sbom.outputs.sbom_file }}"
           echo "::endgroup::"
 
       - name: Verify required packages
@@ -167,7 +87,7 @@ jobs:
           echo "::group::Verifying required packages"
           set -e
 
-          SBOM_FILE="${{ github.workspace }}/sbom-test.spdx.json"
+          SBOM_FILE="${{ steps.sbom.outputs.sbom_file }}"
 
           # Required packages for wt CLI
           REQUIRED_PACKAGES=(
@@ -202,7 +122,7 @@ jobs:
           echo "::group::Validating package count"
           set -e
 
-          SBOM_FILE="${{ github.workspace }}/sbom-test.spdx.json"
+          SBOM_FILE="${{ steps.sbom.outputs.sbom_file }}"
           PACKAGE_COUNT=$(jq '.packages | length' "$SBOM_FILE")
           MIN_PACKAGES=2  # At minimum, System.CommandLine and System.IO.Abstractions
 
@@ -253,7 +173,7 @@ jobs:
             - **Created**: ${sbom.creationInfo.created}
 
             ### Validation
-            - ✅ SPDX 2.3 format validation passed
+            - ✅ SPDX 2.2 format validation passed
             - ✅ Required packages verified
             - ✅ Package count threshold met
 
@@ -289,7 +209,7 @@ jobs:
           if [ -f "sbom-test.spdx.json" ]; then
             PACKAGE_COUNT=$(jq '.packages | length' sbom-test.spdx.json)
             echo "- ✅ SBOM Generated: $PACKAGE_COUNT packages" >> $GITHUB_STEP_SUMMARY
-            echo "- ✅ SPDX 2.3 validation passed" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ SPDX 2.2 validation passed" >> $GITHUB_STEP_SUMMARY
             echo "- ✅ Required packages verified" >> $GITHUB_STEP_SUMMARY
             echo "- ℹ️  **Dry-run mode**: No GitHub API submission" >> $GITHUB_STEP_SUMMARY
           else
