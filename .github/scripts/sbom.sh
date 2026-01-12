@@ -62,7 +62,16 @@ done
 
 for var in DROP_PATH COMPONENT_PATH PACKAGE_NAME PACKAGE_VERSION PACKAGE_SUPPLIER NAMESPACE_BASE; do
   if [[ -z "${!var}" ]]; then
-    echo "Missing required option: ${var,,}" >&2
+    opt_name=""
+    case "$var" in
+      DROP_PATH)         opt_name="--drop-path" ;;
+      COMPONENT_PATH)    opt_name="--component-path" ;;
+      PACKAGE_NAME)      opt_name="--package-name" ;;
+      PACKAGE_VERSION)   opt_name="--package-version" ;;
+      PACKAGE_SUPPLIER)  opt_name="--package-supplier" ;;
+      NAMESPACE_BASE)    opt_name="--namespace-base" ;;
+    esac
+    echo "Missing required option: ${opt_name:-$var}" >&2
     usage
     exit 1
   fi
@@ -75,7 +84,7 @@ fi
 
 mkdir -p "$DROP_PATH"
 
-manifest_folder=$(echo "$MANIFEST_INFO" | tr '[:upper:]' '[:lower:]' | tr ':' '_')
+manifest_folder="spdx_2.2"
 generated_file="$DROP_PATH/_manifest/${manifest_folder}/manifest.spdx.json"
 
 if [[ -z "$VALIDATION_OUTPUT" ]]; then
