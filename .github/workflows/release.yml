@@ -361,12 +361,10 @@ jobs:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           cd release-assets
-          chmod +x ../.github/scripts/sign-artifacts.sh
           ../.github/scripts/sign-artifacts.sh
 
       - name: Generate release notes
         run: |
-          chmod +x .github/scripts/generate-release-notes.sh
           .github/scripts/generate-release-notes.sh \
             "${{ needs.calculate-version.outputs.previous-version }}" \
             "${{ needs.calculate-version.outputs.version }}"
