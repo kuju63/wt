@@ -261,9 +261,9 @@ jobs:
       # Phase 5: US4 - GitHub Integration
       - name: Configure GPG
         run: |
-          echo "use-agent" >> ~/.gnupg/gpg. conf
+          echo "use-agent" >> ~/.gnupg/gpg.conf
           echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
-          echo "allow-loopback-pinentry" >> ~/. gnupg/gpg-agent.conf
+          echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
           gpgconf --kill gpg-agent
           gpgconf --launch gpg-agent
 
