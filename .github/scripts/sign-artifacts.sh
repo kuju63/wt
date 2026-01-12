@@ -37,6 +37,7 @@ if [ -f "$SBOM_FILE" ]; then
     --armor \
     --detach-sign \
     --default-key "$KEY_ID" \
+    --pinentry-mode loopback \
     "$SBOM_FILE"
 
   if [ -f "${SBOM_FILE}.asc" ]; then
@@ -50,8 +51,8 @@ else
 fi
 
 # Sign SHA256SUMS file
-if [ -f "SHA256SUMS" ]; then
-  echo "Signing SHA256SUMS..."
+if [ -f "release-assets/SHA256SUMS" ]; then
+  echo "Signing release-assets/SHA256SUMS..."
   echo "$GPG_PASSPHRASE" | gpg \
     --batch \
     --yes \
@@ -59,16 +60,17 @@ if [ -f "SHA256SUMS" ]; then
     --armor \
     --detach-sign \
     --default-key "$KEY_ID" \
-    SHA256SUMS
+    --pinentry-mode loopback \
+    release-assets/SHA256SUMS
 
-  if [ -f "SHA256SUMS.asc" ]; then
-    echo "✅ SHA256SUMS signed successfully → SHA256SUMS.asc"
+  if [ -f "release-assets/SHA256SUMS.asc" ]; then
+    echo "✅ SHA256SUMS signed successfully → release-assets/SHA256SUMS.asc"
   else
-    echo "❌ ERROR: Failed to sign SHA256SUMS"
+    echo "❌ ERROR: Failed to sign release-assets/SHA256SUMS"
     exit 1
   fi
 else
-  echo "❌ ERROR: SHA256SUMS file not found"
+  echo "❌ ERROR: release-assets/SHA256SUMS file not found"
   exit 1
 fi
 

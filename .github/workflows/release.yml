@@ -259,6 +259,14 @@ jobs:
           echo "::endgroup::"
 
       # Phase 5: US4 - GitHub Integration
+      - name: Configure GPG
+        run: |
+          echo "use-agent" >> ~/.gnupg/gpg. conf
+          echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
+          echo "allow-loopback-pinentry" >> ~/. gnupg/gpg-agent.conf
+          gpgconf --kill gpg-agent
+          gpgconf --launch gpg-agent
+
       - name: Submit SBOM to GitHub Dependency Graph
         id: dependency-submission
         run: |
@@ -361,8 +369,7 @@ jobs:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
           SBOM_FILE: ${{ steps.sbom.outputs.sbom_file }}
         run: |
-          cd release-assets
-          ../.github/scripts/sign-artifacts.sh
+          .github/scripts/sign-artifacts.sh
 
       - name: Generate release notes
         run: |
