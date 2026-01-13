@@ -117,6 +117,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
 
+      - name: Configure GPG
+        run: |
+          mkdir -p ~/.gnupg
+          chmod 700 ~/.gnupg
+          echo "use-agent" >> ~/.gnupg/gpg.conf
+          echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
+          echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
+          gpgconf --kill gpg-agent || true
+          gpgconf --launch gpg-agent || true
+
       - name: Download build artifacts
         uses: actions/download-artifact@v7
         with:
@@ -259,14 +269,6 @@ jobs:
           echo "::endgroup::"
 
       # Phase 5: US4 - GitHub Integration
-      - name: Configure GPG
-        run: |
-          echo "use-agent" >> ~/.gnupg/gpg.conf
-          echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
-          echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
-          gpgconf --kill gpg-agent
-          gpgconf --launch gpg-agent
-
       - name: Submit SBOM to GitHub Dependency Graph
         id: dependency-submission
         run: |
