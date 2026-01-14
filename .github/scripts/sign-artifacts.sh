@@ -79,5 +79,5 @@ echo "========================================="
 echo "All artifacts signed successfully"
 echo "========================================="
 echo "Signature files:"
-ls -lh *.asc
+ls -lh release-assets/*.asc
 echo "========================================="
