@@ -41,8 +41,8 @@ jobs:
       !cancelled() &&
       (needs.check-tests.result == 'success' || needs.check-tests.result == 'skipped')
     outputs:
-      version: ${{ steps.version.outputs.version }}
-      previous-version: ${{ steps.version.outputs.previous_version }}
+      version: ${{ steps.ver.outputs.version }}
+      previous-version: ${{ steps.prev.outputs.previous-version }}
       should-release: ${{ steps.check.outputs.should-release }}
     steps:
       - name: Checkout repository
@@ -71,11 +71,45 @@ jobs:
           LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
           echo "previous-version=${LAST_TAG}" >> $GITHUB_OUTPUT
 
+      - name: Normalize version
+        id: ver
+        run: |
+          FORCED="${{ steps.forced-version.outputs.version }}"
+          SEMVER="${{ steps.version.outputs.version }}"
+
+          if [ -n "$FORCED" ]; then
+            V="$FORCED"
+            case "$V" in
+              v*) ;;
+              *) V="v$V" ;;
+            esac
+            echo "version=$V" >> $GITHUB_OUTPUT
+          elif [ -n "$SEMVER" ]; then
+            echo "version=$SEMVER" >> $GITHUB_OUTPUT
+          else
+            echo "version=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Normalize previous tag
+        id: prev
+        run: |
+          PREV_SEMVER="${{ steps.version.outputs.previous_version }}"
+          PREV_FORCED="${{ steps.forced-version.outputs.previous-version }}"
+
+          if [ -n "$PREV_FORCED" ]; then
+            echo "previous-version=$PREV_FORCED" >> $GITHUB_OUTPUT
+          elif [ -n "$PREV_SEMVER" ]; then
+            echo "previous-version=v$PREV_SEMVER" >> $GITHUB_OUTPUT
+          else
+            LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+            echo "previous-version=$LAST_TAG" >> $GITHUB_OUTPUT
+          fi
+
       - name: Check if release is needed
         id: check
         run: |
-          VERSION="${{ steps.version.outputs.version || steps.forced-version.outputs.version }}"
-          PREVIOUS="${{ steps.version.outputs.previous_version || steps.forced-version.outputs.previous-version }}"
+          VERSION="${{ steps.ver.outputs.version }}"
+          PREVIOUS="${{ steps.prev.outputs.previous-version }}"
 
           if [ "$VERSION" == "$PREVIOUS" ] || [ "$VERSION" == "" ]; then
             echo "should-release=false" >> $GITHUB_OUTPUT
