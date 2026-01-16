@@ -129,7 +129,7 @@ Then open: `http://localhost:8080`
 **Total**: 4 commits, 16 files added/modified
 
 ### Added Files
-- `.github/workflows/docs.yml`
+- `.github/workflows/release.yml` (enhanced with docs build job)
 - `.github/scripts/update-version-manifest.py`
 - `docs/installation.md`
 - `docs/guides/quickstart.md`
@@ -144,6 +144,9 @@ Then open: `http://localhost:8080`
 - `index.md`
 - `docs/toc.yml`
 - `specs/001-github-pages-docs/tasks.md`
+
+### Removed Files
+- `.github/workflows/docs.yml` (merged into release.yml)
 
 ## Recommendations
 

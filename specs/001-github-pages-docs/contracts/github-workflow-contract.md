@@ -1,27 +1,20 @@
 # Documentation Deployment Workflow Contract
 
-**File**: `.github/workflows/docs.yml`  
-**Purpose**: Defines the contract for the GitHub Actions workflow that builds and deploys documentation to GitHub Pages.
+**File**: `.github/workflows/release.yml` (build-and-deploy-docs job)  
+**Purpose**: Defines the contract for the GitHub Actions workflow job that builds and deploys documentation to GitHub Pages as part of the release pipeline.
 
 ## Workflow Inputs
 
 ### Trigger Events
 ```yaml
-on:
-  release:
-    types: [published]  # Primary trigger
-  workflow_dispatch:    # Manual trigger
-    inputs:
-      version:
-        description: 'Manual version override (e.g., v1.2)'
-        required: false
-        type: string
+# Part of release.yml workflow
+needs: [calculate-version, create-release]
 ```
 
 **Contract**:
-- MUST trigger on `release.published` events
-- MUST support manual dispatch for emergency updates
-- Manual version override MUST follow format: `v\d+\.\d+`
+- MUST trigger after successful release creation
+- Version is obtained from `needs.calculate-version.outputs.version`
+- Integrated into release pipeline (no separate workflow trigger needed)
 
 ## Workflow Outputs
 
@@ -40,34 +33,29 @@ outputs:
 ## Workflow Steps Contract
 
 ### Step 1: Extract Version
-**Input**: GitHub release tag (e.g., `v0.1.0`, `v1.2.3`)  
+**Input**: Version from `needs.calculate-version.outputs.version` (e.g., `v0.1.0`, `v1.2.3`)  
 **Output**: Minor version string (e.g., `v0.1`, `v1.2`)  
 **Contract**:
 ```yaml
-# MUST extract minor version from tag
+# MUST extract minor version from calculated version
 - name: Extract version
   id: version
   run: |
-    if [ -n "${{ github.event.inputs.version }}" ]; then
-      VERSION="${{ github.event.inputs.version }}"
-    else
-      TAG="${{ github.event.release.tag_name }}"
-      # Extract major.minor from v{major}.{minor}.{patch}
-      VERSION=$(echo $TAG | sed -E 's/^v([0-9]+)\.([0-9]+)\.[0-9]+$/v\1.\2/')
-    fi
-    echo "minor=$VERSION" >> $GITHUB_OUTPUT
-    echo "Building documentation for version: $VERSION"
+    TAG_NAME="${{ needs.calculate-version.outputs.version }}"
+    # Extract major.minor from tag (e.g., v1.2.3 -> v1.2)
+    VERSION=$(echo $TAG_NAME | grep -oE 'v?[0-9]+\.[0-9]+')
+    echo "version=$VERSION" >> $GITHUB_OUTPUT
+    echo "Extracted version: $VERSION"
 ```
 
 **Validation**:
-- Input tag MUST match: `v\d+\.\d+\.\d+` (semantic versioning)
+- Input version MUST match: `v\d+\.\d+\.\d+` (semantic versioning)
 - Output MUST match: `v\d+\.\d+`
-- MUST fail if tag format is invalid
-- MUST handle manual override if provided
+- MUST fail if version format is invalid
 
 **Test Cases**:
-| Input Tag | Expected Output | Rationale |
-|-----------|-----------------|-----------|
+| Input Version | Expected Output | Rationale |
+|---------------|-----------------|-----------|
 | `v0.1.0` | `v0.1` | Initial release |
 | `v0.10.5` | `v0.10` | Pre-1.0 with higher minor |
 | `v1.2.3` | `v1.2` | Standard semantic version |
@@ -79,16 +67,13 @@ outputs:
 **Contract**:
 ```yaml
 - name: Generate command documentation
-  run: |
-    cd Tools/DocGenerator
-    dotnet run -- ../../docs
+  run: dotnet run --project Tools/DocGenerator/DocGenerator -- --output docs/commands
 ```
 
 **Validation**:
 - MUST generate one `.md` file per command in `docs/commands/`
-- MUST update `docs/command-reference.md` overview
 - MUST exit with code 0 on success
-- MUST exit with non-zero if any command missing
+- MUST exit with non-zero if generation fails
 
 ### Step 3: Build API Documentation
 **Input**: wt.cli project with XML documentation enabled  
