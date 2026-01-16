@@ -28,9 +28,9 @@ Project follows single repository structure:
 
 **Purpose**: Enable XML documentation and DocFX configuration
 
-- [ ] T001 Enable XML documentation generation in wt.cli/wt.cli.csproj (add GenerateDocumentationFile and DocumentationFile properties)
-- [ ] T002 [P] Verify docfx.json configuration exists and includes API metadata generation settings
-- [ ] T003 [P] Create Tools/DocGenerator/ directory and initialize console project with System.CommandLine package
+- [x] T001 Enable XML documentation generation in wt.cli/wt.cli.csproj (add GenerateDocumentationFile and DocumentationFile properties)
+- [x] T002 [P] Verify docfx.json configuration exists and includes API metadata generation settings
+- [x] T003 [P] Create Tools/DocGenerator/ directory and initialize console project with System.CommandLine package
 
 **Checkpoint**: XML docs enabled, DocFX configured, DocGenerator project initialized
 
