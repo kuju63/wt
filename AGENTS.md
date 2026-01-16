@@ -80,11 +80,75 @@ uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
 
 ### API ドキュメントの生成
 
-- APIドキュメントの生成には`docfx`を使用すること
+- APIドキュメントの生成には`docfx`を使用すること（バージョン: 2.78.4）
 - ドキュメントコメントの作成対象はpublic,protected,protected internalとなるclass,interface,enum,struct,delegate,fieldに限定すること
 - ドキュメントコメントのフォーマットはXMLドキュメントコメントを使用すること
 - ドキュメントコメントは英語で記述すること
 - ドキュメントコメントの記述は[dotnet-api-docs](https://github.com/dotnet/dotnet-api-docs/wiki)を参照のこと
+
+### ドキュメントの自動化システム
+
+プロジェクトは GitHub Pages を使用した自動ドキュメント公開システムを実装しています:
+
+#### 1. ドキュメントの種類と管理方法
+
+**ユーザー向けドキュメント（手動管理）**:
+- `docs/installation.md` - インストールガイド（手動編集）
+- `docs/contributing.md` - コントリビューションガイド（手動編集）
+- その他の `docs/` 内のMarkdownファイル（手動編集）
+
+**コマンドドキュメント（自動生成）**:
+- `docs/commands/*.md` - CLIコマンドのリファレンス
+- `docs/command-reference.md` - コマンド一覧
+- **重要**: これらは `Tools/DocGenerator` により System.CommandLine から自動生成されるため、直接編集しないこと
+
+**API リファレンス（自動生成）**:
+- `api/` ディレクトリ - .NET API ドキュメント
+- **重要**: DocFX により XML ドキュメントコメントから自動生成されるため、直接編集しないこと
+
+#### 2. ドキュメントのテストとビルド
+
+**ローカルテスト**:
+```bash
+# コマンドドキュメント生成
+cd Tools/DocGenerator && dotnet run -- ../../docs
+
+# DocFX ビルド
+docfx build docfx.json
+
+# ローカルプレビュー
+open _site/index.html  # または xdg-open on Linux
+```
+
+**CI/CDテスト**:
+- DocFX ビルド時に `--warningsAsErrors` フラグで壊れたリンクを検出
+- LinkChecker によるリンク検証
+- ドキュメントのユニットテストは不要
+
+#### 3. バージョン管理
+
+- ドキュメントはマイナーバージョンレベルで管理（v0.1、v1.0、v1.1など）
+- パッチバージョンは同じドキュメントを共有（v1.0.0、v1.0.1 → v1.0）
+- 各バージョンの URL は 2 年以上安定して維持
+- バージョン切り替えは自動的に実装される（`version-manifest.json`）
+
+#### 4. AI エージェント向けガイダンス
+
+**ドキュメントについて質問された場合**:
+1. コンテンツが手動管理か自動生成かを判断
+2. 手動管理の場合: Markdown ファイルを直接編集
+3. 自動生成の場合: ソースコード（CLI定義または XML コメント）を更新
+
+**新しいCLIコマンドを実装する場合**:
+1. `wt.cli` の RootCommand にコマンドを追加
+2. ドキュメントは次回デプロイ時に自動生成される
+3. プレビューが必要な場合は DocGenerator を手動実行可能
+
+**API を追加・変更する場合**:
+1. public メンバーに XML ドキュメントコメントを追加
+2. [dotnet-api-docs](https://github.com/dotnet/dotnet-api-docs/wiki) のフォーマットに従う
+3. コメントは英語で記述
+4. 対象: public, protected, protected internal の型/メンバー
 
 ## 6. バージョン管理とコミット
 
