@@ -42,14 +42,14 @@ Project follows single repository structure:
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement command documentation generator in Tools/DocGenerator/Program.cs with MarkdownConsole and CommandDocGenerator classes
-- [ ] T005 Add ConvertCommandToMarkdown method to Tools/DocGenerator/Program.cs for System.CommandLine help text extraction
-- [ ] T006 [P] Create .github/workflows/docs.yml with release.published trigger and ubuntu-latest runner
-- [ ] T007 [P] Add DocFX installation step (dotnet tool install docfx --version 2.78.4) to .github/workflows/docs.yml
-- [ ] T008 Add version extraction logic (extract minor version from ${{ github.event.release.tag_name }}) to .github/workflows/docs.yml
-- [ ] T009 Create .github/scripts/update-version-manifest.py with version manifest update logic and JSON validation
-- [ ] T010 [P] Configure GitHub Pages deployment with permissions (contents: write, pages: write, id-token: write) in .github/workflows/docs.yml
-- [ ] T011 Add XML documentation comments to all public classes, methods, and properties in wt.cli/ (per FR-015 and SC-006)
+- [x] T004 Implement command documentation generator in Tools/DocGenerator/Program.cs with MarkdownConsole and CommandDocGenerator classes
+- [x] T005 Add ConvertCommandToMarkdown method to Tools/DocGenerator/Program.cs for System.CommandLine help text extraction
+- [x] T006 [P] Create .github/workflows/docs.yml with release.published trigger and ubuntu-latest runner
+- [x] T007 [P] Add DocFX installation step (dotnet tool install docfx --version 2.78.4) to .github/workflows/docs.yml
+- [x] T008 Add version extraction logic (extract minor version from ${{ github.event.release.tag_name }}) to .github/workflows/docs.yml
+- [x] T009 Create .github/scripts/update-version-manifest.py with version manifest update logic and JSON validation
+- [x] T010 [P] Configure GitHub Pages deployment with permissions (contents: write, pages: write, id-token: write) in .github/workflows/docs.yml
+- [x] T011 Add XML documentation comments to all public classes, methods, and properties in wt.cli/ (per FR-015 and SC-006)
 
 **Checkpoint**: Foundation ready - documentation can be generated and deployed automatically
 
