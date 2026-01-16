@@ -46,7 +46,9 @@ wt list
 
 - **[Installation Guide](docs/installation.md)** - Install `wt` on your system
 - **[Quick Start Guide](docs/guides/quickstart.md)** - Get up and running in 5 minutes
-- **[Command Reference](docs/commands/index.md)** - Detailed command documentation
+- **[Command Reference](docs/commands/index.md)** - Detailed command documentation with examples
+
+> 💡 **Quick Search**: Use the search bar above to find specific commands, options, or topics instantly.
 
 ### For Developers
 

@@ -40,6 +40,7 @@
       "_appName": "wt",
       "_appTitle": "wt",
       "_enableSearch": true,
+      "_enableNewTab": true,
       "pdf": true
     }
   }

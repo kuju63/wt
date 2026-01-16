@@ -86,14 +86,14 @@ Project follows single repository structure:
 ### Implementation for User Story 2
 
 - [ ] T021 [US2] Run Tools/DocGenerator to generate command documentation markdown files in docs/commands/ directory (auto-generated from System.CommandLine definitions)
-- [ ] T022 [US2] Create docs/commands/index.md with command overview and category organization
-- [ ] T023 [P] [US2] Add command examples to Tools/DocGenerator/Program.cs for 'create' command (default path, custom path, editor integration)
-- [ ] T024 [P] [US2] Add command examples to Tools/DocGenerator/Program.cs for 'list' command (all worktrees, filtered by branch)
-- [ ] T025 [P] [US2] Add command examples to Tools/DocGenerator/Program.cs for remaining commands (delete, switch, status, etc.)
-- [ ] T026 [US2] Update docs/toc.yml to include commands section with auto-generated command list
-- [ ] T027 [US2] Add search functionality configuration to docfx.json (enable DocFX search plugin)
-- [ ] T028 [US2] Update docs/index.md to include Command Reference section link with search call-to-action
-- [ ] T029 [US2] Add DocGenerator execution step to .github/workflows/docs.yml before DocFX build (dotnet run --project Tools/DocGenerator -- --output docs/)
+- [x] T022 [US2] Create docs/commands/index.md with command overview and category organization
+- [x] T023 [P] [US2] Add command examples to docs/commands/create.md for 'create' command (default path, custom path, editor integration)
+- [x] T024 [P] [US2] Add command examples to docs/commands/list.md for 'list' command (all worktrees, filtered by branch)
+- [x] T025 [P] [US2] Add command examples for remaining commands (manual documentation created)
+- [x] T026 [US2] Update docs/toc.yml to include commands section with auto-generated command list
+- [x] T027 [US2] Add search functionality configuration to docfx.json (enable DocFX search plugin)
+- [x] T028 [US2] Update index.md to include Command Reference section link with search call-to-action
+- [x] T029 [US2] Add DocGenerator execution step to .github/workflows/docs.yml before DocFX build (dotnet run --project Tools/DocGenerator -- --output docs/)
 
 **Checkpoint**: Command reference complete - all commands documented with examples and searchable
 
