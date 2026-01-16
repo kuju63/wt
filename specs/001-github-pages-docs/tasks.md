@@ -44,12 +44,14 @@ Project follows single repository structure:
 
 - [x] T004 Implement command documentation generator in Tools/DocGenerator/Program.cs with MarkdownConsole and CommandDocGenerator classes
 - [x] T005 Add ConvertCommandToMarkdown method to Tools/DocGenerator/Program.cs for System.CommandLine help text extraction
-- [x] T006 [P] Integrate documentation build into .github/workflows/release.yml as build-and-deploy-docs job (triggered after create-release)
-- [x] T007 [P] Add DocFX installation step (dotnet tool install docfx --version 2.78.4) to .github/workflows/release.yml with caching
-- [x] T008 Add version extraction logic (extract minor version from calculate-version outputs) to .github/workflows/release.yml
-- [x] T009 Create .github/scripts/update-version-manifest.py with version manifest update logic and JSON validation
-- [x] T010 [P] Configure GitHub Pages deployment with permissions (contents: write, pages: write, id-token: write) in .github/workflows/release.yml
+- [x] T006 [P] Integrate documentation build into .github/workflows/release.yml as build-and-deploy-docs job (runs after create-release job completes)
+- [x] T007 [P] Add DocFX installation with caching to .github/workflows/release.yml (dotnet tool install docfx --version ${{ env.DOCFX_VERSION }} --global)
+- [x] T008 Add version extraction logic to .github/workflows/release.yml (extract minor version from needs.calculate-version.outputs.version)
+- [x] T009 Create .github/scripts/update-version-manifest.py with positional arguments <manifest_path> <version> and automatic publishedDate generation
+- [x] T010 [P] Configure GitHub Pages deployment in .github/workflows/release.yml using peaceiris/actions-gh-pages@v4 with keep_files: true
 - [x] T011 Add XML documentation comments to all public classes, methods, and properties in wt.cli/ (per FR-015 and SC-006)
+
+**Implementation Note**: Originally designed as separate .github/workflows/docs.yml triggered by release.published event, but consolidated into release.yml to avoid GitHub Actions limitation where GITHUB_TOKEN cannot trigger other workflows. This ensures documentation is automatically built and deployed as part of the release process.
 
 **Checkpoint**: Foundation ready - documentation can be generated and deployed automatically
 
@@ -112,13 +114,13 @@ Project follows single repository structure:
 - [ ] T032 [US3] Add version navigation logic to version-switcher.js (preserve current page path when switching versions)
 - [ ] T033 [US3] Create version-switcher.css stylesheet with dropdown styling and current version indicator
 - [ ] T034 [US3] Add version switcher HTML to docfx.json template overrides (inject into page header)
-- [ ] T035 [US3] Update .github/scripts/update-version-manifest.py to fetch existing manifest from gh-pages branch
-- [ ] T036 [US3] Add new version entry logic to .github/scripts/update-version-manifest.py (update isLatest flags, add new version, sort by date)
+- [ ] T035 [US3] Update .github/scripts/update-version-manifest.py to handle first release case (peaceiris action handles existing manifest fetching)
+- [ ] T036 [US3] Add new version entry logic to .github/scripts/update-version-manifest.py (update isLatest flags, add new version, sort by version)
 - [ ] T037 [US3] Add manifest validation to .github/scripts/update-version-manifest.py (ensure one isLatest, valid JSON schema)
 - [x] T038 [US3] Add version-specific directory structure to .github/workflows/release.yml (build to _site/v{major}.{minor}/)
 - [x] T039 [US3] Add manifest update step to .github/workflows/release.yml (python .github/scripts/update-version-manifest.py)
 - [x] T040 [US3] Add manifest deployment step to .github/workflows/release.yml (copy to root and version directory)
-- [ ] T041 [US3] Create redirect page at docs/index.html to automatically redirect to latest version
+- [ ] T041 [US3] [FR-010] Create redirect page at root (_site/index.html) to automatically redirect to latest version from versions.json
 - [ ] T042 [US3] Add version indicator to page footer in docfx.json template (display current version on every page per FR-007)
 
 **Checkpoint**: Version switching functional - users can access documentation for any published minor version

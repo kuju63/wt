@@ -3,6 +3,8 @@
 **File**: `.github/workflows/release.yml` (build-and-deploy-docs job)  
 **Purpose**: Defines the contract for the GitHub Actions workflow job that builds and deploys documentation to GitHub Pages as part of the release pipeline.
 
+**Architecture Decision**: See [ADR 001: Consolidate Documentation Workflow into Release Pipeline](../adr/001-consolidate-docs-workflow-into-release.md) for rationale behind integrating documentation build into release workflow instead of separate docs.yml.
+
 ## Workflow Inputs
 
 ### Trigger Events
@@ -75,142 +77,79 @@ outputs:
 - MUST exit with code 0 on success
 - MUST exit with non-zero if generation fails
 
-### Step 3: Build API Documentation
-**Input**: wt.cli project with XML documentation enabled  
-**Output**: XML documentation file  
+### Step 3: Build Documentation
+**Input**: Markdown files, docfx.json, XML docs from wt.cli
+**Output**: Static HTML site in `_site/{version}/`  
 **Contract**:
 ```yaml
-- name: Build API documentation
+- name: Build documentation
   run: |
-    cd wt.cli
-    dotnet build --configuration Release
+    docfx metadata
+    docfx build --output _site/${{ steps.version.outputs.version }}
 ```
 
 **Validation**:
-- MUST build in Release configuration only
-- MUST generate XML documentation file (wt.xml)
-- MUST exit with code 0 if build succeeds
-- Build MUST fail if XML doc comments have errors
-
-### Step 4: Build DocFX Site
-**Input**: Markdown files, XML docs, docfx.json  
-**Output**: Static HTML site in `_output/{version}/`  
-**Contract**:
-```yaml
-- name: Build versioned documentation
-  run: |
-    mkdir -p _output/${{ steps.version.outputs.minor }}
-    docfx build docfx.json --warningsAsErrors -o _output/${{ steps.version.outputs.minor }}
-```
-
-**Validation**:
-- MUST treat all warnings as errors (`--warningsAsErrors`)
+- MUST generate API metadata from XML comments
 - MUST output to version-specific directory
-- MUST exit with non-zero if any internal link is broken
 - MUST generate HTML/CSS/JS files
+- MUST exit with code 0 on success
 
-### Step 5: Fetch Existing Version Manifest
-**Input**: gh-pages branch (may not exist on first release)  
-**Output**: `version-manifest.json` file  
-**Contract**:
-```yaml
-- name: Fetch existing version manifest
-  run: |
-    git fetch origin gh-pages:gh-pages 2>/dev/null || true
-    if git show gh-pages:version-manifest.json > version-manifest.json 2>/dev/null; then
-      echo "✅ Existing manifest found with $(jq '.versions | length' version-manifest.json) versions"
-    else
-      echo '{"versions":[]}' > version-manifest.json
-      echo "✅ Created new manifest (first release)"
-    fi
-```
+**Note**: Link validation and `--warningsAsErrors` flag are deferred to Phase 8 (Polish & Cross-Cutting Concerns) as quality improvements, not MVP requirements.
 
-**Validation**:
-- MUST handle first-release case (no gh-pages branch)
-- MUST create empty manifest `{"versions":[]}` if none exists
-- MUST fetch existing manifest if gh-pages exists
-- MUST NOT fail if gh-pages branch doesn't exist
-
-### Step 6: Update Version Manifest
-**Input**: Existing manifest, new version, release date  
-**Output**: Updated `version-manifest.json`  
+### Step 4: Update Version Manifest
+**Input**: New version from previous step
+**Output**: Updated `versions.json` in `_site/`  
 **Contract**:
 ```yaml
 - name: Update version manifest
   run: |
-    RELEASE_DATE="${{ github.event.release.published_at || github.event.head_commit.timestamp }}"
-    
-    python3 .github/scripts/update-version-manifest.py \
-      --version "${{ steps.version.outputs.minor }}" \
-      --date "$RELEASE_DATE"
-    
-    # Copy to deployment output (root and version-specific)
-    cp version-manifest.json _output/
-    cp version-manifest.json _output/${{ steps.version.outputs.minor }}/
+    python3 .github/scripts/update-version-manifest.py _site/versions.json ${{ steps.version.outputs.version }}
+    cp _site/versions.json _site/${{ steps.version.outputs.version }}/versions.json
 ```
 
 **Validation**:
 - MUST add new version to manifest
 - MUST mark new version as `isLatest: true`
 - MUST remove `isLatest` from all other versions
-- MUST sort versions by release date (newest first)
+- MUST sort versions by version string (descending)
+- MUST automatically generate publishedDate with UTC timestamp
 - MUST be idempotent (re-running updates, doesn't duplicate)
 - MUST exit with code 0 on success
 
 **Python Script Contract** (`.github/scripts/update-version-manifest.py`):
 ```python
-# MUST accept arguments: --version, --date
-# MUST read input manifest (or create empty if missing)
-# MUST update/add version entry
-# MUST write valid JSON output
+# MUST accept positional arguments: <manifest_path> <version>
+# Usage: update-version-manifest.py <manifest_path> <version>
+# MUST read existing manifest from path (or create empty if missing)
+# MUST update/add version entry with auto-generated publishedDate
+# MUST write valid JSON output to same path
 # MUST exit 0 on success, non-zero on error
 ```
 
-### Step 7: Validate Links
-**Input**: Built HTML site  
-**Output**: Link validation report  
+### Step 5: Deploy to GitHub Pages
+**Input**: Built site in `_site/`  
+**Output**: Deployed documentation on GitHub Pages  
 **Contract**:
 ```yaml
-- name: Validate documentation links
-  run: |
-    pip install linkchecker
-    linkchecker \
-      --check-extern \
-      --ignore-url="localhost" \
-      --ignore-url="127.0.0.1" \
+- name: Deploy to GitHub Pages
+  uses: peaceiris/actions-gh-pages@v4
+  with:
+    github_token: ${{ secrets.GITHUB_TOKEN }}
+    publish_dir: ./_site
+    keep_files: true
+```
+
+**Validation**:
+- MUST deploy entire `_site` directory
+- MUST preserve existing version directories (keep_files: true)
+- MUST use GITHUB_TOKEN for authentication
+- MUST exit with code 0 on successful deployment
+
+**Note**: The peaceiris/actions-gh-pages action handles manifest fetching internally through keep_files: true, eliminating the need for explicit gh-pages branch fetching.
       --no-warnings \
       _output/${{ steps.version.outputs.minor }}/
 ```
-
-**Validation**:
-- MUST check all internal links within site
-- MUST check external links (with filtering)
-- MUST exit with non-zero if broken links found
-- MUST ignore localhost and 127.0.0.1 URLs
-
-### Step 8: Deploy to GitHub Pages
-**Input**: `_output` directory with versioned docs  
-**Output**: Deployed site on GitHub Pages  
-**Contract**:
-```yaml
-- name: Setup GitHub Pages
-  uses: actions/configure-pages@v4
-
-- name: Upload artifact
-  uses: actions/upload-pages-artifact@v3
-  with:
-    path: '_output'
-
-- name: Deploy to GitHub Pages
-  id: deployment
-  uses: actions/deploy-pages@v4
-```
-
-**Validation**:
-- MUST use OIDC authentication (no long-lived PAT)
-- MUST deploy entire `_output` directory
-- MUST preserve existing version directories
-- MUST output `page_url` with deployed site URL
+**Note**: The peaceiris/actions-gh-pages action handles manifest fetching internally through keep_files: true, eliminating the need for explicit gh-pages branch fetching.
 
 ## Error Handling
 
@@ -219,11 +158,12 @@ outputs:
 | Invalid version tag format | Fail with clear error message | 1 |
 | Version extraction fails | Stop workflow immediately | 1 |
 | Command doc generation fails | Stop workflow, show error | 1 |
-| API build fails | Stop workflow, show build errors | 1 |
-| DocFX build has warnings | Fail due to `--warningsAsErrors` | 1 |
-| Broken links detected | Fail workflow, list broken links | 1 |
+| DocFX metadata generation fails | Stop workflow, show error | 1 |
+| DocFX build fails | Stop workflow, show build errors | 1 |
 | Version manifest update fails | Stop workflow, show Python error | 1 |
-| GitHub Pages deployment fails | Retry once, then fail | 1 |
+| GitHub Pages deployment fails | Handled by peaceiris action (auto-retry) | 1 |
+
+**Note**: Link validation and `--warningsAsErrors` are deferred to Phase 8 as quality improvements.
 
 ## Performance Requirements
 
@@ -231,10 +171,11 @@ outputs:
 |--------|--------|---------|------------------|
 | Total workflow duration | <8 minutes | 10 minutes | SC-003 compliance |
 | Command doc generation | <30 seconds | 1 minute | - |
-| API build time | <2 minutes | 3 minutes | - |
-| DocFX build time | <3 minutes | 5 minutes | - |
-| Link validation time | <1 minute | 2 minutes | - |
+| DocFX metadata + build | <3 minutes | 5 minutes | Combined step |
+| Manifest update | <10 seconds | 30 seconds | - |
 | Deployment time | <1 minute | 2 minutes | - |
+
+**Note**: Performance targets reflect integrated workflow within release pipeline. Caching (NuGet, DocFX) improves performance significantly.
 
 ## Security Requirements
 
@@ -259,30 +200,27 @@ outputs:
 
 ### External Actions
 ```yaml
-- actions/checkout@v4
+- actions/checkout@v6
 - actions/setup-dotnet@v5
-- actions/configure-pages@v4
-- actions/upload-pages-artifact@v3
-- actions/deploy-pages@v4
+- actions/cache@v5
+- peaceiris/actions-gh-pages@v4
 ```
 
 **Contract**:
-- MUST pin to specific major versions (e.g., `@v4`, not `@v4.1.0`)
+- MUST pin to specific major versions (e.g., `@v6`, not `@v6.1.0`)
 - MUST NOT use `@main` or `@latest`
-- MUST update via Dependabot/Renovate
+- MUST update via Renovate (configured in repository)
 
 ### External Tools
 | Tool | Version | Installation Method |
 |------|---------|---------------------|
 | docfx | 2.78.4 (exact) | `dotnet tool install --global docfx --version 2.78.4` |
-| linkchecker | latest | `pip install linkchecker` |
 | python3 | 3.x | Pre-installed on ubuntu-latest |
-| jq | latest | Pre-installed on ubuntu-latest |
 
 **Contract**:
-- DocFX version MUST be pinned to 2.78.4
+- DocFX version MUST be pinned via DOCFX_VERSION environment variable
 - Python 3 MUST be available
-- LinkChecker MUST support `--check-extern` flag
+- Link validation tools deferred to Phase 8
 
 ## Concurrency Control
 
