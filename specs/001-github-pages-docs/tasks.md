@@ -44,12 +44,14 @@ Project follows single repository structure:
 
 - [x] T004 Implement command documentation generator in Tools/DocGenerator/Program.cs with MarkdownConsole and CommandDocGenerator classes
 - [x] T005 Add ConvertCommandToMarkdown method to Tools/DocGenerator/Program.cs for System.CommandLine help text extraction
-- [x] T006 [P] Create .github/workflows/docs.yml with release.published trigger and ubuntu-latest runner
-- [x] T007 [P] Add DocFX installation step (dotnet tool install docfx --version 2.78.4) to .github/workflows/docs.yml
-- [x] T008 Add version extraction logic (extract minor version from ${{ github.event.release.tag_name }}) to .github/workflows/docs.yml
-- [x] T009 Create .github/scripts/update-version-manifest.py with version manifest update logic and JSON validation
-- [x] T010 [P] Configure GitHub Pages deployment with permissions (contents: write, pages: write, id-token: write) in .github/workflows/docs.yml
+- [x] T006 [P] Integrate documentation build into .github/workflows/release.yml as build-and-deploy-docs job (runs after create-release job completes)
+- [x] T007 [P] Add DocFX installation with caching to .github/workflows/release.yml (dotnet tool install docfx --version ${{ env.DOCFX_VERSION }} --global)
+- [x] T008 Add version extraction logic to .github/workflows/release.yml (extract minor version from needs.calculate-version.outputs.version)
+- [x] T009 Create .github/scripts/update-version-manifest.py with positional arguments <manifest_path> <version> and automatic publishedDate generation
+- [x] T010 [P] Configure GitHub Pages deployment in .github/workflows/release.yml using peaceiris/actions-gh-pages@v4 with keep_files: true
 - [x] T011 Add XML documentation comments to all public classes, methods, and properties in wt.cli/ (per FR-015 and SC-006)
+
+**Implementation Note**: Originally designed as separate .github/workflows/docs.yml triggered by release.published event, but consolidated into release.yml to avoid GitHub Actions limitation where GITHUB_TOKEN cannot trigger other workflows. This ensures documentation is automatically built and deployed as part of the release process.
 
 **Checkpoint**: Foundation ready - documentation can be generated and deployed automatically
 
@@ -93,7 +95,7 @@ Project follows single repository structure:
 - [x] T026 [US2] Update docs/toc.yml to include commands section with auto-generated command list
 - [x] T027 [US2] Add search functionality configuration to docfx.json (enable DocFX search plugin)
 - [x] T028 [US2] Update index.md to include Command Reference section link with search call-to-action
-- [x] T029 [US2] Add DocGenerator execution step to .github/workflows/docs.yml before DocFX build (dotnet run --project Tools/DocGenerator -- --output docs/)
+- [x] T029 [US2] Add DocGenerator execution step to .github/workflows/release.yml before DocFX build (dotnet run --project Tools/DocGenerator -- --output docs/)
 
 **Checkpoint**: Command reference complete - all commands documented with examples and searchable
 
@@ -112,13 +114,13 @@ Project follows single repository structure:
 - [ ] T032 [US3] Add version navigation logic to version-switcher.js (preserve current page path when switching versions)
 - [ ] T033 [US3] Create version-switcher.css stylesheet with dropdown styling and current version indicator
 - [ ] T034 [US3] Add version switcher HTML to docfx.json template overrides (inject into page header)
-- [ ] T035 [US3] Update .github/scripts/update-version-manifest.py to fetch existing manifest from gh-pages branch
-- [ ] T036 [US3] Add new version entry logic to .github/scripts/update-version-manifest.py (update isLatest flags, add new version, sort by date)
+- [ ] T035 [US3] Update .github/scripts/update-version-manifest.py to handle first release case (peaceiris action handles existing manifest fetching)
+- [ ] T036 [US3] Add new version entry logic to .github/scripts/update-version-manifest.py (update isLatest flags, add new version, sort by version)
 - [ ] T037 [US3] Add manifest validation to .github/scripts/update-version-manifest.py (ensure one isLatest, valid JSON schema)
-- [ ] T038 [US3] Add version-specific directory structure to .github/workflows/docs.yml (build to _site/v{major}.{minor}/)
-- [ ] T039 [US3] Add manifest update step to .github/workflows/docs.yml (python .github/scripts/update-version-manifest.py)
-- [ ] T040 [US3] Add manifest deployment step to .github/workflows/docs.yml (copy to root and version directory)
-- [ ] T041 [US3] Create redirect page at docs/index.html to automatically redirect to latest version
+- [x] T038 [US3] Add version-specific directory structure to .github/workflows/release.yml (build to _site/v{major}.{minor}/)
+- [x] T039 [US3] Add manifest update step to .github/workflows/release.yml (python .github/scripts/update-version-manifest.py)
+- [x] T040 [US3] Add manifest deployment step to .github/workflows/release.yml (copy to root and version directory)
+- [ ] T041 [US3] [FR-010] Create redirect page at root (_site/index.html) to automatically redirect to latest version from versions.json
 - [ ] T042 [US3] Add version indicator to page footer in docfx.json template (display current version on every page per FR-007)
 
 **Checkpoint**: Version switching functional - users can access documentation for any published minor version
@@ -138,8 +140,8 @@ Project follows single repository structure:
 - [ ] T045 [US4] Add API reference section to docs/toc.yml with automatic API navigation structure
 - [ ] T046 [US4] Create docs/api/index.md overview page with API integration patterns and examples
 - [ ] T047 [US4] Add xref configuration to docfx.json for .NET framework cross-references
-- [ ] T048 [US4] Add DocFX metadata generation step to .github/workflows/docs.yml (docfx metadata)
-- [ ] T049 [US4] Add API documentation build step to .github/workflows/docs.yml (docfx build with API metadata)
+- [ ] T048 [US4] Add DocFX metadata generation step to .github/workflows/release.yml (docfx metadata)
+- [ ] T049 [US4] Add API documentation build step to .github/workflows/release.yml (docfx build with API metadata)
 - [ ] T050 [US4] Update docs/index.md to include API Reference section link for developers
 
 **Checkpoint**: API documentation complete - 100% of public APIs documented and accessible
@@ -172,8 +174,8 @@ Project follows single repository structure:
 
 **Purpose**: Quality improvements and validation
 
-- [ ] T060 [P] Add LinkChecker step to .github/workflows/docs.yml for link validation (check internal and external links)
-- [ ] T061 [P] Add DocFX build validation with --warningsAsErrors flag to .github/workflows/docs.yml
+- [ ] T060 [P] Add LinkChecker step to .github/workflows/release.yml for link validation (check internal and external links)
+- [ ] T061 [P] Add DocFX build validation with --warningsAsErrors flag to .github/workflows/release.yml
 - [ ] T062 [P] Create docs/ja/ directory with Japanese translations for key documentation pages (installation, command overview)
 - [ ] T063 [P] Add CODE_OF_CONDUCT.md link to docs/contributing.md
 - [ ] T064 Add performance optimization to docfx.json (enable caching, optimize asset loading per SC-007)

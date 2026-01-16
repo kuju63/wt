@@ -16,6 +16,9 @@ permissions:
   packages: write
   id-token: write  # Required for GitHub Dependency Submission API
 
+env:
+  DOCFX_VERSION: '2.78.4'
+
 jobs:
   check-tests:
     name: Verify Tests Passed
@@ -450,3 +453,70 @@ jobs:
           echo "#### 📦 Assets" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           ls -lh release-assets/ >> $GITHUB_STEP_SUMMARY
+
+  build-and-deploy-docs:
+    name: Build and Deploy Documentation
+    needs: [calculate-version, create-release]
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+      
+      - name: Cache NuGet packages
+        uses: actions/cache@v5
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+      
+      - name: Cache DocFX
+        uses: actions/cache@v5
+        with:
+          path: ~/.dotnet/tools
+          key: ${{ runner.os }}-docfx-${{ env.DOCFX_VERSION }}
+          restore-keys: |
+            ${{ runner.os }}-docfx-
+      
+      - name: Install DocFX
+        run: dotnet tool install docfx --version ${{ env.DOCFX_VERSION }} --global
+      
+      - name: Extract version
+        id: version
+        run: |
+          TAG_NAME="${{ needs.calculate-version.outputs.version }}"
+          # Extract major.minor from tag (e.g., v1.2.3 -> v1.2)
+          VERSION=$(echo $TAG_NAME | grep -oE 'v?[0-9]+\.[0-9]+')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version: $VERSION"
+      
+      - name: Generate command documentation
+        run: dotnet run --project Tools/DocGenerator/DocGenerator -- --output docs/commands
+      
+      - name: Build documentation
+        run: |
+          docfx metadata
+          docfx build --output _site/${{ steps.version.outputs.version }}
+      
+      - name: Update version manifest
+        run: |
+          python3 .github/scripts/update-version-manifest.py _site/versions.json ${{ steps.version.outputs.version }}
+          cp _site/versions.json _site/${{ steps.version.outputs.version }}/versions.json
+      
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_site
+          keep_files: true
