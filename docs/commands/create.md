@@ -33,6 +33,7 @@ Custom path where the worktree will be created. Default: `../wt-<branch>`
 Editor to launch automatically after creating the worktree.
 
 Supported values:
+
 - `vscode` - Visual Studio Code
 - `vim` - Vim
 - `emacs` - Emacs
@@ -44,6 +45,7 @@ Supported values:
 Output format for the command result.
 
 Values:
+
 - `human` (default) - Human-readable output
 - `json` - JSON format for automation
 

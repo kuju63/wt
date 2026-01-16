@@ -105,6 +105,7 @@ Choose the installation method for your operating system:
 **Symptom**: After installation, running `wt` shows "command not found" or similar error.
 
 **Solutions**:
+
 - **Windows**: Verify the installation folder is in your PATH. Restart your terminal after modifying PATH.
 - **macOS/Linux**: Ensure `/usr/local/bin` is in your PATH. Run `echo $PATH` to verify.
 - Try specifying the full path: `/usr/local/bin/wt --version`
@@ -115,10 +116,13 @@ Choose the installation method for your operating system:
 **Symptom**: Error message saying "permission denied" when trying to run `wt`.
 
 **Solutions**:
+
 - **macOS/Linux**: Make the file executable:
+
   ```bash
   sudo chmod +x /usr/local/bin/wt
   ```
+
 - Verify file ownership: `ls -l /usr/local/bin/wt`
 - Try running with sudo: `sudo wt --version` (not recommended for regular use)
 
@@ -127,6 +131,7 @@ Choose the installation method for your operating system:
 **Symptom**: `wt` reports that Git is not installed or cannot be found.
 
 **Solutions**:
+
 - Install Git from [git-scm.com](https://git-scm.com)
 - **Windows**: Ensure Git is added to PATH during installation
 - **macOS**: Install via Homebrew: `brew install git`
@@ -136,6 +141,7 @@ Choose the installation method for your operating system:
 ### Additional Help
 
 If you encounter other issues:
+
 1. Check the [GitHub Issues](https://github.com/YOUR_USERNAME/wt/issues) for known problems
 2. Create a new issue with details about your environment and error messages
 3. Consult the [Quick Start Guide](guides/quickstart.md) for usage examples
@@ -145,5 +151,4 @@ If you encounter other issues:
 ## Next Steps
 
 Once installed, check out the [Quick Start Guide](guides/quickstart.md) to learn how to use `wt` effectively.
-
 

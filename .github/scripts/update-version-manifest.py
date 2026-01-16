@@ -24,7 +24,7 @@ def validate_manifest(manifest: dict[str, Any]) -> bool:
     if "versions" not in manifest:
         print("ERROR: Manifest missing 'versions' key", file=sys.stderr)
         return False
-    
+
     # Ensure exactly one version is marked as latest
     latest_count = sum(1 for v in manifest["versions"] if v.get("isLatest", False))
     if latest_count != 1:

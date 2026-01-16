@@ -6,7 +6,7 @@ namespace DocGenerator;
 /// <summary>
 /// Command documentation generator for System.CommandLine
 /// </summary>
-class Program
+static class Program
 {
     static async Task<int> Main(string[] args)
     {
@@ -74,7 +74,7 @@ class MarkdownConsole
 /// <summary>
 /// Command documentation generator
 /// </summary>
-class CommandDocGenerator
+static class CommandDocGenerator
 {
     public static string ConvertCommandToMarkdown(Command command)
     {
