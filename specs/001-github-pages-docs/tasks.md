@@ -63,15 +63,15 @@ Project follows single repository structure:
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Create docs/installation.md with system requirements section (Windows 10+, macOS 11+, Linux x64/ARM)
-- [ ] T013 [US1] Add download section to docs/installation.md with links to release assets for all platforms (wt-win-x64.zip, wt-osx-arm64.tar.gz, wt-linux-x64.tar.gz, wt-linux-arm.tar.gz)
-- [ ] T014 [P] [US1] Add Windows installation instructions to docs/installation.md (extract, move to Program Files, add to PATH, verify)
-- [ ] T015 [P] [US1] Add macOS installation instructions to docs/installation.md (extract, move to /usr/local/bin, chmod +x, verify)
-- [ ] T016 [P] [US1] Add Linux installation instructions to docs/installation.md (extract, move to /usr/local/bin, chmod +x, verify)
-- [ ] T017 [US1] Add troubleshooting section to docs/installation.md (command not found, permission denied, Git not found)
-- [ ] T018 [US1] Create docs/guides/quickstart.md with first steps tutorial (create first worktree, basic commands)
-- [ ] T019 [US1] Update docs/index.md homepage with prominent Installation Guide link and Quick Start call-to-action
-- [ ] T020 [US1] Update docs/toc.yml to include installation and quickstart in navigation structure
+- [x] T012 [US1] Create docs/installation.md with system requirements section (Windows 10+, macOS 11+, Linux x64/ARM)
+- [x] T013 [US1] Add download section to docs/installation.md with links to release assets for all platforms (wt-win-x64.zip, wt-osx-arm64.tar.gz, wt-linux-x64.tar.gz, wt-linux-arm.tar.gz)
+- [x] T014 [P] [US1] Add Windows installation instructions to docs/installation.md (extract, move to Program Files, add to PATH, verify)
+- [x] T015 [P] [US1] Add macOS installation instructions to docs/installation.md (extract, move to /usr/local/bin, chmod +x, verify)
+- [x] T016 [P] [US1] Add Linux installation instructions to docs/installation.md (extract, move to /usr/local/bin, chmod +x, verify)
+- [x] T017 [US1] Add troubleshooting section to docs/installation.md (command not found, permission denied, Git not found)
+- [x] T018 [US1] Create docs/guides/quickstart.md with first steps tutorial (create first worktree, basic commands)
+- [x] T019 [US1] Update docs/index.md homepage with prominent Installation Guide link and Quick Start call-to-action
+- [x] T020 [US1] Update docs/toc.yml to include installation and quickstart in navigation structure
 
 **Checkpoint**: Installation documentation complete - users can install and verify the tool independently
 

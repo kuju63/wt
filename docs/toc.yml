@@ -1,6 +1,11 @@
 - name: Introduction
   href: introduction.md
+- name: Installation Guide
+  href: installation.md
+- name: Quick Start
+  href: guides/quickstart.md
 - name: Getting Started
   href: getting-started.md
 - name: Architecture Decision Records
   href: adr/adr.md
+
