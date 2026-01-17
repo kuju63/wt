@@ -511,6 +511,10 @@ jobs:
           python3 .github/scripts/update-version-manifest.py _site/versions.json ${{ steps.version.outputs.version }}
           cp _site/versions.json _site/${{ steps.version.outputs.version }}/versions.json
       
+      - name: Setup root redirect
+        run: |
+          cp docs/redirect.html _site/index.html
+      
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
