@@ -30,7 +30,7 @@ static class Program
         {
             var output = parseResult.GetValue(outputOption) ?? "docs/commands";
             var wtPath = parseResult.GetValue(wtPathOption) ?? "wt.cli/bin/Release/net10.0/osx-arm64/wt";
-            await GenerateDocumentation(output, wtPath);
+            await GenerateDocumentation(output, wtPath, cancellationToken);
             return 0;
         });
 
@@ -38,7 +38,7 @@ static class Program
         return await parseResult.InvokeAsync();
     }
 
-    static async Task GenerateDocumentation(string outputPath, string wtPath)
+    static async Task GenerateDocumentation(string outputPath, string wtPath, CancellationToken cancellationToken)
     {
         Console.WriteLine($"Generating command documentation to: {outputPath}");
         Console.WriteLine($"Using wt executable: {wtPath}");
@@ -47,25 +47,25 @@ static class Program
         Directory.CreateDirectory(outputPath);
         
         // Get the list of commands from wt --help
-        var commands = await GetCommandsAsync(wtPath);
+        var commands = await GetCommandsAsync(wtPath, cancellationToken);
         
         // Generate documentation for each command
         foreach (var command in commands)
         {
             Console.WriteLine($"  Generating documentation for: {command}");
-            var helpText = await GetCommandHelpAsync(wtPath, command);
+            var helpText = await GetCommandHelpAsync(wtPath, command, cancellationToken);
             var markdown = CommandDocGenerator.ConvertHelpToMarkdown(command, helpText);
             var filePath = Path.Combine(outputPath, $"{command}.md");
-            await File.WriteAllTextAsync(filePath, markdown);
+            await File.WriteAllTextAsync(filePath, markdown, cancellationToken);
             Console.WriteLine($"    Generated: {filePath}");
         }
         
         Console.WriteLine("Command documentation generation complete.");
     }
 
-    static async Task<List<string>> GetCommandsAsync(string wtPath)
+    static async Task<List<string>> GetCommandsAsync(string wtPath, CancellationToken cancellationToken)
     {
-        var result = await RunProcessAsync(wtPath, "--help");
+        var result = await RunProcessAsync(wtPath, "--help", cancellationToken);
         var commands = new List<string>();
         
         var lines = result.Split('\n');
@@ -100,12 +100,12 @@ static class Program
         return commands;
     }
 
-    static async Task<string> GetCommandHelpAsync(string wtPath, string command)
+    static async Task<string> GetCommandHelpAsync(string wtPath, string command, CancellationToken cancellationToken)
     {
-        return await RunProcessAsync(wtPath, $"{command} --help");
+        return await RunProcessAsync(wtPath, $"{command} --help", cancellationToken);
     }
 
-    static async Task<string> RunProcessAsync(string command, string arguments)
+    static async Task<string> RunProcessAsync(string command, string arguments, CancellationToken cancellationToken)
     {
         using var process = new System.Diagnostics.Process
         {
@@ -121,8 +121,8 @@ static class Program
         };
         
         process.Start();
-        var output = await process.StandardOutput.ReadToEndAsync();
-        await process.WaitForExitAsync();
+        var output = await process.StandardOutput.ReadToEndAsync(cancellationToken);
+        await process.WaitForExitAsync(cancellationToken);
         
         return output;
     }
@@ -246,6 +246,11 @@ static class CommandDocGenerator
                             options.Add((parts[0], ""));
                         }
                     }
+                    break;
+                    
+                default:
+                    // Unknown section
+                    Console.WriteLine($"Warning: Unknown help section '{currentSection}' encountered");
                     break;
             }
         }

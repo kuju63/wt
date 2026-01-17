@@ -57,11 +57,16 @@
    * @returns {string} The full URL for the version and page
    */
   function buildVersionUrl(version, pagePath) {
+    // Encode version to prevent XSS
+    const safeVersion = encodeURIComponent(version);
+    
     // Ensure pagePath starts with /
     if (!pagePath.startsWith('/')) {
       pagePath = '/' + pagePath;
     }
-    return `/${version}${pagePath}`;
+    // Encode page path components
+    const safePagePath = pagePath.split('/').map(segment => encodeURIComponent(segment)).join('/');
+    return `/${safeVersion}${safePagePath}`;
   }
 
   /**
