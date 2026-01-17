@@ -10,7 +10,8 @@
           ]
         }
       ],
-      "output": "api"
+      "output": "api",
+      "filter": "filterConfig.yml"
     }
   ],
   "build": {
@@ -43,6 +44,9 @@
       "_enableSearch": true,
       "_enableNewTab": true,
       "pdf": true
-    }
+    },
+    "xref": [
+      "https://xref.docs.microsoft.com/query?uid={uid}"
+    ]
   }
 }

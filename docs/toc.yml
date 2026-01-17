@@ -11,6 +11,8 @@
       href: commands/create.md
     - name: list
       href: commands/list.md
+- name: API Reference
+  href: api/index.md
 - name: Getting Started
   href: getting-started.md
 - name: Architecture Decision Records
