@@ -76,7 +76,7 @@ if (listResult.IsSuccess)
 The primary interface for worktree operations. Provides methods for creating and listing worktrees.
 
 **Methods:**
-- `CreateWorktreeAsync` - Creates a new Git worktree with a new branch
+
 - `ListWorktreesAsync` - Lists all worktrees in the repository
 
 ### IGitService
@@ -84,6 +84,7 @@ The primary interface for worktree operations. Provides methods for creating and
 Low-level Git operations interface. Provides direct access to Git commands.
 
 **Methods:**
+
 - `IsGitRepositoryAsync` - Checks if the current directory is a Git repository
 - `BranchExistsAsync` - Checks if a branch exists
 - `GetCurrentBranchAsync` - Gets the currently checked-out branch name
@@ -95,6 +96,7 @@ Low-level Git operations interface. Provides direct access to Git commands.
 Editor integration interface for launching editors after worktree creation.
 
 **Methods:**
+
 - `LaunchEditorAsync` - Launches the specified editor with the given path
 
 ## Models
@@ -104,6 +106,7 @@ Editor integration interface for launching editors after worktree creation.
 Generic result type for command operations. Provides success/failure status, data, error information, and solutions.
 
 **Properties:**
+
 - `IsSuccess` - Indicates if the operation was successful
 - `Data` - The result data (when successful)
 - `ErrorCode` - Error code for debugging
@@ -116,6 +119,7 @@ Generic result type for command operations. Provides success/failure status, dat
 Represents information about a Git worktree.
 
 **Properties:**
+
 - `Path` - File system path to the worktree
 - `Branch` - Branch name checked out in the worktree
 - `Commit` - Current commit hash
@@ -127,6 +131,7 @@ Represents information about a Git worktree.
 Options for creating a new worktree.
 
 **Properties:**
+
 - `BranchName` - Name of the new branch to create (required)
 - `BaseBranch` - Base branch to branch from (optional)
 - `WorktreePath` - Custom path for the worktree (optional)
