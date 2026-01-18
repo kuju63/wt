@@ -148,7 +148,7 @@ public class WorktreeService : IWorktreeService
             return CommandResult<WorktreeInfo>.Failure(addWorktreeResult.ErrorCode!, addWorktreeResult.ErrorMessage!, addWorktreeResult.Solution);
         }
 
-        return await CreateAndLaunchWorktreeAsync(options, pathResult.Path, baseBranchResult.Data!, cancellationToken);
+        return await CreateAndLaunchWorktreeAsync(options, pathResult.Path, cancellationToken);
     }
 
     private CommandResult<WorktreeInfo> ToWorktreeFailure<T>(CommandResult<T> result)
@@ -162,7 +162,6 @@ public class WorktreeService : IWorktreeService
     private async Task<CommandResult<WorktreeInfo>> CreateAndLaunchWorktreeAsync(
         CreateWorktreeOptions options,
         string normalizedPath,
-        string baseBranch,
         CancellationToken cancellationToken)
     {
         var worktreeInfo = new WorktreeInfo(

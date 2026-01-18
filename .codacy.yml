@@ -45,6 +45,8 @@ exclude_paths:
   - docs/guides/**
   - docs/examples/**
 
+  - "Tools/**"
+
 # Duplication configuration
 duplication:
   enabled: true
