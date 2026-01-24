@@ -6,8 +6,8 @@
 (function() {
   'use strict';
 
-  const VERSION_MANIFEST_URL = '/versions.json';
-  
+  const VERSION_MANIFEST_URL = '/wt/versions.json';
+
   /**
    * Fetches the version manifest from the server
    * @returns {Promise<Object>} The version manifest object
@@ -59,7 +59,7 @@
   function buildVersionUrl(version, pagePath) {
     // Encode version to prevent XSS
     const safeVersion = encodeURIComponent(version);
-    
+
     // Ensure pagePath starts with /
     if (!pagePath.startsWith('/')) {
       pagePath = '/' + pagePath;
@@ -96,15 +96,15 @@
       const option = document.createElement('option');
       option.value = versionInfo.version;
       option.textContent = versionInfo.version;
-      
+
       if (versionInfo.isLatest) {
         option.textContent += ' (latest)';
       }
-      
+
       if (versionInfo.version === currentVersion) {
         option.selected = true;
       }
-      
+
       select.appendChild(option);
     });
 
