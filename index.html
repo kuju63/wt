@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redirecting to Documentation...</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f8f9fa;
+      color: #212529;
+    }
+    .container {
+      text-align: center;
+      max-width: 600px;
+      padding: 2rem;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    p {
+      font-size: 1.125rem;
+      margin-bottom: 2rem;
+      color: #6c757d;
+    }
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #0d6efd;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .error {
+      color: #dc3545;
+    }
+    a {
+      color: #0d6efd;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>wt Documentation</h1>
+    <p>Redirecting to the latest documentation...</p>
+    <div class="spinner"></div>
+    <p id="error-message" class="error" style="display: none;">
+      Failed to load documentation. Please try <a href="/v0.1/">v0.1 documentation</a> directly.
+    </p>
+  </div>
+
+  <script>
+    (function() {
+      'use strict';
+
+      const VERSION_MANIFEST_URL = '/versions.json';
+      
+      /**
+       * Fetches the version manifest and redirects to latest version
+       */
+      async function redirectToLatest() {
+        try {
+          const response = await fetch(VERSION_MANIFEST_URL);
+          if (!response.ok) {
+            throw new Error(`Failed to fetch version manifest: ${response.status}`);
+          }
+          
+          const manifest = await response.json();
+          
+          // Find the latest version
+          const latestVersion = manifest.versions.find(v => v.isLatest);
+          
+          if (!latestVersion) {
+            throw new Error('No latest version found in manifest');
+          }
+          
+          // Redirect to latest version
+          const redirectUrl = `/${latestVersion.version}/index.html`;
+          window.location.href = redirectUrl;
+          
+        } catch (error) {
+          console.error('Error redirecting to latest documentation:', error);
+          
+          // Show error message
+          document.querySelector('.spinner').style.display = 'none';
+          document.getElementById('error-message').style.display = 'block';
+        }
+      }
+
+      // Start redirect when page loads
+      redirectToLatest();
+    })();
+  </script>
+</body>
+</html>
