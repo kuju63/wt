@@ -87,7 +87,7 @@ Project follows single repository structure:
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Run Tools/DocGenerator to generate command documentation markdown files in docs/commands/ directory (auto-generated from System.CommandLine definitions)
+- [x] T021 [US2] Run Tools/DocGenerator to generate command documentation markdown files in docs/commands/ directory (auto-generated from System.CommandLine definitions)
 - [x] T022 [US2] Create docs/commands/index.md with command overview and category organization
 - [x] T023 [P] [US2] Add command examples to docs/commands/create.md for 'create' command (default path, custom path, editor integration)
 - [x] T024 [P] [US2] Add command examples to docs/commands/list.md for 'list' command (all worktrees, filtered by branch)
