@@ -40,6 +40,7 @@ exclude_paths:
   - specs/**/*.md
   - .github/agents/**
   - .github/prompts/**
+  - ".claude/**"
 
   # Documentation files (large guides)
   - docs/guides/**
