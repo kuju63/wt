@@ -300,81 +300,90 @@ public class GitService : IGitService
 
     private WorktreeInfo CreateWorktreeInfo(string path, string branch, bool isDetached, string commitHash)
     {
-        // Get creation time from .git/worktrees/<name>/gitdir file
-        var createdAt = DateTime.Now; // Default value
+        var createdAt = GetWorktreeCreationTime(path);
         var exists = Directory.Exists(path);
+        return new WorktreeInfo(path, branch, isDetached, commitHash, createdAt, exists);
+    }
 
+    private DateTime GetWorktreeCreationTime(string path)
+    {
         try
         {
-            // Resolve the actual git directory, handling the case where .git is a file pointing elsewhere
-            var gitDir = ".git";
-            if (File.Exists(gitDir))
-            {
-                try
-                {
-                    var lines = File.ReadAllLines(gitDir);
-                    if (lines.Length > 0)
-                    {
-                        var firstLine = lines[0];
-                        const string prefix = "gitdir:";
-                        if (firstLine.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-                        {
-                            var gitDirPath = firstLine.Substring(prefix.Length).Trim();
-                            if (!string.IsNullOrWhiteSpace(gitDirPath))
-                            {
-                                // Resolve to absolute path
-                                if (!Path.IsPathRooted(gitDirPath))
-                                {
-                                    gitDirPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), gitDirPath));
-                                }
-                                else
-                                {
-                                    gitDirPath = Path.GetFullPath(gitDirPath);
-                                }
-
-                                // Security: Validate that the resolved path points to a valid git directory
-                                // This helps prevent path traversal attacks from malicious .git files
-                                if (Directory.Exists(gitDirPath) && 
-                                    (Directory.Exists(Path.Combine(gitDirPath, "worktrees")) || 
-                                     File.Exists(Path.Combine(gitDirPath, "config"))))
-                                {
-                                    gitDir = gitDirPath;
-                                }
-                            }
-                        }
-                    }
-                }
-                catch (IOException ex)
-                {
-                    System.Console.Error.WriteLine($"[GitService] Error reading .git file: {ex.Message}");
-                    // Continue with default ".git" value
-                }
-                catch (UnauthorizedAccessException ex)
-                {
-                    System.Console.Error.WriteLine($"[GitService] Access denied reading .git file: {ex.Message}");
-                    // Continue with default ".git" value
-                }
-            }
-
-            // Get worktree name from path
+            var gitDir = ResolveGitDirectory();
             var worktreeName = Path.GetFileName(path);
             var gitWorktreePath = Path.Combine(gitDir, "worktrees", worktreeName, "gitdir");
 
             if (File.Exists(gitWorktreePath))
             {
-                createdAt = File.GetCreationTime(gitWorktreePath);
+                return File.GetCreationTime(gitWorktreePath);
             }
         }
-        catch (System.IO.IOException ex)
+        catch (IOException ex)
         {
             System.Console.Error.WriteLine($"[GitService] Error reading creation time for worktree at '{path}': {ex.Message}");
         }
-        catch (System.UnauthorizedAccessException ex)
+        catch (UnauthorizedAccessException ex)
         {
             System.Console.Error.WriteLine($"[GitService] Access denied when reading creation time for worktree at '{path}': {ex.Message}");
         }
 
-        return new WorktreeInfo(path, branch, isDetached, commitHash, createdAt, exists);
+        return DateTime.Now;
+    }
+
+    private string ResolveGitDirectory()
+    {
+        var gitDir = ".git";
+        if (!File.Exists(gitDir))
+        {
+            return gitDir;
+        }
+
+        try
+        {
+            var gitDirPath = ReadGitDirPath(gitDir);
+            if (!string.IsNullOrWhiteSpace(gitDirPath) && IsValidGitDirectory(gitDirPath))
+            {
+                return gitDirPath;
+            }
+        }
+        catch (IOException ex)
+        {
+            System.Console.Error.WriteLine($"[GitService] Error reading .git file: {ex.Message}");
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            System.Console.Error.WriteLine($"[GitService] Access denied reading .git file: {ex.Message}");
+        }
+
+        return gitDir;
+    }
+
+    private string? ReadGitDirPath(string gitFilePath)
+    {
+        var lines = File.ReadAllLines(gitFilePath);
+        if (lines.Length == 0)
+        {
+            return null;
+        }
+
+        const string prefix = "gitdir:";
+        var firstLine = lines[0];
+        if (!firstLine.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        var gitDirPath = firstLine.Substring(prefix.Length).Trim();
+        return Path.IsPathRooted(gitDirPath)
+            ? Path.GetFullPath(gitDirPath)
+            : Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), gitDirPath));
+    }
+
+    private bool IsValidGitDirectory(string gitDirPath)
+    {
+        return Directory.Exists(gitDirPath) &&
+               (Directory.Exists(Path.Combine(gitDirPath, "worktrees")) ||
+                File.Exists(Path.Combine(gitDirPath, "config")));
     }
 }
 

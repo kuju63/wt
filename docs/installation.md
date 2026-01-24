@@ -151,4 +151,3 @@ If you encounter other issues:
 ## Next Steps
 
 Once installed, check out the [Quick Start Guide](guides/quickstart.md) to learn how to use `wt` effectively.
-

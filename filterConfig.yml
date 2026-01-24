@@ -1,0 +1,11 @@
+apiRules:
+- exclude:
+    uidRegex: ^System\.
+    type: Namespace
+- exclude:
+    uidRegex: ^Microsoft\.
+    type: Namespace
+- include:
+    hasAttribute:
+      uid: System.Runtime.CompilerServices.CompilerGeneratedAttribute
+    type: "*"
