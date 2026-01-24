@@ -85,6 +85,12 @@ engines:
   trivy:
     enabled: false
 
+  # CSS/SCSS linting
+  stylelint:
+    enabled: true
+    exclude_paths:
+      - "_site/**"
+
   # Markdown linting
   markdownlint:
     enabled: true
