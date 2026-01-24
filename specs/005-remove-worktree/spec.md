@@ -50,20 +50,6 @@ A developer's worktree is locked (potentially due to another git process holding
 
 ---
 
-### User Story 3 - Prevent Accidental Removal with Confirmation (Priority: P3)
-
-A developer wants protection against accidentally removing a worktree they didn't intend to delete. The system should provide a way to confirm the removal operation before proceeding, especially when using the force flag.
-
-**Why this priority**: Improves user experience by adding safety guardrails. While not critical for the MVP, it reduces the risk of data loss from mistakes and improves developer confidence in using the feature.
-
-**Independent Test**: Can be fully tested by attempting to remove a worktree with confirmation enabled and verifying that either confirming or declining the operation produces the expected outcome.
-
-**Acceptance Scenarios**:
-
-1. **Given** a developer attempts to remove a worktree, **When** the system requests confirmation, **Then** the removal proceeds only if the user confirms the action
-2. **Given** a developer declines the confirmation prompt, **When** no confirmation is provided, **Then** the worktree remains unchanged and the operation is cancelled
-
----
 
 ### Edge Cases
 
@@ -88,10 +74,10 @@ A developer wants protection against accidentally removing a worktree they didn'
 - **FR-004**: System MUST support a force flag that allows removal of locked or problematic worktrees
 - **FR-005**: System MUST prevent removal of the primary/main worktree (the main working directory of the repository)
 - **FR-006**: System MUST prevent removal of a worktree that is currently checked out in the active session
-- **FR-007**: System MUST provide clear error messages when removal fails, indicating the reason (not found, locked, in use, etc.)
-- **FR-008**: System MUST remove only the specified worktree without affecting other worktrees in the same repository
-- **FR-009**: System MUST handle partial directory deletion gracefully, reporting which files could not be deleted and why
-- **FR-010**: System MUST support confirmation prompts before removal to prevent accidental deletion
+- **FR-007**: System MUST prevent removal if the worktree has uncommitted changes, unless the `--force` flag is used
+- **FR-008**: System MUST provide clear error messages when removal fails, indicating the reason (not found, locked, in use, uncommitted changes, etc.)
+- **FR-009**: System MUST remove only the specified worktree without affecting other worktrees in the same repository
+- **FR-010**: System MUST proceed with worktree removal even if some files in the working directory cannot be deleted; report which files failed to delete and why
 
 ### Key Entities
 
@@ -118,3 +104,19 @@ A developer wants protection against accidentally removing a worktree they didn'
 - Worktrees created by the system follow standard git worktree conventions
 - The primary worktree is always protected from removal to prevent repository corruption
 - Force flag behavior aligns with standard git conventions (attempts removal even with locks present)
+
+## Clarifications
+
+### Session 2026-01-24
+
+- Q: Should the system prompt for confirmation before removing a worktree? → A: No confirmation prompt; rely only on explicit worktree selection and error messages
+  - **Impact**: Removes User Story 3 from scope; simplifies UX by deferring safety to explicit targeting
+  - **Implementation**: No interactive prompts; all removal is direct (no `--confirm` or `--interactive` flags)
+
+- Q: What happens if a worktree has uncommitted changes? → A: Prevent removal if uncommitted changes exist; require commit/stash or `--force` to override
+  - **Impact**: Adds FR-007 (uncommitted changes check); aligns with git's safety model
+  - **Implementation**: Check for uncommitted changes before proceeding; `--force` bypasses this check
+
+- Q: How should the system handle partial directory deletion (some files cannot be deleted)? → A: Proceed with removal anyway; list which files/directories failed to delete (user must manually clean up)
+  - **Impact**: Clarifies FR-010 behavior; prioritizes removing worktree entry over achieving 100% disk cleanup
+  - **Implementation**: Remove worktree from tracking regardless; report failures separately for user resolution
