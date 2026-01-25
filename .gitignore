@@ -140,3 +140,4 @@ sbom-test.spdx.json
 
 .env
 .mcp.json
+.serena/
