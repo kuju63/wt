@@ -19,7 +19,7 @@ public class GitService : IGitService
     /// Checks whether the current directory is a Git repository asynchronously.
     /// This overload does not accept a cancellation token.
     /// </summary>
-    /// <returns>A <see cref="CommandResult{bool}"/> containing <see langword="true"/> if in a Git repository; otherwise, <see langword="false"/>.</returns>
+    /// <returns>A <see cref="CommandResult{T}"/> containing <see langword="true"/> if in a Git repository; otherwise, <see langword="false"/>.</returns>
     public Task<CommandResult<bool>> IsGitRepositoryAsync()
         => IsGitRepositoryAsync(CancellationToken.None);
 
@@ -27,7 +27,7 @@ public class GitService : IGitService
     /// Checks whether the current directory is a Git repository asynchronously.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
-    /// <returns>A <see cref="CommandResult{bool}"/> containing <see langword="true"/> if in a Git repository; otherwise, <see langword="false"/>.</returns>
+    /// <returns>A <see cref="CommandResult{T}"/> containing <see langword="true"/> if in a Git repository; otherwise, <see langword="false"/>.</returns>
     public async Task<CommandResult<bool>> IsGitRepositoryAsync(CancellationToken cancellationToken)
     {
         var result = await _processRunner.RunAsync("git", "rev-parse --git-dir", null, cancellationToken);
@@ -37,7 +37,7 @@ public class GitService : IGitService
     /// <summary>
     /// Gets the name of the current branch asynchronously. This overload does not accept a cancellation token.
     /// </summary>
-    /// <returns>A <see cref="CommandResult{string}"/> containing the current branch name.</returns>
+    /// <returns>A <see cref="CommandResult{T}"/> containing the current branch name.</returns>
     public Task<CommandResult<string>> GetCurrentBranchAsync()
         => GetCurrentBranchAsync(CancellationToken.None);
 
@@ -45,7 +45,7 @@ public class GitService : IGitService
     /// Gets the name of the current branch asynchronously.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
-    /// <returns>A <see cref="CommandResult{string}"/> containing the current branch name.</returns>
+    /// <returns>A <see cref="CommandResult{T}"/> containing the current branch name.</returns>
     public async Task<CommandResult<string>> GetCurrentBranchAsync(CancellationToken cancellationToken)
     {
         var result = await _processRunner.RunAsync("git", "branch --show-current", null, cancellationToken);
@@ -74,7 +74,7 @@ public class GitService : IGitService
     /// Checks whether a branch exists (local or remote) asynchronously. This overload does not accept a cancellation token.
     /// </summary>
     /// <param name="branchName">The name of the branch to check.</param>
-    /// <returns>A <see cref="CommandResult{bool}"/> containing <see langword="true"/> if the branch exists; otherwise, <see langword="false"/>.</returns>
+    /// <returns>A <see cref="CommandResult{T}"/> containing <see langword="true"/> if the branch exists; otherwise, <see langword="false"/>.</returns>
     public Task<CommandResult<bool>> BranchExistsAsync(string branchName)
         => BranchExistsAsync(branchName, CancellationToken.None);
 
@@ -83,7 +83,7 @@ public class GitService : IGitService
     /// </summary>
     /// <param name="branchName">The name of the branch to check.</param>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
-    /// <returns>A <see cref="CommandResult{bool}"/> containing <see langword="true"/> if the branch exists; otherwise, <see langword="false"/>.</returns>
+    /// <returns>A <see cref="CommandResult{T}"/> containing <see langword="true"/> if the branch exists; otherwise, <see langword="false"/>.</returns>
     public async Task<CommandResult<bool>> BranchExistsAsync(string branchName, CancellationToken cancellationToken)
     {
         var result = await _processRunner.RunAsync("git", $"rev-parse --verify {branchName}", null, cancellationToken);
@@ -95,7 +95,7 @@ public class GitService : IGitService
     /// </summary>
     /// <param name="branchName">The name of the branch to create.</param>
     /// <param name="baseBranch">The base branch to branch from.</param>
-    /// <returns>A <see cref="CommandResult{BranchInfo}"/> containing information about the created branch.</returns>
+    /// <returns>A <see cref="CommandResult{T}"/> containing information about the created branch.</returns>
     public Task<CommandResult<BranchInfo>> CreateBranchAsync(string branchName, string baseBranch)
         => CreateBranchAsync(branchName, baseBranch, CancellationToken.None);
 
@@ -105,7 +105,7 @@ public class GitService : IGitService
     /// <param name="branchName">The name of the branch to create.</param>
     /// <param name="baseBranch">The base branch to branch from.</param>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
-    /// <returns>A <see cref="CommandResult{BranchInfo}"/> containing information about the created branch.</returns>
+    /// <returns>A <see cref="CommandResult{T}"/> containing information about the created branch.</returns>
     public async Task<CommandResult<BranchInfo>> CreateBranchAsync(string branchName, string baseBranch, CancellationToken cancellationToken)
     {
         var result = await _processRunner.RunAsync("git", $"branch {branchName} {baseBranch}", null, cancellationToken);
@@ -135,7 +135,7 @@ public class GitService : IGitService
     /// </summary>
     /// <param name="path">The path where the worktree should be created.</param>
     /// <param name="branchName">The branch to checkout in the new worktree.</param>
-    /// <returns>A <see cref="CommandResult{bool}"/> containing <see langword="true"/> if the worktree was added successfully; otherwise, <see langword="false"/>.</returns>
+    /// <returns>A <see cref="CommandResult{T}"/> containing <see langword="true"/> if the worktree was added successfully; otherwise, <see langword="false"/>.</returns>
     public Task<CommandResult<bool>> AddWorktreeAsync(string path, string branchName)
         => AddWorktreeAsync(path, branchName, CancellationToken.None);
 
@@ -145,7 +145,7 @@ public class GitService : IGitService
     /// <param name="path">The path where the worktree should be created.</param>
     /// <param name="branchName">The branch to checkout in the new worktree.</param>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
-    /// <returns>A <see cref="CommandResult{bool}"/> containing <see langword="true"/> if the worktree was added successfully; otherwise, <see langword="false"/>.</returns>
+    /// <returns>A <see cref="CommandResult{T}"/> containing <see langword="true"/> if the worktree was added successfully; otherwise, <see langword="false"/>.</returns>
     public async Task<CommandResult<bool>> AddWorktreeAsync(string path, string branchName, CancellationToken cancellationToken)
     {
         var result = await _processRunner.RunAsync("git", $"worktree add \"{path}\" {branchName}", null, cancellationToken);
@@ -203,6 +203,129 @@ public class GitService : IGitService
 
         var worktrees = ParseWorktreesFromPorcelain(result.StandardOutput);
         return CommandResult<List<WorktreeInfo>>.Success(worktrees);
+    }
+
+    /// <inheritdoc/>
+    public Task<CommandResult<bool>> HasUncommittedChangesAsync(string worktreePath)
+        => HasUncommittedChangesAsync(worktreePath, CancellationToken.None);
+
+    /// <inheritdoc/>
+    public async Task<CommandResult<bool>> HasUncommittedChangesAsync(string worktreePath, CancellationToken cancellationToken)
+    {
+        var result = await _processRunner.RunAsync("git", $"-C \"{worktreePath}\" status --porcelain", null, cancellationToken);
+
+        if (result.ExitCode != 0)
+        {
+            return CommandResult<bool>.Failure(
+                ErrorCodes.GitCommandFailed,
+                $"Failed to check uncommitted changes in '{worktreePath}'",
+                result.StandardError);
+        }
+
+        var lines = result.StandardOutput.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        var hasUncommittedChanges = lines.Any(line => !line.TrimStart().StartsWith("??"));
+        return CommandResult<bool>.Success(hasUncommittedChanges);
+    }
+
+    /// <inheritdoc/>
+    public Task<CommandResult<bool>> IsWorktreeLockedAsync(string worktreePath)
+        => IsWorktreeLockedAsync(worktreePath, CancellationToken.None);
+
+    /// <inheritdoc/>
+    public async Task<CommandResult<bool>> IsWorktreeLockedAsync(string worktreePath, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var gitDir = await GetMainGitDirAsync(cancellationToken);
+            if (gitDir == null)
+            {
+                return CommandResult<bool>.Failure(
+                    ErrorCodes.NotGitRepository,
+                    "Could not determine git directory",
+                    null);
+            }
+
+            var worktreeName = Path.GetFileName(worktreePath);
+            var lockFilePath = Path.Combine(gitDir, "worktrees", worktreeName, "locked");
+            var isLocked = File.Exists(lockFilePath);
+            return CommandResult<bool>.Success(isLocked);
+        }
+        catch (IOException ex)
+        {
+            return CommandResult<bool>.Failure(
+                ErrorCodes.GitCommandFailed,
+                $"Failed to check lock status for '{worktreePath}'",
+                ex.Message);
+        }
+    }
+
+    /// <inheritdoc/>
+    public Task<CommandResult<bool>> RemoveWorktreeAsync(string worktreePath, bool force)
+        => RemoveWorktreeAsync(worktreePath, force, CancellationToken.None);
+
+    /// <inheritdoc/>
+    public async Task<CommandResult<bool>> RemoveWorktreeAsync(string worktreePath, bool force, CancellationToken cancellationToken)
+    {
+        var forceFlag = force ? "--force " : "";
+        var result = await _processRunner.RunAsync("git", $"worktree remove {forceFlag}\"{worktreePath}\"", null, cancellationToken);
+
+        if (result.ExitCode != 0)
+        {
+            if (result.StandardError.Contains("is not a working tree"))
+            {
+                return CommandResult<bool>.Failure(
+                    "WT-RM-001",
+                    $"Worktree at '{worktreePath}' not found",
+                    "Use 'wt list' to see available worktrees");
+            }
+
+            if (result.StandardError.Contains("contains modified or untracked files"))
+            {
+                return CommandResult<bool>.Failure(
+                    "WT-RM-003",
+                    $"Worktree at '{worktreePath}' has uncommitted changes",
+                    "Commit or stash changes, or use --force to override");
+            }
+
+            if (result.StandardError.Contains("is locked"))
+            {
+                return CommandResult<bool>.Failure(
+                    "WT-RM-005",
+                    $"Worktree at '{worktreePath}' is locked",
+                    "Use --force to override lock, or wait for process to finish");
+            }
+
+            return CommandResult<bool>.Failure(
+                ErrorCodes.GitCommandFailed,
+                $"Failed to remove worktree at '{worktreePath}'",
+                result.StandardError);
+        }
+
+        return CommandResult<bool>.Success(true);
+    }
+
+    private async Task<string?> GetMainGitDirAsync(CancellationToken cancellationToken)
+    {
+        var result = await _processRunner.RunAsync("git", "rev-parse --git-dir", null, cancellationToken);
+        if (result.ExitCode != 0)
+        {
+            return null;
+        }
+
+        var gitDir = result.StandardOutput.Trim();
+        if (string.IsNullOrEmpty(gitDir))
+        {
+            return null;
+        }
+
+        var fullPath = Path.GetFullPath(gitDir);
+        if (fullPath.Contains("/worktrees/") || fullPath.Contains("\\worktrees\\"))
+        {
+            var worktreesIndex = fullPath.LastIndexOf("worktrees", StringComparison.OrdinalIgnoreCase);
+            return fullPath.Substring(0, worktreesIndex - 1);
+        }
+
+        return fullPath;
     }
 
     private List<WorktreeInfo> ParseWorktreesFromPorcelain(string porcelainOutput)

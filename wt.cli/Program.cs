@@ -23,8 +23,10 @@ var rootCommand = new RootCommand("Git worktree management CLI tool");
 // Add commands
 var createCommand = new CreateCommand(worktreeService);
 var listCommand = new ListCommand(worktreeService, tableFormatter);
+var removeCommand = new RemoveCommand(worktreeService);
 rootCommand.Subcommands.Add(createCommand);
 rootCommand.Subcommands.Add(listCommand);
+rootCommand.Subcommands.Add(removeCommand);
 
 // Parse and execute
 ParseResult parseResult = rootCommand.Parse(args);
