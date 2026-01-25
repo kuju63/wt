@@ -138,3 +138,5 @@ release-assets/
 _manifest/
 sbom-test.spdx.json
 
+.env
+.mcp.json
