@@ -33,3 +33,7 @@
 
 - All checklist items have passed
 - Specification is complete and ready for `/speckit.clarify` or `/speckit.plan`
+
+### Refinement Log
+
+- **2026-01-24 (A1 Resolution)**: Added Definitions section with measurable criteria for "Locked Worktree", "Uncommitted Changes", "Main/Primary Worktree", and "Current Worktree". Updated FR-004 and FR-008 to reference definitions. Added acceptance scenario to US2 for uncommitted changes case.

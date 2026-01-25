@@ -42,7 +42,7 @@ Implement a new CLI command to safely remove git worktrees and their associated 
 ### Documentation (this feature)
 
 ```text
-specs/[###-feature]/
+specs/005-remove-worktree/
 ├── plan.md              # This file (/speckit.plan command output)
 ├── research.md          # Phase 0 output (/speckit.plan command)
 ├── data-model.md        # Phase 1 output (/speckit.plan command)
@@ -65,8 +65,8 @@ wt.cli/
 │   │   ├── IWorktreeService.cs        [extend: add RemoveWorktree methods]
 │   │   └── WorktreeService.cs         [extend: implement RemoveWorktree + validation]
 │   ├── Git/
-│   │   ├── IGitService.cs             [extend: add HasUncommittedChanges method]
-│   │   └── GitService.cs              [extend: implement HasUncommittedChanges]
+│   │   ├── IGitService.cs             [extend: add HasUncommittedChanges, RemoveWorktree methods]
+│   │   └── GitService.cs              [extend: implement HasUncommittedChanges, RemoveWorktree]
 │   ├── Editor/
 │   │   └── IEditorService.cs
 │   └── Output/
@@ -105,6 +105,16 @@ wt.tests/
 - Reuses existing error handling, output formatting, and dependency injection patterns
 - All changes follow existing verb-noun command model and service architecture
 - File system operations use existing IFileSystem abstraction (System.IO.Abstractions)
+
+## Key Definitions (from Spec)
+
+Per the spec Definitions section, the following measurable criteria are used:
+
+- **Locked Worktree**: Detected by presence of `.git/worktrees/<name>/locked` file
+- **Uncommitted Changes**: Staged changes or unstaged modifications (untracked files excluded); detected via `git status --porcelain`
+- **--force Required When**: Either lock file present OR uncommitted changes exist
+- **Main Worktree**: `.git` in worktree path is a directory (not a file)
+- **Current Worktree**: CWD is within the worktree's path
 
 ## Complexity Tracking
 

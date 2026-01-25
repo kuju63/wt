@@ -37,16 +37,17 @@ A developer has finished work on a feature branch that was checked out in a work
 
 ### User Story 2 - Force Remove a Locked Worktree (Priority: P2)
 
-A developer's worktree is locked (potentially due to another git process holding a lock or an interrupted operation) and cannot be removed with a standard remove command. They need a force flag to remove the worktree anyway, even if the removal cannot be performed cleanly.
+A developer's worktree is locked (either via `git worktree lock` or due to uncommitted changes) and cannot be removed with a standard remove command. They need a `--force` flag to remove the worktree anyway, even if the removal cannot be performed cleanly.
 
 **Why this priority**: High value for recovery scenarios and unblocking developers when worktrees become stuck. Provides an escape hatch for problematic situations that prevents losing work.
 
-**Independent Test**: Can be fully tested by creating a worktree, simulating a lock condition, then removing it with the force flag, and verifying the worktree and directory are removed despite the lock.
+**Independent Test**: Can be fully tested by creating a worktree, simulating a lock condition (either via `git worktree lock` or by creating uncommitted changes), then removing it with the `--force` flag, and verifying the worktree and directory are removed despite the lock.
 
 **Acceptance Scenarios**:
 
-1. **Given** a worktree is locked or has exclusive file locks, **When** a developer uses the force flag with the remove command, **Then** the worktree is forcibly removed from the git repository and the working directory is deleted from disk
-2. **Given** multiple worktrees exist and one is locked, **When** using the force flag to remove the locked worktree, **Then** only the locked worktree is removed; other worktrees remain unaffected
+1. **Given** a worktree has a git lock file (`.git/worktrees/<name>/locked`), **When** a developer uses the `--force` flag with the remove command, **Then** the worktree is forcibly removed from the git repository and the working directory is deleted from disk
+2. **Given** a worktree has uncommitted changes (staged or unstaged modifications), **When** a developer uses the `--force` flag with the remove command, **Then** the worktree is forcibly removed despite the uncommitted changes
+3. **Given** multiple worktrees exist and one is locked, **When** using the `--force` flag to remove the locked worktree, **Then** only the locked worktree is removed; other worktrees remain unaffected
 
 ---
 
@@ -71,17 +72,36 @@ A developer's worktree is locked (potentially due to another git process holding
 - **FR-001**: System MUST accept a worktree identifier (name or path) as input to the remove command
 - **FR-002**: System MUST remove the specified worktree from the git worktree tracking system
 - **FR-003**: System MUST delete the associated working directory from disk after removing the worktree
-- **FR-004**: System MUST support a force flag that allows removal of locked or problematic worktrees
+- **FR-004**: System MUST support a `--force` flag that allows removal of locked worktrees (see Definitions section for lock conditions)
 - **FR-005**: System MUST prevent removal of the primary/main worktree (the main working directory of the repository)
 - **FR-006**: System MUST prevent removal of a worktree that is currently checked out in the active session
 - **FR-007**: System MUST prevent removal if the worktree has uncommitted changes, unless the `--force` flag is used
-- **FR-008**: System MUST provide clear error messages when removal fails, indicating the reason (not found, locked, in use, uncommitted changes, etc.)
+- **FR-008**: System MUST provide error messages when removal fails that include: (1) the specific reason for failure, (2) the affected worktree identifier, and (3) a suggested resolution action (e.g., "use --force to override" or "commit/stash changes first")
 - **FR-009**: System MUST remove only the specified worktree without affecting other worktrees in the same repository
 - **FR-010**: System MUST proceed with worktree removal even if some files in the working directory cannot be deleted; report which files failed to delete and why
 
 ### Key Entities
 
 - **Worktree**: A git worktree associated with a branch, including its metadata (name, path, branch reference, locked status) and its working directory on disk
+
+### Definitions
+
+- **Locked Worktree**: A worktree is considered "locked" when a `locked` file exists at `.git/worktrees/<worktree-name>/locked` (created by `git worktree lock` command). A locked worktree will refuse standard removal and require the `--force` flag to override.
+
+- **Uncommitted Changes**: Any of the following states in the worktree's working directory:
+  1. **Staged changes**: Files added to the index but not yet committed
+  2. **Unstaged modifications**: Tracked files with modifications not yet staged
+  3. **Untracked files are NOT considered uncommitted changes** (consistent with git worktree remove behavior)
+
+  A worktree with uncommitted changes will refuse standard removal (per FR-007) and require the `--force` flag to override.
+
+- **Conditions Requiring --force**: The `--force` flag is required to remove a worktree when ANY of these conditions exist:
+  1. Worktree is locked (lock file present)
+  2. Worktree has uncommitted changes (staged or unstaged modifications)
+
+- **Main/Primary Worktree**: The original working directory created when the repository was cloned or initialized. Identified by being the only worktree without a `.git` file pointing to the main repository's `.git/worktrees/` directory (i.e., its `.git` is a directory, not a file).
+
+- **Current Worktree**: The worktree whose directory contains the current working directory (CWD) from which the command is executed. Determined by checking if CWD is equal to or a subdirectory of any worktree's path.
 
 ## Success Criteria *(mandatory)*
 
@@ -120,3 +140,7 @@ A developer's worktree is locked (potentially due to another git process holding
 - Q: How should the system handle partial directory deletion (some files cannot be deleted)? → A: Proceed with removal anyway; list which files/directories failed to delete (user must manually clean up)
   - **Impact**: Clarifies FR-010 behavior; prioritizes removing worktree entry over achieving 100% disk cleanup
   - **Implementation**: Remove worktree from tracking regardless; report failures separately for user resolution
+
+- Q: What exactly constitutes a "locked" worktree? → A: A worktree is locked when: (1) a git lock file exists at `.git/worktrees/<name>/locked`, OR (2) uncommitted changes exist (staged or unstaged modifications; untracked files do not count)
+  - **Impact**: Adds Definitions section with measurable criteria for lock detection; updates FR-004 to reference definitions
+  - **Implementation**: Check for lock file presence and run `git status --porcelain` to detect uncommitted changes

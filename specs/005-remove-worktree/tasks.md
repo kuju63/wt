@@ -29,7 +29,8 @@
 - [ ] T003 [P] Create RemoveWorktreeOptions class in wt.cli/Models/RemoveWorktreeOptions.cs
 - [ ] T004 [P] Create RemoveWorktreeResult and RemoveWorktreeData classes in wt.cli/Models/RemoveWorktreeResult.cs
 - [ ] T005 Add ValidateForRemoval and RemoveWorktreeAsync method signatures to wt.cli/Services/Worktree/IWorktreeService.cs
-- [ ] T006 Add HasUncommittedChanges method signature to wt.cli/Services/Git/IGitService.cs
+- [ ] T006 Add HasUncommittedChanges and RemoveWorktreeAsync method signatures to wt.cli/Services/Git/IGitService.cs
+- [ ] T007 Add IsWorktreeLocked method signature to wt.cli/Services/Git/IGitService.cs
 
 ---
 
@@ -39,10 +40,12 @@
 
 **⚠️ CRITICAL**: No user story implementation can begin until this phase is complete
 
-- [ ] T007 Implement HasUncommittedChanges method in wt.cli/Services/Git/GitService.cs (calls git status --porcelain)
-- [ ] T008 Add stub implementations for ValidateForRemoval and RemoveWorktreeAsync in wt.cli/Services/Worktree/WorktreeService.cs (throw NotImplementedException)
-- [ ] T009 Create RemoveCommand class skeleton in wt.cli/Commands/Worktree/RemoveCommand.cs (argument/option definitions only)
-- [ ] T010 Register RemoveCommand in wt.cli/Program.cs
+- [ ] T008 Implement HasUncommittedChanges method in wt.cli/Services/Git/GitService.cs (calls `git -C <path> status --porcelain`, filters out `??` lines)
+- [ ] T009 Implement IsWorktreeLocked method in wt.cli/Services/Git/GitService.cs (checks `.git/worktrees/<name>/locked` file existence)
+- [ ] T010 Implement RemoveWorktreeAsync in wt.cli/Services/Git/GitService.cs (calls `git worktree remove [--force] <path>`)
+- [ ] T011 Add stub implementations for ValidateForRemoval and RemoveWorktreeAsync in wt.cli/Services/Worktree/WorktreeService.cs (throw NotImplementedException)
+- [ ] T012 Create RemoveCommand class skeleton in wt.cli/Commands/Worktree/RemoveCommand.cs (argument/option definitions only, no handler)
+- [ ] T013 Register RemoveCommand in wt.cli/Program.cs
 
 **Checkpoint**: Foundation ready - command is wired but returns not-implemented. User story implementation can now begin.
 
@@ -56,27 +59,27 @@
 
 ### Tests for User Story 1 (TDD - Write First, Must FAIL)
 
-- [ ] T011 [P] [US1] Create WorktreeServiceRemoveTests.cs in wt.tests/Services/Worktree/ with test class skeleton
-- [ ] T012 [P] [US1] Write test: ValidateForRemoval_WhenWorktreeNotFound_ReturnsNotFound in wt.tests/Services/Worktree/WorktreeServiceRemoveTests.cs
-- [ ] T013 [P] [US1] Write test: ValidateForRemoval_WhenMainWorktree_ReturnsIsMainWorktree in wt.tests/Services/Worktree/WorktreeServiceRemoveTests.cs
-- [ ] T014 [P] [US1] Write test: ValidateForRemoval_WhenCurrentWorktree_ReturnsIsCurrentWorktree in wt.tests/Services/Worktree/WorktreeServiceRemoveTests.cs
-- [ ] T015 [P] [US1] Write test: ValidateForRemoval_WhenUncommittedChanges_ReturnsUncommittedChanges in wt.tests/Services/Worktree/WorktreeServiceRemoveTests.cs
-- [ ] T016 [P] [US1] Write test: ValidateForRemoval_WhenValid_ReturnsNone in wt.tests/Services/Worktree/WorktreeServiceRemoveTests.cs
-- [ ] T017 [P] [US1] Write test: RemoveWorktreeAsync_WhenValidationFails_ReturnsError in wt.tests/Services/Worktree/WorktreeServiceRemoveTests.cs
-- [ ] T018 [P] [US1] Write test: RemoveWorktreeAsync_WhenSuccess_RemovesWorktreeAndDirectory in wt.tests/Services/Worktree/WorktreeServiceRemoveTests.cs
-- [ ] T019 [P] [US1] Create RemoveCommandTests.cs in wt.tests/Commands/Worktree/ with test class skeleton
-- [ ] T020 [P] [US1] Write test: RemoveCommand_ParsesWorktreeArgument in wt.tests/Commands/Worktree/RemoveCommandTests.cs
-- [ ] T021 [P] [US1] Write test: RemoveCommand_HumanOutput_DisplaysSuccessMessage in wt.tests/Commands/Worktree/RemoveCommandTests.cs
-- [ ] T022 [P] [US1] Write test: RemoveCommand_JsonOutput_ReturnsStructuredResult in wt.tests/Commands/Worktree/RemoveCommandTests.cs
+- [ ] T014 [P] [US1] Create WorktreeServiceRemoveTests.cs in wt.tests/Services/Worktree/ with test class skeleton and required using statements
+- [ ] T015 [P] [US1] Write test: ValidateForRemoval_WhenWorktreeNotFound_ReturnsNotFound in wt.tests/Services/Worktree/WorktreeServiceRemoveTests.cs
+- [ ] T016 [P] [US1] Write test: ValidateForRemoval_WhenMainWorktree_ReturnsIsMainWorktree in wt.tests/Services/Worktree/WorktreeServiceRemoveTests.cs
+- [ ] T017 [P] [US1] Write test: ValidateForRemoval_WhenCurrentWorktree_ReturnsIsCurrentWorktree in wt.tests/Services/Worktree/WorktreeServiceRemoveTests.cs
+- [ ] T018 [P] [US1] Write test: ValidateForRemoval_WhenUncommittedChanges_ReturnsUncommittedChanges in wt.tests/Services/Worktree/WorktreeServiceRemoveTests.cs
+- [ ] T019 [P] [US1] Write test: ValidateForRemoval_WhenValid_ReturnsNone in wt.tests/Services/Worktree/WorktreeServiceRemoveTests.cs
+- [ ] T020 [P] [US1] Write test: RemoveWorktreeAsync_WhenValidationFails_ReturnsError in wt.tests/Services/Worktree/WorktreeServiceRemoveTests.cs
+- [ ] T021 [P] [US1] Write test: RemoveWorktreeAsync_WhenSuccess_RemovesWorktreeAndDirectory in wt.tests/Services/Worktree/WorktreeServiceRemoveTests.cs
+- [ ] T022 [P] [US1] Create RemoveCommandTests.cs in wt.tests/Commands/Worktree/ with test class skeleton
+- [ ] T023 [P] [US1] Write test: RemoveCommand_ParsesWorktreeArgument in wt.tests/Commands/Worktree/RemoveCommandTests.cs
+- [ ] T024 [P] [US1] Write test: RemoveCommand_HumanOutput_DisplaysSuccessMessage in wt.tests/Commands/Worktree/RemoveCommandTests.cs
+- [ ] T025 [P] [US1] Write test: RemoveCommand_JsonOutput_ReturnsStructuredResult in wt.tests/Commands/Worktree/RemoveCommandTests.cs
 
 ### Implementation for User Story 1
 
-- [ ] T023 [US1] Implement ValidateForRemoval method in wt.cli/Services/Worktree/WorktreeService.cs (check exists, main, current, uncommitted)
-- [ ] T024 [US1] Implement RemoveWorktreeAsync core logic in wt.cli/Services/Worktree/WorktreeService.cs (validate → git remove → delete directory)
-- [ ] T025 [US1] Implement DeleteWorktreeDirectoryAsync helper method in wt.cli/Services/Worktree/WorktreeService.cs (recursive delete with IFileSystem)
-- [ ] T026 [US1] Implement RemoveCommand handler in wt.cli/Commands/Worktree/RemoveCommand.cs (call service, format output)
-- [ ] T027 [US1] Add human output formatting in RemoveCommand (success/error messages with ✓/✗ symbols)
-- [ ] T028 [US1] Add JSON output formatting in RemoveCommand (serialize RemoveWorktreeResult)
+- [ ] T026 [US1] Implement ValidateForRemoval method in wt.cli/Services/Worktree/WorktreeService.cs (check exists, main, current, uncommitted)
+- [ ] T027 [US1] Implement RemoveWorktreeAsync core logic in wt.cli/Services/Worktree/WorktreeService.cs (validate → git remove → delete directory)
+- [ ] T028 [US1] Implement DeleteWorktreeDirectoryAsync helper method in wt.cli/Services/Worktree/WorktreeService.cs (recursive delete with IFileSystem)
+- [ ] T029 [US1] Implement RemoveCommand handler in wt.cli/Commands/Worktree/RemoveCommand.cs (call service, format output)
+- [ ] T030 [US1] Add human output formatting in RemoveCommand (success/error messages with checkmark/cross symbols)
+- [ ] T031 [US1] Add JSON output formatting in RemoveCommand (serialize RemoveWorktreeResult)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional. Run `wt remove <branch>` and verify worktree and directory are removed.
 
@@ -86,22 +89,25 @@
 
 **Goal**: Developers can remove a locked worktree or one with uncommitted changes using the `--force` flag.
 
-**Independent Test**: Create a worktree with uncommitted changes, run `wt remove <branch> --force`, verify worktree is removed.
+**Independent Test**: Create a worktree with uncommitted changes or lock file, run `wt remove <branch> --force`, verify worktree is removed.
 
 ### Tests for User Story 2 (TDD - Write First, Must FAIL)
 
-- [ ] T029 [P] [US2] Write test: ValidateForRemoval_WhenUncommittedChangesWithForce_ReturnsNone in wt.tests/Services/Worktree/WorktreeServiceRemoveTests.cs
-- [ ] T030 [P] [US2] Write test: RemoveWorktreeAsync_WhenForce_BypassesUncommittedChangesCheck in wt.tests/Services/Worktree/WorktreeServiceRemoveTests.cs
-- [ ] T031 [P] [US2] Write test: RemoveWorktreeAsync_WhenPartialDeletion_ReportsUndeleteableFiles in wt.tests/Services/Worktree/WorktreeServiceRemoveTests.cs
-- [ ] T032 [P] [US2] Write test: RemoveCommand_ParsesForceFlag in wt.tests/Commands/Worktree/RemoveCommandTests.cs
-- [ ] T033 [P] [US2] Write test: RemoveCommand_WithForce_RemovesLockedWorktree in wt.tests/Commands/Worktree/RemoveCommandTests.cs
+- [ ] T032 [P] [US2] Write test: ValidateForRemoval_WhenLockedWorktree_ReturnsLocked in wt.tests/Services/Worktree/WorktreeServiceRemoveTests.cs
+- [ ] T033 [P] [US2] Write test: ValidateForRemoval_WhenUncommittedChangesWithForce_ReturnsNone in wt.tests/Services/Worktree/WorktreeServiceRemoveTests.cs
+- [ ] T034 [P] [US2] Write test: ValidateForRemoval_WhenLockedWithForce_ReturnsNone in wt.tests/Services/Worktree/WorktreeServiceRemoveTests.cs
+- [ ] T035 [P] [US2] Write test: RemoveWorktreeAsync_WhenForce_BypassesUncommittedChangesCheck in wt.tests/Services/Worktree/WorktreeServiceRemoveTests.cs
+- [ ] T036 [P] [US2] Write test: RemoveWorktreeAsync_WhenPartialDeletion_ReportsUndeleteableFiles in wt.tests/Services/Worktree/WorktreeServiceRemoveTests.cs
+- [ ] T037 [P] [US2] Write test: RemoveCommand_ParsesForceFlag in wt.tests/Commands/Worktree/RemoveCommandTests.cs
+- [ ] T038 [P] [US2] Write test: RemoveCommand_WithForce_RemovesLockedWorktree in wt.tests/Commands/Worktree/RemoveCommandTests.cs
 
 ### Implementation for User Story 2
 
-- [ ] T034 [US2] Update ValidateForRemoval in wt.cli/Services/Worktree/WorktreeService.cs to respect Force flag for uncommitted changes
-- [ ] T035 [US2] Update git worktree remove call in WorktreeService to pass --force flag when Force=true
-- [ ] T036 [US2] Implement partial deletion handling in DeleteWorktreeDirectoryAsync (catch UnauthorizedAccessException, IOException)
-- [ ] T037 [US2] Update output formatting to display partial failure messages with undeleteable file list
+- [ ] T039 [US2] Update ValidateForRemoval in wt.cli/Services/Worktree/WorktreeService.cs to check for lock file (IsWorktreeLocked)
+- [ ] T040 [US2] Update ValidateForRemoval in wt.cli/Services/Worktree/WorktreeService.cs to respect Force flag for uncommitted changes and locks
+- [ ] T041 [US2] Update RemoveWorktreeAsync in wt.cli/Services/Worktree/WorktreeService.cs to pass --force flag to git when Force=true
+- [ ] T042 [US2] Implement partial deletion handling in DeleteWorktreeDirectoryAsync (catch UnauthorizedAccessException, IOException; track failures)
+- [ ] T043 [US2] Update output formatting to display partial failure messages with undeleteable file list
 
 **Checkpoint**: Both User Stories should work independently. Test normal removal (US1) and forced removal (US2).
 
@@ -111,13 +117,15 @@
 
 **Purpose**: Documentation, code quality, and final validation
 
-- [ ] T038 [P] Add XML documentation comments to all public methods in RemoveCommand, WorktreeService methods
-- [ ] T039 [P] Add verbose output mode support (--verbose flag) in wt.cli/Commands/Worktree/RemoveCommand.cs
-- [ ] T040 Build project and run DocGenerator: `dotnet run --project Tools/DocGenerator/DocGenerator/DocGenerator.csproj`
-- [ ] T041 Verify generated documentation includes wt remove command reference
-- [ ] T042 Update CHANGELOG.md with new feature entry
-- [ ] T043 Run all tests and verify >80% coverage: `dotnet test --collect:"XPlat Code Coverage"`
-- [ ] T044 Code cleanup: ensure all methods are <50 LOC per constitution
+- [ ] T044 [P] Add XML documentation comments to all public methods in RemoveCommand.cs
+- [ ] T045 [P] Add XML documentation comments to ValidateForRemoval, RemoveWorktreeAsync in WorktreeService.cs
+- [ ] T046 [P] Add verbose output mode support (--verbose flag) in wt.cli/Commands/Worktree/RemoveCommand.cs
+- [ ] T047 Build project and run DocGenerator: `dotnet run --project Tools/DocGenerator/DocGenerator/DocGenerator.csproj`
+- [ ] T048 Verify generated documentation includes wt remove command reference
+- [ ] T049 Update CHANGELOG.md with new feature entry
+- [ ] T050 Run all tests and verify >80% coverage: `dotnet test --collect:"XPlat Code Coverage"`
+- [ ] T051 Code cleanup: ensure all methods are <50 LOC per constitution
+- [ ] T052 [P] Create ADR for force flag behavior in docs/adr/NNNN-force-flag-removal-behavior.md (per constitution IV: document decision for --force bypassing uncommitted changes and lock checks)
 
 ---
 
@@ -150,13 +158,13 @@
 - T001, T002, T003, T004 can run in parallel (different model files)
 
 **Phase 3 (US1 Tests)**:
-- T011-T022 can run in parallel (different test methods/files)
+- T014-T025 can run in parallel (different test methods/files)
 
 **Phase 4 (US2 Tests)**:
-- T029-T033 can run in parallel (different test methods)
+- T032-T038 can run in parallel (different test methods)
 
 **Phase 5 (Polish)**:
-- T038, T039 can run in parallel (different concerns)
+- T044, T045, T046, T052 can run in parallel (different concerns)
 
 ---
 
