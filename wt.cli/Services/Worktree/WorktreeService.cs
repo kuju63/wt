@@ -347,17 +347,24 @@ public class WorktreeService : IWorktreeService
 
         if (!force)
         {
-            var hasChangesResult = await _gitService.HasUncommittedChangesAsync(targetWorktree.Path, cancellationToken);
-            if (hasChangesResult.IsSuccess && hasChangesResult.Data)
-            {
-                return RemovalValidationError.HasUncommittedChanges;
-            }
+            return await ValidateWorktreeStateAsync(targetWorktree, cancellationToken);
+        }
 
-            var isLockedResult = await _gitService.IsWorktreeLockedAsync(targetWorktree.Path, cancellationToken);
-            if (isLockedResult.IsSuccess && isLockedResult.Data)
-            {
-                return RemovalValidationError.IsLocked;
-            }
+        return RemovalValidationError.None;
+    }
+
+    private async Task<RemovalValidationError> ValidateWorktreeStateAsync(WorktreeInfo targetWorktree, CancellationToken cancellationToken)
+    {
+        var hasChangesResult = await _gitService.HasUncommittedChangesAsync(targetWorktree.Path, cancellationToken);
+        if (hasChangesResult.IsSuccess && hasChangesResult.Data)
+        {
+            return RemovalValidationError.HasUncommittedChanges;
+        }
+
+        var isLockedResult = await _gitService.IsWorktreeLockedAsync(targetWorktree.Path, cancellationToken);
+        if (isLockedResult.IsSuccess && isLockedResult.Data)
+        {
+            return RemovalValidationError.IsLocked;
         }
 
         return RemovalValidationError.None;
