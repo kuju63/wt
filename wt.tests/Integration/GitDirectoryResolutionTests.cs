@@ -24,23 +24,41 @@ public class GitDirectoryResolutionTests : IDisposable
     {
         try
         {
-            // Use FileInfo/DirectoryInfo which can resolve some symlinks on both Windows and Unix
-            if (File.Exists(path))
+            // Normalize the path first
+            var normalizedPath = Path.GetFullPath(path);
+            
+            // On macOS, /var is a symlink to /private/var
+            // Normalize this common case to ensure path consistency
+            if (OperatingSystem.IsMacOS() && normalizedPath.StartsWith("/var/"))
             {
-                return new FileInfo(path).FullName;
-            }
-            else if (Directory.Exists(path))
-            {
-                return new DirectoryInfo(path).FullName;
+                normalizedPath = "/private" + normalizedPath;
             }
             
-            // If path doesn't exist yet, just normalize it
-            return Path.GetFullPath(path);
+            // Use FileInfo/DirectoryInfo which can resolve some symlinks on both Windows and Unix
+            if (File.Exists(normalizedPath))
+            {
+                return new FileInfo(normalizedPath).FullName;
+            }
+            else if (Directory.Exists(normalizedPath))
+            {
+                return new DirectoryInfo(normalizedPath).FullName;
+            }
+            
+            // If path doesn't exist yet, return the normalized path
+            return normalizedPath;
         }
         catch
         {
             // Fallback to simple normalization if anything fails
-            return Path.GetFullPath(path);
+            var fallbackPath = Path.GetFullPath(path);
+            
+            // Apply macOS /var normalization on fallback too
+            if (OperatingSystem.IsMacOS() && fallbackPath.StartsWith("/var/"))
+            {
+                return "/private" + fallbackPath;
+            }
+            
+            return fallbackPath;
         }
     }
 
@@ -55,9 +73,9 @@ public class GitDirectoryResolutionTests : IDisposable
         Directory.CreateDirectory(testRepoPath);
         _testRepoPath = GetRealPath(testRepoPath);
 
-        // Store worktree path template - will be normalized later
+        // Store worktree path template - normalize it now to ensure consistency
         var worktreeTempPath = Path.Combine(Path.GetTempPath(), $"wt-git-dir-test-worktree-{Guid.NewGuid()}");
-        _worktreePath = worktreeTempPath;
+        _worktreePath = GetRealPath(worktreeTempPath);
 
         InitializeGitRepository();
     }
@@ -334,9 +352,9 @@ public class GitDirectoryResolutionTests : IDisposable
         // Arrange - Create multiple worktrees
         Environment.CurrentDirectory = _testRepoPath;
 
-        // Create path templates - Git will create actual directories
-        var worktree2Path = Path.Combine(Path.GetTempPath(), $"wt-git-dir-test-worktree2-{Guid.NewGuid()}");
-        var worktree3Path = Path.Combine(Path.GetTempPath(), $"wt-git-dir-test-worktree3-{Guid.NewGuid()}");
+        // Create path templates - normalize them to ensure consistency with git output
+        var worktree2Path = GetRealPath(Path.Combine(Path.GetTempPath(), $"wt-git-dir-test-worktree2-{Guid.NewGuid()}"));
+        var worktree3Path = GetRealPath(Path.Combine(Path.GetTempPath(), $"wt-git-dir-test-worktree3-{Guid.NewGuid()}"));
 
         try
         {
