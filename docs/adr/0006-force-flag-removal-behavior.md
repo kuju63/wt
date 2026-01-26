@@ -80,10 +80,12 @@ git worktree remove --force <path>   # Force removal
 **Approach**: Interactive confirmation for destructive operations
 
 **Pros**:
+
 - Provides explicit user consent
 - Familiar pattern from other tools
 
 **Cons**:
+
 - Breaks automation/scripting
 - Requires TTY detection
 - Not suitable for CI/CD environments
@@ -95,10 +97,12 @@ git worktree remove --force <path>   # Force removal
 **Approach**: `--force-changes` and `--force-unlock` as separate flags
 
 **Pros**:
+
 - Fine-grained control
 - Explicit about what is being bypassed
 
 **Cons**:
+
 - Cognitive overhead (multiple flags)
 - Deviation from git conventions (`git worktree remove --force`)
 - Complicates command parsing
@@ -110,10 +114,12 @@ git worktree remove --force <path>   # Force removal
 **Approach**: Always require clean state before removal
 
 **Pros**:
+
 - Maximum safety
 - No accidental data loss
 
 **Cons**:
+
 - Impractical for cleanup scripts
 - Frustrating UX when intentionally discarding changes
 - Deviates from git behavior

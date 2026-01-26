@@ -98,6 +98,7 @@ wt.tests/
 ```
 
 **Structure Decision**: Extends existing .NET CLI architecture with minimal new code:
+
 - 1 new command class (RemoveCommand.cs) following System.CommandLine pattern
 - 4 new model classes (RemoveWorktreeOptions, RemoveWorktreeResult, RemovalValidationError, DeletionFailure)
 - 2 new methods in existing IWorktreeService and IGitService interfaces

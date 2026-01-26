@@ -15,12 +15,14 @@ wt remove <worktree> [OPTIONS]
 **Type**: string
 **Description**: Worktree identifier (branch name or path)
 **Constraints**:
+
 - Non-empty
 - Max 255 characters
 - Resolved to absolute path if relative path is provided
 - Must correspond to existing worktree in current git repository
 
 **Examples**:
+
 - Branch name: `feature-auth`
 - Relative path: `../feature-auth`
 - Absolute path: `/home/dev/repos/project/.git/worktrees/feature-auth`
@@ -34,6 +36,7 @@ wt remove <worktree> [OPTIONS]
 **Description**: Force removal even if worktree has uncommitted changes or is locked
 
 **Behavior**:
+
 - When set: skips uncommitted changes validation
 - When set: bypasses worktree lock protection
 - Explicitly requires developer consent to potential data loss
@@ -49,6 +52,7 @@ wt remove <worktree> [OPTIONS]
 **Description**: Show detailed diagnostics and intermediate steps
 
 **Output**:
+
 - Git commands executed
 - Validation checks performed
 - File deletion progress
@@ -63,6 +67,7 @@ wt remove <worktree> [OPTIONS]
 **Description**: Output format for result
 
 **Behavior**:
+
 - `human`: Pretty-printed, user-friendly output with Unicode formatting
 - `json`: Structured JSON for automation/scripting
 

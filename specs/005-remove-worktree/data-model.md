@@ -9,6 +9,7 @@
 **Purpose**: CLI options for the remove command
 
 **Fields**:
+
 ```csharp
 public class RemoveWorktreeOptions
 {
@@ -35,6 +36,7 @@ public class RemoveWorktreeOptions
 ```
 
 **Validation Rules**:
+
 - WorktreeId: Non-null, non-empty string (max 255 characters)
 - Force: Boolean flag (no validation)
 - OutputFormat: Must be "human" or "json" (enum recommended)
@@ -48,6 +50,7 @@ public class RemoveWorktreeOptions
 **Purpose**: Structured result of a remove operation
 
 **Fields**:
+
 ```csharp
 public class RemoveWorktreeResult : CommandResult<RemoveWorktreeData>
 {
@@ -110,6 +113,7 @@ public class DeletionFailure
 ```
 
 **Relationships**:
+
 - Extends CommandResult<T> (existing pattern)
 - Contains DeletionFailure items
 - Used by RemoveCommand for formatting output
@@ -121,6 +125,7 @@ public class DeletionFailure
 **Purpose**: Validation error details for pre-removal checks
 
 **Fields**:
+
 ```csharp
 public enum RemovalValidationError
 {
@@ -136,6 +141,7 @@ public enum RemovalValidationError
 ```
 
 **State Transitions**:
+
 - Worktree → CheckExists (NotFound if missing)
 - Worktree → CheckMainWorktree (IsMainWorktree if git root)
 - Worktree → CheckCurrentWorktree (IsCurrentWorktree if pwd matches)
@@ -152,6 +158,7 @@ public enum RemovalValidationError
 ### IWorktreeService Extension
 
 **New Methods**:
+
 ```csharp
 public interface IWorktreeService
 {
@@ -175,6 +182,7 @@ public interface IWorktreeService
 ```
 
 **Behavior**:
+
 - ValidateForRemoval: Performs all safety checks; returns first error or None
 - RemoveWorktreeAsync: Orchestrates removal workflow; handles errors gracefully
   1. Validate worktree exists and can be removed
@@ -189,16 +197,19 @@ public interface IWorktreeService
 ## Data Validation Rules
 
 ### WorktreeId Validation
+
 - Non-empty string (max 255 chars)
 - Supports alphanumeric, hyphens, underscores, slashes (path separators)
 - Resolved to absolute path via existing PathHelper
 
 ### Force Flag Validation
+
 - Boolean; no specific validation needed
 - When true: bypasses UncommittedChanges check
 - When true: allows removal of locked worktrees
 
 ### Path Validation
+
 - Absolute path required (resolved by PathHelper.ResolvePath)
 - Must be within git repository
 - Must exist on filesystem (verified via IFileSystem)
@@ -281,6 +292,7 @@ Final State: Worktree removed from git, directory deleted (or partially)
 ## Testing Strategy
 
 ### Unit Tests (This Scope)
+
 - RemoveWorktreeOptions validation
 - RemovalValidationError classification
 - Path resolution and normalization
@@ -290,11 +302,13 @@ Final State: Worktree removed from git, directory deleted (or partially)
 - Result object creation
 
 ### Mocking & Test Helpers
+
 - Mock IGitService for git command execution
 - Mock IFileSystem using Moq for file operations
 - Mock IProcessRunner for git process calls
 
 ### Future Scope (Out of Scope for This Feature)
+
 - Integration tests (require integration test infrastructure)
 - E2E tests (require test harness and temporary worktree creation)
 - These will be addressed in a follow-up feature when CI pipeline supports them

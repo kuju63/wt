@@ -156,15 +156,19 @@
 ### Parallel Opportunities
 
 **Phase 1 (Setup)**:
+
 - T001, T002, T003, T004 can run in parallel (different model files)
 
 **Phase 3 (US1 Tests)**:
+
 - T014-T026 can run in parallel (different test methods/files)
 
 **Phase 4 (US2 Tests)**:
+
 - T033-T039 can run in parallel (different test methods)
 
 **Phase 5 (Polish)**:
+
 - T045, T046, T047, T053 can run in parallel (different concerns)
 
 ---

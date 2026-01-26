@@ -31,6 +31,7 @@ dotnet test wt.tests --filter "FullyQualifiedName~ClassName.MethodName"
 ## Architecture
 
 ### Dependency Flow
+
 ```
 Program.cs (DI setup) → Commands → WorktreeService → GitService/EditorService
                                                    → PathHelper
@@ -61,6 +62,7 @@ Program.cs (DI setup) → Commands → WorktreeService → GitService/EditorServ
   - `TableFormatter`: Unicode box-drawing table output for human-readable display
 
 ### Testability Pattern
+
 All file system operations use `System.IO.Abstractions` for mockability. Tests use `System.IO.Abstractions.TestingHelpers` and Moq for mocking. Assertions use Shouldly.
 
 ## Development Workflow (from AGENTS.md)
@@ -74,6 +76,7 @@ This project follows **SDD (Specification-Driven Development)** with **TDD (Test
 5. User commits changes (AI provides draft commit message only)
 
 ### Spec Kit Installation
+
 ```bash
 uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
 ```

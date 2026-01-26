@@ -51,7 +51,6 @@ A developer's worktree is locked (either via `git worktree lock` or due to uncom
 
 ---
 
-
 ### Edge Cases
 
 - ~~What happens when a developer attempts to remove a worktree that doesn't exist?~~ → Resolved: Return error per FR-011

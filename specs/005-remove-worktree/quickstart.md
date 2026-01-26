@@ -7,6 +7,7 @@
 This feature adds a new `wt remove` command to safely delete git worktrees and their associated working directories from disk.
 
 **Key Behavior**:
+
 - Validates worktree before removal (not found, main worktree, current worktree)
 - Prevents removal of worktrees with uncommitted changes (unless --force)
 - Gracefully handles partial disk failures
@@ -16,14 +17,18 @@ This feature adds a new `wt remove` command to safely delete git worktrees and t
 ## Architecture Summary
 
 ### Command Entry Point
+
 **File**: `wt.cli/Commands/Worktree/RemoveCommand.cs`
+
 - Inherits System.CommandLine command pattern
 - Parses arguments: `<worktree>`, `--force`, `--output`, `--verbose`
 - Delegates to WorktreeService.RemoveWorktreeAsync()
 - Formats and outputs result
 
 ### Service Layer
+
 **File**: `wt.cli/Services/Worktree/WorktreeService.cs`
+
 - Extends existing IWorktreeService interface
 - Adds RemoveWorktreeAsync() method
 - Adds ValidateForRemoval() validation method
@@ -31,13 +36,17 @@ This feature adds a new `wt remove` command to safely delete git worktrees and t
 - Uses IFileSystem for directory deletion
 
 ### Data Models
+
 **Files**:
+
 - `wt.cli/Models/RemoveWorktreeOptions.cs` - CLI options binding
 - `wt.cli/Models/RemoveWorktreeResult.cs` - Result structure
 - `wt.cli/Models/RemovalValidationError.cs` - Enum for validation errors
 
 ### Tests
+
 **Files**:
+
 - `wt.tests/Commands/Worktree/RemoveCommandTests.cs` - Command tests
 - `wt.tests/Services/Worktree/WorktreeServiceRemoveTests.cs` - Service tests
 
@@ -108,15 +117,18 @@ This feature adds a new `wt remove` command to safely delete git worktrees and t
 - [ ] Verify RemoveCommand has proper XML documentation comments (all public methods)
 - [ ] Build the project: `dotnet build`
 - [ ] Run DocGenerator tool to auto-generate command documentation:
+
   ```bash
   dotnet run --project Tools/DocGenerator/DocGenerator/DocGenerator.csproj
   ```
+
 - [ ] Verify generated documentation includes `wt remove` command reference
 - [ ] Update CHANGELOG with new feature entry
 
 ## Key Implementation Patterns
 
 ### Validation Pattern
+
 ```csharp
 // In WorktreeService
 public RemovalValidationError ValidateForRemoval(string worktreeId, bool force)
@@ -140,6 +152,7 @@ public RemovalValidationError ValidateForRemoval(string worktreeId, bool force)
 ```
 
 ### Async Removal Pattern
+
 ```csharp
 // In WorktreeService
 public async Task<RemoveWorktreeResult> RemoveWorktreeAsync(RemoveWorktreeOptions options)
@@ -175,6 +188,7 @@ public async Task<RemoveWorktreeResult> RemoveWorktreeAsync(RemoveWorktreeOption
 ```
 
 ### Partial Failure Handling
+
 ```csharp
 // In WorktreeService
 private async Task<DeletionResult> DeleteWorktreeDirectoryAsync(string worktreeId, string path)
@@ -230,6 +244,7 @@ private async Task<DeletionResult> DeleteWorktreeDirectoryAsync(string worktreeI
 ```
 
 ### Output Formatting Pattern
+
 ```csharp
 // In RemoveCommand Handler
 var result = await _worktreeService.RemoveWorktreeAsync(options);
@@ -282,9 +297,11 @@ return result.Success ? 0 : 1;
 1. Implement RemoveCommand with proper XML documentation comments
 2. Build project: `dotnet build`
 3. Run DocGenerator tool (auto-generates command reference from XML docs):
+
    ```bash
    dotnet run --project Tools/DocGenerator/DocGenerator/DocGenerator.csproj
    ```
+
    - Reflects over RemoveCommand class
    - Extracts XML documentation comments
    - Generates command syntax and argument descriptions
@@ -295,6 +312,7 @@ return result.Success ? 0 : 1;
 ## Code Quality Standards
 
 Per project constitution:
+
 - **Method LOC**: <50 lines (target), refactor if exceeding
 - **Cyclomatic Complexity**: <8 (target for each method)
 - **Test Coverage**: >80% overall, >90% for critical paths
