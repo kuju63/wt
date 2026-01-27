@@ -327,4 +327,233 @@ public class WorktreeServiceRemoveTests
     }
 
     #endregion
+
+    #region CreateValidationErrorResult Indirect Tests
+
+    [Fact]
+    public async Task RemoveWorktreeAsync_WhenNotFound_ReturnsWT_RM_001()
+    {
+        // Arrange
+        var worktrees = new List<WorktreeInfo>
+        {
+            new("/repo", "main", false, "abc123", DateTime.UtcNow, true),
+            new("/repo-feature", "feature", false, "def456", DateTime.UtcNow, true)
+        };
+        _mockGitService
+            .Setup(x => x.ListWorktreesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CommandResult<List<WorktreeInfo>>.Success(worktrees));
+
+        var options = new RemoveWorktreeOptions
+        {
+            WorktreeIdentifier = "non-existent",
+            Force = false
+        };
+
+        // Act
+        var result = await _worktreeService.RemoveWorktreeAsync(options);
+
+        // Assert
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe("WT-RM-001");
+        result.ErrorMessage.ShouldContain("not found");
+        result.Solution.ShouldBe("Use 'wt list' to see available worktrees");
+    }
+
+    [Fact]
+    public async Task RemoveWorktreeAsync_WhenIsMainWorktree_ReturnsWT_RM_002()
+    {
+        // Arrange
+        var worktrees = new List<WorktreeInfo>
+        {
+            new("/repo", "main", false, "abc123", DateTime.UtcNow, true),
+            new("/repo-feature", "feature", false, "def456", DateTime.UtcNow, true)
+        };
+        _mockGitService
+            .Setup(x => x.ListWorktreesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CommandResult<List<WorktreeInfo>>.Success(worktrees));
+
+        var options = new RemoveWorktreeOptions
+        {
+            WorktreeIdentifier = "main",
+            Force = false
+        };
+
+        // Act
+        var result = await _worktreeService.RemoveWorktreeAsync(options);
+
+        // Assert
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe("WT-RM-002");
+        result.ErrorMessage.ShouldBe("Cannot remove main worktree");
+        result.Solution.ShouldBe("The main working directory is protected from deletion");
+    }
+
+    [Fact]
+    public async Task RemoveWorktreeAsync_WhenIsCurrentWorktree_ReturnsWT_RM_002()
+    {
+        // Arrange
+        var currentDir = Environment.CurrentDirectory;
+        var worktrees = new List<WorktreeInfo>
+        {
+            new("/repo", "main", false, "abc123", DateTime.UtcNow, true),
+            new(currentDir, "feature", false, "def456", DateTime.UtcNow, true)
+        };
+        _mockGitService
+            .Setup(x => x.ListWorktreesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CommandResult<List<WorktreeInfo>>.Success(worktrees));
+
+        var options = new RemoveWorktreeOptions
+        {
+            WorktreeIdentifier = "feature",
+            Force = false
+        };
+
+        // Act
+        var result = await _worktreeService.RemoveWorktreeAsync(options);
+
+        // Assert
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe("WT-RM-002");
+        result.ErrorMessage.ShouldBe("Cannot remove the currently checked-out worktree");
+        result.Solution.ShouldBe("Switch to a different directory and try again");
+    }
+
+    [Fact]
+    public async Task RemoveWorktreeAsync_WhenHasUncommittedChanges_ReturnsWT_RM_003()
+    {
+        // Arrange
+        var worktrees = new List<WorktreeInfo>
+        {
+            new("/repo", "main", false, "abc123", DateTime.UtcNow, true),
+            new("/repo-feature", "feature", false, "def456", DateTime.UtcNow, true)
+        };
+        _mockGitService
+            .Setup(x => x.ListWorktreesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CommandResult<List<WorktreeInfo>>.Success(worktrees));
+        _mockGitService
+            .Setup(x => x.HasUncommittedChangesAsync("/repo-feature", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CommandResult<bool>.Success(true));
+        _mockGitService
+            .Setup(x => x.IsWorktreeLockedAsync("/repo-feature", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CommandResult<bool>.Success(false));
+
+        var options = new RemoveWorktreeOptions
+        {
+            WorktreeIdentifier = "feature",
+            Force = false
+        };
+
+        // Act
+        var result = await _worktreeService.RemoveWorktreeAsync(options);
+
+        // Assert
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe("WT-RM-003");
+        result.ErrorMessage.ShouldContain("uncommitted changes");
+        result.Solution.ShouldBe("Commit or stash changes, or use --force to override");
+    }
+
+    [Fact]
+    public async Task RemoveWorktreeAsync_WhenIsLocked_ReturnsWT_RM_005()
+    {
+        // Arrange
+        var worktrees = new List<WorktreeInfo>
+        {
+            new("/repo", "main", false, "abc123", DateTime.UtcNow, true),
+            new("/repo-feature", "feature", false, "def456", DateTime.UtcNow, true)
+        };
+        _mockGitService
+            .Setup(x => x.ListWorktreesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CommandResult<List<WorktreeInfo>>.Success(worktrees));
+        _mockGitService
+            .Setup(x => x.HasUncommittedChangesAsync("/repo-feature", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CommandResult<bool>.Success(false));
+        _mockGitService
+            .Setup(x => x.IsWorktreeLockedAsync("/repo-feature", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CommandResult<bool>.Success(true));
+
+        var options = new RemoveWorktreeOptions
+        {
+            WorktreeIdentifier = "feature",
+            Force = false
+        };
+
+        // Act
+        var result = await _worktreeService.RemoveWorktreeAsync(options);
+
+        // Assert
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe("WT-RM-005");
+        result.ErrorMessage.ShouldContain("is locked");
+        result.Solution.ShouldBe("Use --force to override lock, or wait for process to finish");
+    }
+
+    [Fact]
+    public async Task RemoveWorktreeAsync_WhenListWorktreesFails_ReturnsError()
+    {
+        // Arrange
+        _mockGitService
+            .Setup(x => x.ListWorktreesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CommandResult<List<WorktreeInfo>>.Failure(
+                ErrorCodes.GitCommandFailed,
+                "git worktree list failed",
+                "Check Git installation"));
+
+        var options = new RemoveWorktreeOptions
+        {
+            WorktreeIdentifier = "feature",
+            Force = false
+        };
+
+        // Act
+        var result = await _worktreeService.RemoveWorktreeAsync(options);
+
+        // Assert
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe("WT-RM-001");
+        result.ErrorMessage.ShouldContain("not found");
+    }
+
+    [Fact]
+    public async Task RemoveWorktreeAsync_WhenGitRemoveFails_ReturnsGitError()
+    {
+        // Arrange
+        var worktrees = new List<WorktreeInfo>
+        {
+            new("/repo", "main", false, "abc123", DateTime.UtcNow, true),
+            new("/repo-feature", "feature", false, "def456", DateTime.UtcNow, true)
+        };
+        _mockGitService
+            .Setup(x => x.ListWorktreesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CommandResult<List<WorktreeInfo>>.Success(worktrees));
+        _mockGitService
+            .Setup(x => x.HasUncommittedChangesAsync("/repo-feature", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CommandResult<bool>.Success(false));
+        _mockGitService
+            .Setup(x => x.IsWorktreeLockedAsync("/repo-feature", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CommandResult<bool>.Success(false));
+        _mockGitService
+            .Setup(x => x.RemoveWorktreeAsync("/repo-feature", false, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CommandResult<bool>.Failure(
+                ErrorCodes.GitCommandFailed,
+                "Failed to remove worktree",
+                "Check Git logs"));
+
+        var options = new RemoveWorktreeOptions
+        {
+            WorktreeIdentifier = "feature",
+            Force = false
+        };
+
+        // Act
+        var result = await _worktreeService.RemoveWorktreeAsync(options);
+
+        // Assert
+        result.IsSuccess.ShouldBeFalse();
+        result.ErrorCode.ShouldBe(ErrorCodes.GitCommandFailed);
+        result.ErrorMessage.ShouldBe("Failed to remove worktree");
+        result.Solution.ShouldBe("Check Git logs");
+    }
+
+    #endregion
 }
