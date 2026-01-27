@@ -1,3 +1,4 @@
+using System.IO.Abstractions;
 using Kuju63.WorkTree.CommandLine.Models;
 using Kuju63.WorkTree.CommandLine.Utils;
 
@@ -9,10 +10,12 @@ namespace Kuju63.WorkTree.CommandLine.Services.Git;
 public class GitService : IGitService
 {
     private readonly IProcessRunner _processRunner;
+    private readonly IFileSystem _fileSystem;
 
-    public GitService(IProcessRunner processRunner)
+    public GitService(IProcessRunner processRunner, IFileSystem fileSystem)
     {
         _processRunner = processRunner;
+        _fileSystem = fileSystem;
     }
 
     /// <summary>
@@ -247,7 +250,7 @@ public class GitService : IGitService
 
             var worktreeName = Path.GetFileName(worktreePath);
             var lockFilePath = Path.Combine(gitDir, "worktrees", worktreeName, "locked");
-            var isLocked = File.Exists(lockFilePath);
+            var isLocked = _fileSystem.File.Exists(lockFilePath);
             return CommandResult<bool>.Success(isLocked);
         }
         catch (IOException ex)
@@ -255,6 +258,13 @@ public class GitService : IGitService
             return CommandResult<bool>.Failure(
                 ErrorCodes.GitCommandFailed,
                 $"Failed to check lock status for '{worktreePath}'",
+                ex.Message);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return CommandResult<bool>.Failure(
+                ErrorCodes.GitCommandFailed,
+                $"Access denied when checking lock status for '{worktreePath}'",
                 ex.Message);
         }
     }
@@ -424,7 +434,7 @@ public class GitService : IGitService
     private WorktreeInfo CreateWorktreeInfo(string path, string branch, bool isDetached, string commitHash)
     {
         var createdAt = GetWorktreeCreationTime(path);
-        var exists = Directory.Exists(path);
+        var exists = _fileSystem.Directory.Exists(path);
         return new WorktreeInfo(path, branch, isDetached, commitHash, createdAt, exists);
     }
 
@@ -436,9 +446,9 @@ public class GitService : IGitService
             var worktreeName = Path.GetFileName(path);
             var gitWorktreePath = Path.Combine(gitDir, "worktrees", worktreeName, "gitdir");
 
-            if (File.Exists(gitWorktreePath))
+            if (_fileSystem.File.Exists(gitWorktreePath))
             {
-                return File.GetCreationTime(gitWorktreePath);
+                return _fileSystem.File.GetCreationTime(gitWorktreePath);
             }
         }
         catch (IOException ex)
@@ -456,7 +466,7 @@ public class GitService : IGitService
     private string ResolveGitDirectory()
     {
         var gitDir = ".git";
-        if (!File.Exists(gitDir))
+        if (!_fileSystem.File.Exists(gitDir))
         {
             return gitDir;
         }
@@ -483,7 +493,7 @@ public class GitService : IGitService
 
     private string? ReadGitDirPath(string gitFilePath)
     {
-        var lines = File.ReadAllLines(gitFilePath);
+        var lines = _fileSystem.File.ReadAllLines(gitFilePath);
         if (lines.Length == 0)
         {
             return null;
@@ -499,14 +509,14 @@ public class GitService : IGitService
         var gitDirPath = firstLine.Substring(prefix.Length).Trim();
         return Path.IsPathRooted(gitDirPath)
             ? Path.GetFullPath(gitDirPath)
-            : Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), gitDirPath));
+            : Path.GetFullPath(Path.Combine(_fileSystem.Directory.GetCurrentDirectory(), gitDirPath));
     }
 
     private bool IsValidGitDirectory(string gitDirPath)
     {
-        return Directory.Exists(gitDirPath) &&
-               (Directory.Exists(Path.Combine(gitDirPath, "worktrees")) ||
-                File.Exists(Path.Combine(gitDirPath, "config")));
+        return _fileSystem.Directory.Exists(gitDirPath) &&
+               (_fileSystem.Directory.Exists(Path.Combine(gitDirPath, "worktrees")) ||
+                _fileSystem.File.Exists(Path.Combine(gitDirPath, "config")));
     }
 }
 

@@ -26,14 +26,14 @@ public class GitDirectoryResolutionTests : IDisposable
         {
             // Normalize the path first
             var normalizedPath = Path.GetFullPath(path);
-            
+
             // On macOS, /var is a symlink to /private/var
             // Normalize this common case to ensure path consistency
             if (OperatingSystem.IsMacOS() && normalizedPath.StartsWith("/var/"))
             {
                 normalizedPath = "/private" + normalizedPath;
             }
-            
+
             // Use FileInfo/DirectoryInfo which can resolve some symlinks on both Windows and Unix
             if (File.Exists(normalizedPath))
             {
@@ -43,7 +43,7 @@ public class GitDirectoryResolutionTests : IDisposable
             {
                 return new DirectoryInfo(normalizedPath).FullName;
             }
-            
+
             // If path doesn't exist yet, return the normalized path
             return normalizedPath;
         }
@@ -51,13 +51,13 @@ public class GitDirectoryResolutionTests : IDisposable
         {
             // Fallback to simple normalization if anything fails
             var fallbackPath = Path.GetFullPath(path);
-            
+
             // Apply macOS /var normalization on fallback too
             if (OperatingSystem.IsMacOS() && fallbackPath.StartsWith("/var/"))
             {
                 return "/private" + fallbackPath;
             }
-            
+
             return fallbackPath;
         }
     }
@@ -196,7 +196,7 @@ public class GitDirectoryResolutionTests : IDisposable
                                         .Where(l => l != _testRepoPath)
                                         .Where(Directory.Exists)
                                         .ToArray();
-                
+
                 foreach (var path in worktreePaths.Where(p => !string.IsNullOrEmpty(p)))
                 {
                     try
@@ -264,7 +264,8 @@ public class GitDirectoryResolutionTests : IDisposable
 
         // Act - List worktrees from within the worktree
         var processRunner = new ProcessRunner();
-        var gitService = new GitService(processRunner);
+        var fileSystem = new System.IO.Abstractions.FileSystem();
+        var gitService = new GitService(processRunner, fileSystem);
         var result = await gitService.ListWorktreesAsync();
 
         // Assert
@@ -296,7 +297,8 @@ public class GitDirectoryResolutionTests : IDisposable
 
         // Act - List worktrees from main repository
         var processRunner = new ProcessRunner();
-        var gitService = new GitService(processRunner);
+        var fileSystem = new System.IO.Abstractions.FileSystem();
+        var gitService = new GitService(processRunner, fileSystem);
         var result = await gitService.ListWorktreesAsync();
 
         // Assert
@@ -367,7 +369,8 @@ public class GitDirectoryResolutionTests : IDisposable
 
             // Act - List worktrees from within a worktree
             var processRunner = new ProcessRunner();
-            var gitService = new GitService(processRunner);
+            var fileSystem = new System.IO.Abstractions.FileSystem();
+            var gitService = new GitService(processRunner, fileSystem);
             var result = await gitService.ListWorktreesAsync();
 
             // Assert

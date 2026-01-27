@@ -12,7 +12,7 @@ using Kuju63.WorkTree.CommandLine.Utils;
 var fileSystem = new FileSystem();
 var processRunner = new ProcessRunner();
 var pathHelper = new PathHelper(fileSystem);
-var gitService = new GitService(processRunner);
+var gitService = new GitService(processRunner, fileSystem);
 var editorService = new EditorService(processRunner);
 var worktreeService = new WorktreeService(gitService, pathHelper, editorService);
 var tableFormatter = new TableFormatter();
