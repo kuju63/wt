@@ -4,15 +4,15 @@
     "net10.0": {
       "Microsoft.NET.ILLink.Tasks": {
         "type": "Direct",
-        "requested": "[10.0.9, )",
-        "resolved": "10.0.9",
-        "contentHash": "4Iw41e2h7I4t70SJcX2GCmbyKJIlA273Cfm9RJMM050/3VBejGAG1KcthP5Z2L6SQcbfbf6BhNWO26+ZG+GzMg=="
+        "requested": "[10.0.11, )",
+        "resolved": "10.0.11",
+        "contentHash": "IBf7lbovvjGWVWXZX5cJ/cO0WXbId0Zq4BuSeT94mGZuOAP66oMeH9PTBZ9Jpp3Jb6jtK0qm/NyUbPRo1gC/wQ=="
       },
       "System.CommandLine": {
         "type": "Direct",
-        "requested": "[2.0.9, )",
-        "resolved": "2.0.9",
-        "contentHash": "SW0WhEk4NFVZ4lOnsLrHQOV/7s0eTidezNybHQWXfqhuXWB17X3RXbrifeWBbUx1iu+NcYchVSufmW7svjUEnA=="
+        "requested": "[2.0.11, )",
+        "resolved": "2.0.11",
+        "contentHash": "Pmg3/T0M37ZS3ovwPHtfBNTCdqNpnxo+tnZMg8JDHVR0qD8KwcPUKlheEiZysb1En8IyH7yDoa9QDq97Ny/vhQ=="
       },
       "System.IO.Abstractions": {
         "type": "Direct",
